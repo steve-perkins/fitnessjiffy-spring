@@ -3,6 +3,7 @@ package net.steveperkins.fitnessjiffy.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,9 @@ import javax.sql.DataSource;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.User.ActivityLevel;
 import net.steveperkins.fitnessjiffy.domain.User.Gender;
+
+
+import net.steveperkins.fitnessjiffy.domain.User.YesNo;
 
 
 //import org.apache.commons.logging.Log;
@@ -39,7 +43,7 @@ public class UserDao {
     }
     
     public User findById(int id) {
-    	String sql = "select * from users where id = :id";
+    	String sql = "select * from users where active = 'Y' and id = :id";
     	SqlParameterSource namedParameters = new MapSqlParameterSource("id", id);
     	return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, new RowMapper<User>() {
 			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -53,13 +57,14 @@ public class UserDao {
 				user.setLastName(rs.getString("LAST_NAME"));
 				user.setPassword(rs.getString("PASSWORD"));
 				user.setUsername(rs.getString("USERNAME"));
+				user.setActive(YesNo.fromValue(rs.getString("ACTIVE").charAt(0)));
 				return user;
 			}
 		});
     }
     
     public List<User> findAll() {
-    	String sql = "select * from users";
+    	String sql = "select * from users where active = 'Y'";
     	List<Map<String, Object>> userMaps = this.jdbcTemplate.queryForList(sql);
     	List<User> users = new ArrayList<User>();
     	for(Map<String, Object> userMap : userMaps) {
@@ -73,6 +78,7 @@ public class UserDao {
 			user.setLastName((String)userMap.get("LAST_NAME"));
 			user.setPassword((String)userMap.get("PASSWORD"));
 			user.setUsername((String)userMap.get("USERNAME"));
+			user.setActive(YesNo.fromValue(((String)userMap.get("ACTIVE")).charAt(0)));
 			users.add(user);
     	}
     	return users;
@@ -84,10 +90,10 @@ public class UserDao {
     		// Insert
     		int maxId = this.jdbcTemplate.queryForObject("select max(id) from users", Integer.class).intValue();
     		user.setId(maxId + 1);
-    		sql = "insert into users(id, gender, age, height_in_inches, activity_level, username, password, first_name, last_name) values (:id, :gender, :age, :height_in_inches, :activity_level, :username, :password, :first_name, :last_name)";
+    		sql = "insert into users(id, gender, age, height_in_inches, activity_level, username, password, first_name, last_name, active) values (:id, :gender, :age, :height_in_inches, :activity_level, :username, :password, :first_name, :last_name, 'Y')";
     	} else {
     		// Update
-    		sql = "update users set gender = :gender, age = :age, height_in_inches = :height_in_inches, activity_level = :activity_level, username = :username, password = :password, first_name = :first_name, last_name = :last_name where id = :id";
+    		sql = "update users set gender = :gender, age = :age, height_in_inches = :height_in_inches, activity_level = :activity_level, username = :username, password = :password, first_name = :first_name, last_name = :last_name, active = 'Y' where id = :id";
     	}
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put("id", user.getId());
@@ -96,7 +102,8 @@ public class UserDao {
 		namedParameters.put("height_in_inches", user.getHeightInInches());
 		namedParameters.put("activity_level", user.getActivityLevel().getValue());
 		namedParameters.put("username", user.getUsername());
-		namedParameters.put("password", user.getPassword());
+		// TODO: Implement a real change password function
+		namedParameters.put("password", (user.getPassword() != null && !user.getPassword().trim().isEmpty()) ? user.getPassword() : "password");
 		namedParameters.put("first_name", user.getFirstName());
 		namedParameters.put("last_name", user.getLastName());
 		this.namedParameterJdbcTemplate.update(sql, namedParameters);
@@ -104,9 +111,10 @@ public class UserDao {
     }
     
     public void delete(User user) {
-    	String sql = "delete from users where id = :id";
+    	String sql = "update users set username = :username, active = 'N' where id = :id";
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put("id", user.getId());
+		namedParameters.put("username", user.getUsername() + "_deactivated_" + (new Date().toString()));
 		this.namedParameterJdbcTemplate.update(sql, namedParameters);
     }
     

@@ -54,6 +54,37 @@ public class User {
 			return s.toString();
 		}
 	}
+	
+	public enum YesNo {
+		YES('Y'), NO('N');
+		private char value;
+		private YesNo(char value) {
+			this.value = value;
+		}
+		public static YesNo fromValue(char value) {
+			for(YesNo yesNo : YesNo.values()) {
+				if(yesNo.getValue() == value) {
+					return yesNo;
+				}
+			}
+			return null;
+		}
+		public static YesNo fromString(String s) {
+			for(YesNo yesNo : YesNo.values()) {
+				if(yesNo.toString().equalsIgnoreCase(s)) {
+					return yesNo;
+				}
+			}
+			return null;
+		}
+		public char getValue() {
+			return this.value;
+		}
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
+	}
 
 	private int id;
 	private Gender gender;
@@ -64,6 +95,7 @@ public class User {
 	private String password;
 	private String firstName;
 	private String lastName;
+	private YesNo active;
 	
 	public int getId() {
 		return id;
@@ -127,6 +159,12 @@ public class User {
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	public YesNo getActive() {
+		return active;
+	}
+	public void setActive(YesNo active) {
+		this.active = active;
 	}
 	
 	public float getCurrentWeight() {

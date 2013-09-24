@@ -43,8 +43,7 @@
         <td width="25%" align="center"><a href="/weight">Weight</a></td>
 </tr></table><br/>
 
-<form method="get">
-<input type="hidden" name="page" value="user">
+<form action="/user" method="get">
 <select name='userId'>
 <option value="">NEW USER</option>
 <c:forEach items="${users}" var="userBuffer">
@@ -56,11 +55,11 @@
 <br/><div style="font-weight: bold; text-decoration: underline;">User Information</div><br/>
 
 <form:form commandName="user" action="/user/save" method="post">
-<input type="hidden" name="page" value="user">
+<form:hidden path="id"/>
 <table style="margin-left: auto; margin-right: auto;">
-	<tr><td>User ID:</td><td><c:if test="${not empty user && user.id != 0}">${user.id}</c:if></td></tr>
+<%-- 	<tr><td>User ID:</td><td><c:if test="${not empty user && user.id != 0}">${user.id}</c:if></td></tr> --%>
 	<tr><td>Username:</td><td><form:input path="username" maxlength="50" size="50"/></td></tr>
-	<tr><td>Password:</td><td><form:input path="password" maxlength="50" size="50"/></td></tr>
+<%-- 	<tr><td>Password:</td><td><form:input path="password" maxlength="50" size="50"/></td></tr> --%>
 	<tr><td>First Name:</td><td><form:input path="firstName" maxlength="50" size="50"/></td></tr>
 	<tr><td>Last Name:</td><td><form:input path="lastName" maxlength="50" size="50"/></td></tr>
 	<tr>
@@ -92,9 +91,6 @@
 <br/><input type='submit' value='Create / Update User'><br/><br/>
 </form:form>
 <form>
-<!--         <input type="hidden" name="page" value="user"> -->
-<!--         <input type="hidden" name="action" value="delete"> -->
-<!--         <input type="hidden" name="userID" value=""> -->
 		<c:if test="${not empty user && user.id != 0}">
 		<script>
 			$(function() {

@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import javax.servlet.http.HttpSession;
+
 import net.steveperkins.fitnessjiffy.dao.UserDao;
 import net.steveperkins.fitnessjiffy.domain.User;
 
@@ -24,38 +26,45 @@ public class UserController {
 	private UserDao userDao;
 	
 	@RequestMapping(value={"/", "/user"}, method=RequestMethod.GET)
-	public ModelAndView viewUser(@RequestParam(value="userId", required=false) Integer userId) {
+	public ModelAndView viewUser(@RequestParam(value="userId", required=false) Integer userId, HttpSession session) {
 		ModelAndView view = new ModelAndView();
 		view.addObject("users", userDao.findAll());
-		if(userId == null || userId.intValue() == 0) {
-			// No user selected 
-			view.addObject("user", new User());
-		} else {
+		User user = null;
+		if(userId != null && userId.intValue() != 0) {
 			// A user has been selected
-			User user = userDao.findById(userId.intValue());
-			view.addObject("user", (user != null) ? user : new User());
+			user = userDao.findById(userId.intValue());
+			user = (user != null) ? user : new User();
+		} else if(session.getAttribute("user") != null && session.getAttribute("user") instanceof User && ((User) session.getAttribute("user")).getId() != 0) {
+			// A previously-selected user exists in the session 
+			user = (User) session.getAttribute("user");
+		} else {
+			// No user selected 
+			user = new User();
 		}
+		session.setAttribute("user", user);
+		view.addObject("user", user);
 		view.setViewName("user");
 		return view;
 	}
 	
 	@RequestMapping(value={"/user/save"}, method=RequestMethod.POST)
-	public ModelAndView createOrUpdateUser(@ModelAttribute("user") User user, BindingResult result) {
+	public ModelAndView createOrUpdateUser(@ModelAttribute("user") User user, BindingResult result, HttpSession session) {
 		ModelAndView view = new ModelAndView();
 		view.addObject("users", userDao.findAll());
 		user = userDao.save(user);
-		return viewUser(user.getId());
+		return viewUser(user.getId(), session);
 	}
 	
 	@RequestMapping(value={"/user/delete/{id}"}, method=RequestMethod.GET)
-	public ModelAndView deleteUser(@PathVariable Integer id) {
+	public ModelAndView deleteUser(@PathVariable Integer id, HttpSession session) {
 		if(id != null && id.intValue() != 0) {
 			User user = userDao.findById(id.intValue());
 			if(user != null) {
 				userDao.delete(user);
 			}
 		}
-		return viewUser(null);
+		session.removeAttribute("user");
+		return viewUser(null, session);
 	}
 	
 }
