@@ -1,12 +1,17 @@
 package net.steveperkins.fitnessjiffy.test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 import net.steveperkins.fitnessjiffy.config.WebConfig;
 import net.steveperkins.fitnessjiffy.dao.UserDao;
+import net.steveperkins.fitnessjiffy.dao.WeightDao;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.User.ActivityLevel;
 import net.steveperkins.fitnessjiffy.domain.User.Gender;
+import net.steveperkins.fitnessjiffy.domain.Weight;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -28,32 +33,32 @@ public class UserTest {
 	@Test
 	public void testGender() {
 		Gender male = Gender.MALE;
-		assertEquals(male.toString(), "male");
+		assertEquals("male", male.toString());
 		
 		Gender female = Gender.FEMALE;
-		assertEquals(female.toString(), "female");
+		assertEquals("female", female.toString());
 	}
 	
 	@Test
 	public void testActivityLevel() {
 		ActivityLevel sedentary = ActivityLevel.SEDENTARY;
-		assertEquals(sedentary.toString(), "Sedentary");
+		assertEquals("Sedentary", sedentary.toString());
 		assertTrue(sedentary.getValue() == 1.25f);
 		
 		ActivityLevel lightlyActive = ActivityLevel.LIGHTLY_ACTIVE;
-		assertEquals(lightlyActive.toString(), "Lightly Active");
+		assertEquals("Lightly Active", lightlyActive.toString());
 		assertTrue(lightlyActive.getValue() == 1.3f);
 
 		ActivityLevel moderatelyActive = ActivityLevel.MODERATELY_ACTIVE;
-		assertEquals(moderatelyActive.toString(), "Moderately Active");
+		assertEquals("Moderately Active", moderatelyActive.toString());
 		assertTrue(moderatelyActive.getValue() == 1.5f);
 		
 		ActivityLevel veryActive = ActivityLevel.VERY_ACTIVE;
-		assertEquals(veryActive.toString(), "Very Active");
+		assertEquals("Very Active", veryActive.toString());
 		assertTrue(veryActive.getValue() == 1.7f);
 		
 		ActivityLevel extremelyActive = ActivityLevel.EXTREMELY_ACTIVE;
-		assertEquals(extremelyActive.toString(), "Extremely Active");
+		assertEquals("Extremely Active", extremelyActive.toString());
 		assertTrue(extremelyActive.getValue() == 2.0f);
 	}
 	
@@ -66,8 +71,17 @@ public class UserTest {
 
 		User user = userDao.findById(1);
 		assertNotNull(user);
-		assertEquals(user.getActivityLevel(), ActivityLevel.SEDENTARY);
-		assertEquals(user.getGender(), Gender.MALE);
+		assertEquals(ActivityLevel.SEDENTARY, user.getActivityLevel());
+		assertEquals(Gender.MALE, user.getGender());
+//		assertEquals(String.format("%.2f", user.getCurrentWeight()), "300");
+	}
+	
+	@Test
+	public void testWeightDao() throws ParseException {
+		WeightDao weightDao = applicationContext.getBean(WeightDao.class);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
+		List<Weight> weights = weightDao.findAllForUser(1, dateFormatter.parse("2007-11-22"), dateFormatter.parse("2013-10-12"));
+		assertEquals(weights.size(), 2061);
 	}
 	
 }

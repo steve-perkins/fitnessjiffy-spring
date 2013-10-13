@@ -18,6 +18,7 @@ import net.steveperkins.fitnessjiffy.domain.User.Gender;
 import net.steveperkins.fitnessjiffy.domain.User.YesNo;
 
 
+
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class UserDao {
 
 	private JdbcTemplate jdbcTemplate;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	
+	@Autowired
+	private WeightDao weightDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -58,6 +62,7 @@ public class UserDao {
 				user.setPassword(rs.getString("PASSWORD"));
 				user.setUsername(rs.getString("USERNAME"));
 				user.setActive(YesNo.fromValue(rs.getString("ACTIVE").charAt(0)));
+				user.setWeights(weightDao.findAllForUser(user.getId()));
 				return user;
 			}
 		});
@@ -79,6 +84,7 @@ public class UserDao {
 			user.setPassword((String)userMap.get("PASSWORD"));
 			user.setUsername((String)userMap.get("USERNAME"));
 			user.setActive(YesNo.fromValue(((String)userMap.get("ACTIVE")).charAt(0)));
+			user.setWeights(weightDao.findAllForUser(user.getId()));
 			users.add(user);
     	}
     	return users;

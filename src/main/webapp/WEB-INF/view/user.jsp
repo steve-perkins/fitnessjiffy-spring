@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <html>
 <head>
@@ -84,7 +85,7 @@
 	    </td>
 	</tr>
 	<tr><td>Current weight:</td><td><c:if test="${not empty user && user.id != 0}">${user.currentWeight}</c:if></td></tr>
-	<tr><td>BMI:</td><td><c:if test="${not empty user && user.id != 0}">${user.bmi}</c:if></td></tr>
+	<tr><td>BMI:</td><td><c:if test="${not empty user && user.id != 0}"><fmt:formatNumber type="number" maxFractionDigits="2" value="${user.bmi}" /></c:if></td></tr>
 	<tr><td>Calories needed daily to maintain weight:</td><td><c:if test="${not empty user && user.id != 0}">${user.maintenanceCalories}</c:if></td></tr>
 	<tr><td>Daily Points:</td><td><c:if test="${not empty user && user.id != 0}">${user.dailyPoints}</c:if></td></tr>
 </table>

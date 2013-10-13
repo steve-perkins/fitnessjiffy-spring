@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import java.util.List;
+
 public class User {
 	
 	public enum Gender {
@@ -96,6 +98,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private YesNo active;
+	private List<Weight> weights;
 	
 	public int getId() {
 		return id;
@@ -166,21 +169,72 @@ public class User {
 	public void setActive(YesNo active) {
 		this.active = active;
 	}
+	public List<Weight> getWeights() {
+		return weights;
+	}
+	public void setWeights(List<Weight> weights) {
+		this.weights = weights;
+	}
 	
 	public float getCurrentWeight() {
-		return 300f;
+		return (this.weights != null && this.weights.size() > 0) ? this.weights.get(0).getPounds() : 0;
 	}
 	
 	public float getBmi() {
-		return 40f;
+		return (getCurrentWeight() == 0 || getHeightInInches() == 0) ? 0 : (getCurrentWeight() * 703) / (getHeightInInches() * getHeightInInches());
 	}
 	
 	public int getMaintenanceCalories() {
-		return 2000;
+		if(getGender() == null || getCurrentWeight() == 0 || getHeightInInches() == 0 || getAge() == 0 || getActivityLevel() == null) {
+			return 0;
+		} else {
+			float centimeters = getHeightInInches() * 2.54f;
+			float kilograms   = getCurrentWeight() / 2.2f;
+			float adjustedWeight = getGender().equals(Gender.FEMALE) ? 655f + (9.6f * kilograms) : 66f + (13.7f * kilograms);
+			float adjustedHeight = getGender().equals(Gender.FEMALE) ? 1.7f * centimeters : 5f * centimeters;
+			float adjustedAge = getGender().equals(Gender.FEMALE) ? 4.7f * getAge() : 6.8f * getAge();
+			
+			return (int) ((adjustedWeight + adjustedHeight - adjustedAge) * getActivityLevel().value);
+		}
 	}
 	
 	public int getDailyPoints() {
-		return 48;
+		if(getGender() == null || getAge() == 0 || getCurrentWeight() == 0 || getHeightInInches() == 0 || getActivityLevel() == null) {
+			return 0;
+		} else {
+			// Factor in gender
+			int returnValue = getGender().equals(Gender.FEMALE) ? 2 : 8;
+			// Factor in age
+			if(getAge() <= 26) {
+				returnValue += 4;
+			} else if(getAge() <= 37) {
+				returnValue += 3;
+			} else if(getAge() <= 47) {
+				returnValue += 2;
+			} else if(getAge() <= 58) {
+				returnValue += 1;
+			}
+			// Factor in weight
+			returnValue += (getCurrentWeight() / 10f);
+			// Factor in height
+			if(getHeightInInches() >= 61 && getHeightInInches() <= 70) {
+				returnValue += 1;
+			} else if(getHeightInInches() > 70) {
+				returnValue += 2;
+			}
+			// Factor in activity level
+			if(getActivityLevel().equals(ActivityLevel.EXTREMELY_ACTIVE) || getActivityLevel().equals(ActivityLevel.VERY_ACTIVE)) {
+				returnValue += 6;
+			} else if(getActivityLevel().equals(ActivityLevel.MODERATELY_ACTIVE)) {
+				returnValue += 4;
+			} else if(getActivityLevel().equals(ActivityLevel.LIGHTLY_ACTIVE)) {
+				returnValue += 2;
+			}
+			// Factor in daily "flex" points quota 
+			returnValue += 5;
+			
+			return returnValue;
+		}
 	}
 	
 }
