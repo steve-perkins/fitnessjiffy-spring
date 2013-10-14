@@ -22,15 +22,18 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 public class WeightDao {
 
+	private static final String COLUMN_ID = "ID"; 
+	private static final String COLUMN_USER_ID = "USER_ID"; 
+	private static final String COLUMN_DATE = "DATE"; 
+	private static final String COLUMN_POUNDS = "POUNDS"; 
+	
 	private Log log = LogFactory.getLog(WeightDao.class);
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
 
-//	private JdbcTemplate jdbcTemplate;
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-//        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
     
@@ -42,13 +45,13 @@ public class WeightDao {
     	List<Map<String, Object>> weightMaps = null;
     	if(startDate == null || endDate == null) {
     		// Default query, all dates
-        	String sql = "select * from weight where user_id = :userId order by date desc";
-        	SqlParameterSource namedParameters = new MapSqlParameterSource("userId", userId);
+        	String sql = String.format("select * from weight where %s = :%s order by %s desc", COLUMN_USER_ID, COLUMN_USER_ID, COLUMN_DATE);
+        	SqlParameterSource namedParameters = new MapSqlParameterSource(COLUMN_USER_ID, userId);
         	weightMaps = this.namedParameterJdbcTemplate.queryForList(sql, namedParameters);
     	} else {
     		// Range query
-    		String sql = "select * from weight where user_id = :userId and date >= :startDate and date <= :endDate order by date desc";
-    		MapSqlParameterSource namedParameters = new MapSqlParameterSource("userId", userId);
+    		String sql = String.format("select * from weight where %s = :%s and %s >= :startDate and %s <= :endDate order by %s desc", COLUMN_USER_ID, COLUMN_USER_ID, COLUMN_DATE, COLUMN_DATE, COLUMN_DATE);
+    		MapSqlParameterSource namedParameters = new MapSqlParameterSource(COLUMN_USER_ID, userId);
         	namedParameters.addValue("startDate", dateFormatter.format(startDate));
         	namedParameters.addValue("endDate", dateFormatter.format(endDate));
         	weightMaps = this.namedParameterJdbcTemplate.queryForList(sql, namedParameters);
@@ -57,16 +60,16 @@ public class WeightDao {
     	for(Map<String, Object> weightMap : weightMaps) {
 			try {
 				Weight weight = new Weight();
-				weight.setId((Integer)weightMap.get("ID"));
-				weight.setUserId((Integer)weightMap.get("USER_ID"));
-				weight.setDate( dateFormatter.parse((String)weightMap.get("DATE")) );
-				weight.setPounds(((Double)weightMap.get("POUNDS")).floatValue());
+				weight.setId((Integer)weightMap.get(COLUMN_ID));
+				weight.setUserId((Integer)weightMap.get(COLUMN_USER_ID));
+				weight.setDate( dateFormatter.parse((String)weightMap.get(COLUMN_DATE)) );
+				weight.setPounds(((Double)weightMap.get(COLUMN_POUNDS)).floatValue());
 				weights.add(weight);
 			} catch (ParseException e) {
 				log.error("Could not parse date string [" 
-						+ StringUtils.defaultString((String)weightMap.get("DATE"), "null") 
+						+ StringUtils.defaultString((String)weightMap.get(COLUMN_DATE), "null") 
 						+ "] for Weight with ID [" 
-						+ StringUtils.defaultString((String)weightMap.get("ID"), "null")
+						+ StringUtils.defaultString((String)weightMap.get(COLUMN_ID), "null")
 						+ "]");
 			}
     	}

@@ -19,6 +19,7 @@ import net.steveperkins.fitnessjiffy.domain.User.YesNo;
 
 
 
+
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UserDao {
 
+	private static final String COLUMN_ID = "ID"; 
+	private static final String COLUMN_ACTIVITY_LEVEL = "ACTIVITY_LEVEL"; 
+	private static final String COLUMN_AGE = "AGE"; 
+	private static final String COLUMN_FIRST_NAME = "FIRST_NAME"; 
+	private static final String COLUMN_GENDER = "GENDER"; 
+	private static final String COLUMN_HEIGHT_IN_INCHES = "HEIGHT_IN_INCHES"; 
+	private static final String COLUMN_LAST_NAME = "LAST_NAME"; 
+	private static final String COLUMN_PASSWORD = "PASSWORD"; 
+	private static final String COLUMN_USERNAME = "USERNAME"; 
+	private static final String COLUMN_ACTIVE = "ACTIVE"; 
+	
 	//private Log log = LogFactory.getLog(UserDao.class);
 
 	private JdbcTemplate jdbcTemplate;
@@ -47,21 +59,21 @@ public class UserDao {
     }
     
     public User findById(int id) {
-    	String sql = "select * from users where active = 'Y' and id = :id";
-    	SqlParameterSource namedParameters = new MapSqlParameterSource("id", id);
+    	String sql = String.format("select * from users where %s = 'Y' and %s = :%s", COLUMN_ACTIVE, COLUMN_ID, COLUMN_ID);
+    	SqlParameterSource namedParameters = new MapSqlParameterSource(COLUMN_ID, id);
     	return this.namedParameterJdbcTemplate.queryForObject(sql, namedParameters, new RowMapper<User>() {
 			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
 				User user = new User();
-				user.setId(rs.getInt("ID"));
-				user.setActivityLevel(ActivityLevel.fromValue(rs.getFloat("ACTIVITY_LEVEL")));
-				user.setAge(rs.getInt("AGE"));
-				user.setFirstName(rs.getString("FIRST_NAME"));
-				user.setGender(Gender.fromString(rs.getString("GENDER")));
-				user.setHeightInInches(rs.getFloat("HEIGHT_IN_INCHES"));
-				user.setLastName(rs.getString("LAST_NAME"));
-				user.setPassword(rs.getString("PASSWORD"));
-				user.setUsername(rs.getString("USERNAME"));
-				user.setActive(YesNo.fromValue(rs.getString("ACTIVE").charAt(0)));
+				user.setId(rs.getInt(COLUMN_ID));
+				user.setActivityLevel(ActivityLevel.fromValue(rs.getFloat(COLUMN_ACTIVITY_LEVEL)));
+				user.setAge(rs.getInt(COLUMN_AGE));
+				user.setFirstName(rs.getString(COLUMN_FIRST_NAME));
+				user.setGender(Gender.fromString(rs.getString(COLUMN_GENDER)));
+				user.setHeightInInches(rs.getFloat(COLUMN_HEIGHT_IN_INCHES));
+				user.setLastName(rs.getString(COLUMN_LAST_NAME));
+				user.setPassword(rs.getString(COLUMN_PASSWORD));
+				user.setUsername(rs.getString(COLUMN_USERNAME));
+				user.setActive(YesNo.fromValue(rs.getString(COLUMN_ACTIVE).charAt(0)));
 				user.setWeights(weightDao.findAllForUser(user.getId()));
 				return user;
 			}
@@ -69,21 +81,21 @@ public class UserDao {
     }
     
     public List<User> findAll() {
-    	String sql = "select * from users where active = 'Y'";
+    	String sql = String.format("select * from users where %s = 'Y'", COLUMN_ACTIVE);
     	List<Map<String, Object>> userMaps = this.jdbcTemplate.queryForList(sql);
     	List<User> users = new ArrayList<User>();
     	for(Map<String, Object> userMap : userMaps) {
 			User user = new User();
-			user.setId((Integer)userMap.get("ID"));
-			user.setActivityLevel(ActivityLevel.fromValue(((Double)userMap.get("ACTIVITY_LEVEL")).floatValue()));
-			user.setAge((Integer)userMap.get("AGE"));
-			user.setFirstName((String)userMap.get("FIRST_NAME"));
-			user.setGender(Gender.fromString((String)userMap.get("GENDER")));
-			user.setHeightInInches(((Double)userMap.get("HEIGHT_IN_INCHES")).floatValue());
-			user.setLastName((String)userMap.get("LAST_NAME"));
-			user.setPassword((String)userMap.get("PASSWORD"));
-			user.setUsername((String)userMap.get("USERNAME"));
-			user.setActive(YesNo.fromValue(((String)userMap.get("ACTIVE")).charAt(0)));
+			user.setId((Integer)userMap.get(COLUMN_ID));
+			user.setActivityLevel(ActivityLevel.fromValue(((Double)userMap.get(COLUMN_ACTIVITY_LEVEL)).floatValue()));
+			user.setAge((Integer)userMap.get(COLUMN_AGE));
+			user.setFirstName((String)userMap.get(COLUMN_FIRST_NAME));
+			user.setGender(Gender.fromString((String)userMap.get(COLUMN_GENDER)));
+			user.setHeightInInches(((Double)userMap.get(COLUMN_HEIGHT_IN_INCHES)).floatValue());
+			user.setLastName((String)userMap.get(COLUMN_LAST_NAME));
+			user.setPassword((String)userMap.get(COLUMN_PASSWORD));
+			user.setUsername((String)userMap.get(COLUMN_USERNAME));
+			user.setActive(YesNo.fromValue(((String)userMap.get(COLUMN_ACTIVE)).charAt(0)));
 			user.setWeights(weightDao.findAllForUser(user.getId()));
 			users.add(user);
     	}
@@ -94,33 +106,37 @@ public class UserDao {
     	String sql = "";
     	if(user.getId() == 0 || findById(user.getId()) == null) {
     		// Insert
-    		int maxId = this.jdbcTemplate.queryForObject("select max(id) from users", Integer.class).intValue();
+    		int maxId = this.jdbcTemplate.queryForObject(String.format("select max(%s) from users", COLUMN_ID), Integer.class).intValue();
     		user.setId(maxId + 1);
-    		sql = "insert into users(id, gender, age, height_in_inches, activity_level, username, password, first_name, last_name, active) values (:id, :gender, :age, :height_in_inches, :activity_level, :username, :password, :first_name, :last_name, 'Y')";
+    		sql = String.format("insert into users(%s, %s, %s, %s, %s, %s, %s, %s, $s, %s) values (:%s, :%s, :%s, :%s, :%s, :%s, :%s, :%s, :%s, 'Y')", 
+    				COLUMN_ID, COLUMN_GENDER, COLUMN_AGE, COLUMN_HEIGHT_IN_INCHES, COLUMN_ACTIVITY_LEVEL, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_FIRST_NAME, COLUMN_LAST_NAME, COLUMN_ACTIVE,
+    				COLUMN_ID, COLUMN_GENDER, COLUMN_AGE, COLUMN_HEIGHT_IN_INCHES, COLUMN_ACTIVITY_LEVEL, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_FIRST_NAME, COLUMN_LAST_NAME);
     	} else {
     		// Update
-    		sql = "update users set gender = :gender, age = :age, height_in_inches = :height_in_inches, activity_level = :activity_level, username = :username, password = :password, first_name = :first_name, last_name = :last_name, active = 'Y' where id = :id";
+    		sql = String.format("update users set %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = :%s, %s = 'Y' where %s = :%s",
+    				COLUMN_GENDER, COLUMN_GENDER, COLUMN_AGE, COLUMN_AGE, COLUMN_HEIGHT_IN_INCHES, COLUMN_HEIGHT_IN_INCHES, COLUMN_ACTIVITY_LEVEL, COLUMN_ACTIVITY_LEVEL, 
+    				COLUMN_USERNAME, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PASSWORD, COLUMN_FIRST_NAME, COLUMN_FIRST_NAME, COLUMN_LAST_NAME, COLUMN_LAST_NAME, COLUMN_ACTIVE, COLUMN_ID, COLUMN_ID);
     	}
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
-		namedParameters.put("id", user.getId());
-		namedParameters.put("gender", user.getGender().toString());
-		namedParameters.put("age", user.getAge());
-		namedParameters.put("height_in_inches", user.getHeightInInches());
-		namedParameters.put("activity_level", user.getActivityLevel().getValue());
-		namedParameters.put("username", user.getUsername());
+		namedParameters.put(COLUMN_ID, user.getId());
+		namedParameters.put(COLUMN_GENDER, user.getGender().toString());
+		namedParameters.put(COLUMN_AGE, user.getAge());
+		namedParameters.put(COLUMN_HEIGHT_IN_INCHES, user.getHeightInInches());
+		namedParameters.put(COLUMN_ACTIVITY_LEVEL, user.getActivityLevel().getValue());
+		namedParameters.put(COLUMN_USERNAME, user.getUsername());
 		// TODO: Implement a real change password function
-		namedParameters.put("password", (user.getPassword() != null && !user.getPassword().trim().isEmpty()) ? user.getPassword() : "password");
-		namedParameters.put("first_name", user.getFirstName());
-		namedParameters.put("last_name", user.getLastName());
+		namedParameters.put(COLUMN_PASSWORD, (user.getPassword() != null && !user.getPassword().trim().isEmpty()) ? user.getPassword() : "password");
+		namedParameters.put(COLUMN_FIRST_NAME, user.getFirstName());
+		namedParameters.put(COLUMN_LAST_NAME, user.getLastName());
 		this.namedParameterJdbcTemplate.update(sql, namedParameters);
 		return user;
     }
     
     public void delete(User user) {
-    	String sql = "update users set username = :username, active = 'N' where id = :id";
+    	String sql = String.format("update users set %s = :%s, %s = 'N' where %s = :%s", COLUMN_USERNAME, COLUMN_USERNAME, COLUMN_ACTIVE, COLUMN_ID, COLUMN_ID);
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
-		namedParameters.put("id", user.getId());
-		namedParameters.put("username", user.getUsername() + "_deactivated_" + (new Date().toString()));
+		namedParameters.put(COLUMN_ID, user.getId());
+		namedParameters.put(COLUMN_USERNAME, user.getUsername() + "_deactivated_" + (new Date().toString()));
 		this.namedParameterJdbcTemplate.update(sql, namedParameters);
     }
     
