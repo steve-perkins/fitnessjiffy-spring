@@ -43,7 +43,7 @@ public class WeightDao extends BaseDao<Weight>{
         	namedParameters.addValue("endDate", dateFormatter.format(endDate));
         	weightMaps = this.namedParameterJdbcTemplate.queryForList(sql, namedParameters);
     	}
-    	List<Weight> weights = new ArrayList<Weight>();
+    	List<Weight> weights = new ArrayList<>();
     	for(Map<String, Object> weightMap : weightMaps) {
 			try {
 				Weight weight = new Weight();

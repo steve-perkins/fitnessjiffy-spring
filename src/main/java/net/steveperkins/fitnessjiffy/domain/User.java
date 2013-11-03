@@ -47,10 +47,11 @@ public class User {
 		}
 		@Override
 		public String toString() {
-			StringBuffer s = new StringBuffer(super.toString().toLowerCase().replace('_', ' '));
+			StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
 			for(int index = 0; index < s.length(); index++) {
 				if(index == 0 || s.charAt(index - 1) == ' ') {
-					s.replace(index, index + 1, new String(s.charAt(index) + "").toUpperCase());
+                    String currentCharAsString = s.charAt(index) + "";
+					s.replace(index, index + 1, currentCharAsString.toUpperCase());
 				}
 			}
 			return s.toString();

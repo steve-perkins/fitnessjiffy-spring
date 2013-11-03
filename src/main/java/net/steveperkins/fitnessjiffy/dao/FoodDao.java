@@ -77,7 +77,7 @@ public class FoodDao extends BaseDao<Food> {
     }
     
     List<Food> processFoodMaps(List<Map<String, Object>> foodMaps) {
-    	List<Food> foods = new ArrayList<Food>();
+    	List<Food> foods = new ArrayList<>();
     	for(Map<String, Object> foodMap : foodMaps) {
     		Food food = new Food();
     		food.setId((Integer)foodMap.get(ID));

@@ -67,7 +67,7 @@ public class BasicSmokeTests {
 	@Test
 	public void testFoodEatenDao() throws ParseException {
 		FoodEatenDao foodEatenDao = applicationContext.getBean(FoodEatenDao.class);
-		List<FoodEaten> foodsEaten = foodEatenDao.findEatenByDate(1, dateFormatter.parse("2013-10-13"));
+		List<FoodEaten> foodsEaten = foodEatenDao.findEatenOnDate(1, dateFormatter.parse("2013-10-13"));
 		assertEquals(foodsEaten.size(), 8);
 	}
 	

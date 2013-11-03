@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public abstract class BaseDao<T> {
 	
-	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
+	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 	
 	JdbcTemplate jdbcTemplate;
 	NamedParameterJdbcTemplate namedParameterJdbcTemplate;

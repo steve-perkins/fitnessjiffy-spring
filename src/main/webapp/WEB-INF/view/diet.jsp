@@ -1,98 +1,3 @@
-<!-- <& /masoncomponents/masoncommon &> -->
-<!-- <& /masoncomponents/fittrackercommon &> -->
-<%-- <%perl> --%>
-// 	use FitTracker::DataAccess;
-// 	use FitTracker::User;
-// 	use FitTracker::Food;
-// 	use FitTracker::FoodEaten;
-// 	my $DATAACCESS = 'FitTracker::DataAccess';
-// 	my $USER = 'FitTracker::User';
-// 	my $FOOD = 'FitTracker::Food';
-// 	my $FOODEATEN = 'FitTracker::FoodEaten';
-
-// 	# FETCH USER, OR REDIRECT TO USER PAGE IF NO USER CURRENTLY SELECTED
-// 	my $user;
-// 	my $userCookie    = &getCookie( 'FITTRACKER_USER' );
-// 	if( defined( $userCookie ) ) {
-// 		$user = $USER->getById( $userCookie );
-// 	} else {
-// 		$m->redirect("fittracker.cgi?page=user");
-// 	}
-	
-// 	my $monthParameter = &getParam( 'Month' );
-// 	my $dayParameter = &getParam( 'Day' );
-// 	my $yearParameter = &getParam( 'Year' );
-// 	my $editFoodEatenParameter = &getParam( 'EditFoodEaten' );
-// 	my $editFoodEatenServingParameter = &getParam( 'FoodEatenServing' );
-// 	my $editFoodEatenQtyParameter = &getParam( 'FoodEatenQty' );
-// 	my $actionParameter = &getParam( 'Action' );
-	
-// 	# INITIALIZE VARIABLES USED IN FORM FIELDS BELOW
-// 	my $month;
-// 	my $day;
-// 	my $year;
-// 	my $date;
-// 	if( !defined( $monthParameter ) ) {
-// 		$month = ('01','02','03','04','05','06','07','08','09','10','11','12')[(localtime)[4]];
-// 	} else {
-// 		$month = $monthParameter;
-// 	}
-// 	if( !defined( $dayParameter ) ) {
-// 		$day = (localtime)[3];
-// 		if( $day < 10 ) {
-// 			$day = "0$day";
-// 		}
-// 	} else {
-// 		$day = $dayParameter;
-// 	}
-// 	if( !defined( $yearParameter ) ) {
-// 		$year = (localtime)[5] + 1900;
-// 	} else {
-// 		$year = $yearParameter;
-// 	}
-// 	$date = "$year-$month-$day";
-
-// 	my $yesterday;
-// 	my $tomorrow;
-// 	my $database = $DATAACCESS->getDatabaseConnection();
-// 	my $sql = "SELECT date('$date','-1 day');";
-// 	my $resultSet = $database->selectall_arrayref($sql);
-// 	foreach (@$resultSet) {
-// 		$yesterday = $_->[0];
-// 	}
-// 	$sql = "SELECT date('$date','+1 day');";
-// 	$resultSet = $database->selectall_arrayref($sql);
-// 	foreach (@$resultSet) {
-// 		$tomorrow = $_->[0];
-// 	}
-
-// 	# IF AN 'EDIT' OR 'DELETE' BUTTON WAS CLICKED, UPDATE THAT FOOD EATEN RECORD
-// 	if( defined( $actionParameter ) 
-// 			&& defined( $monthParameter ) 
-// 			&& defined( $dayParameter ) 
-// 			&& defined( $yearParameter ) 
-// 			&& defined( $editFoodEatenParameter ) 
-// 			&& defined( $editFoodEatenServingParameter ) 
-// 			&& defined( $editFoodEatenQtyParameter ) ) {
-// 		if( $actionParameter eq "Edit" ) {
-// 			$user->addFoodEaten( 
-// 					$FOOD->getById( $editFoodEatenParameter ), 
-// 					$date,
-// 					$editFoodEatenServingParameter,
-// 					$editFoodEatenQtyParameter );
-// 		} elsif( $actionParameter eq "Delete" ) {
-// 			my $foodEaten = $FOODEATEN->getByPrimaryKey( $user->getId,
-// 					$FOOD->getById( $editFoodEatenParameter ),
-// 					$date);
-// 			$foodEaten->delete();
-// 		}
-// 	}
-	
-// 	# GET ALL FOODS EATEN BY THIS USER ON THIS DAY
-// 	my @foodsEaten = $user->getFoodsEaten( $date );
-	
-// </%perl>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -151,11 +56,10 @@
 	<input type="text" id="datepicker" />
 	<input type="submit" value="Change Date">
 
-	
 	<table><tr><td align="center" valign="middle">
 		<b>Recently Eaten Foods:</b><br/>
 		<select name="FoodID">
-		<c:forEach items="${foodsRecentlyEaten}" var="recentFood">
+		<c:forEach items="${foodsEatenRecently}" var="recentFood">
 			<option value="${recentFood.id}">${recentFood.name}</option>
 		</c:forEach>	
 		</select>
@@ -186,49 +90,63 @@
 		<td style="border-bottom: 2px solid black; text-align: center;">&nbsp;</td>
 		<td style="border-bottom: 2px solid black; text-align: center;">&nbsp;</td>
 	</tr>
-<%-- <%perl> --%>
-// 	for( my $index = 0; $index < @foodsEaten; $index++ ) {
-// 		my $foodEaten = $foodsEaten[$index];
-// 		my @availableServingTypes = $foodEaten->getFood()->getAvailableServingTypes();
-// </%perl>
-// 	<tr>
-// 	<form>
-// 	<input type="hidden" name="page" value="diet">
-<%-- 	<input type="hidden" name="EditFoodEaten" value="<% $foodEaten->getFood()->getId() %>"> --%>
-<%-- 	<input type="hidden" name="Month" value="<% $month %>"> --%>
-<%-- 	<input type="hidden" name="Day" value="<% $day %>"> --%>
-<%-- 	<input type="hidden" name="Year" value="<% $year %>"> --%>
-<%-- 		<td style="border-bottom: 1px solid black;" width="30%"><% $foodEaten->getFood()->getName() %></td> --%>
-<!-- 		<td style="border-bottom: 1px solid black; text-align: center;"> -->
-<%-- 			<input type="text" size="2" name="FoodEatenQty" value="<% $foodEaten->getServingQty() %>"> --%>
-<!-- 		</td> -->
-<!-- 		<td style="border-bottom: 1px solid black; text-align: center;"> -->
-<!-- 			<select name="FoodEatenServing"> -->
-<%-- <%perl> --%>
-// 	foreach my $type ( @availableServingTypes ) {
-// 		print "<option value='$type'";
-// 		if( $foodEaten->getServingType() eq $type ) { print " selected"; }
-// 		print ">$type</option>\n";
-// 	}
-// </%perl>
-// 			</select>
-// 		</td>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getCalories() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getFat() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getSaturatedFat() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getSodium() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getCarbs() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getFiber() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getSugar() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getProtein() ) %></td> --%>
-<%-- 		<td style="border-bottom: 1px solid black; text-align: center;"><% sprintf( "%d", $foodEaten->getPoints() ) %></td> --%>
-<!-- 		<td style="border-bottom: 1px solid black; text-align: center;"><input type="submit" name="Action" value="Edit"></td> -->
-<!-- 		<td style="border-bottom: 1px solid black; text-align: center;"> -->
-<!-- 			<input type="submit" name="Action" value="Delete" onclick="javascript:return confirm('Are you SURE you want to delete this food entry?');"> -->
-<!-- 		</td> -->
-<%-- 	</form> --%>
-<!-- 	</tr> -->
-<%-- <%perl> --%>
+	<c:forEach items="${foodsEatenThisDate}" var="foodEaten">
+	<!-- CREATE CONTROLLER LISTENING FOR UPDATE-FOOD-EATEN REQUESTS -->
+	<tr>
+	<form>
+	    <td style="border-bottom: 1px solid black;" width="30%">${foodEaten.food.name}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;"><input type="text" size="2" name="FoodEatenQty" value="${foodEaten.servingQty}"></td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">
+	        <select name="FoodEatenServing">
+                <c:choose>
+                    <c:when test="${foodEaten.servingType} == 'CUSTOM'">
+                        <option value='CUSTOM' selected>CUSTOM</option>
+                    </c:when>
+                    <c:otherwise>
+                        <option value='ounce' <c:if test="${foodEaten.servingType} == 'ounce'">selected</c:if>>ounce</option>
+                        <option value='cup' <c:if test="${foodEaten.servingType} == 'cup'">selected</c:if>>cup</option>
+                        <option value='pound' <c:if test="${foodEaten.servingType} == 'pound'">selected</c:if>>pound</option>
+                        <option value='pint' <c:if test="${foodEaten.servingType} == 'pint'">selected</c:if>>pint</option>
+                        <option value='tablespoon' <c:if test="${foodEaten.servingType} == 'tablespoon'">selected</c:if>>tablespoon</option>
+                        <option value='teaspoon' <c:if test="${foodEaten.servingType} == 'teaspoon'">selected</c:if>>teaspoon</option>
+                        <option value='gram' <c:if test="${foodEaten.servingType} == 'gram'">selected</c:if>>gram</option>
+                    </c:otherwise>
+                </c:choose>
+	        </select>
+	    </td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.calories}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.fat}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.saturatedFat}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.sodium}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.carbs}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.fiber}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.sugar}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.protein}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.points}</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">Update</td>
+	    <td style="border-bottom: 1px solid black; text-align: center;">Delete</td>
+	</form>
+	</tr>
+	</c:forEach>
+
+    <tr>
+        <td style="border-bottom: 2px solid black;" width="30%"><br/>TOTAL: </td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${caloriesForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${fatForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${saturatedFatForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${sodiumForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${carbsForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${fiberForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${sugarForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${proteinForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;"><br/>${pointsForDay}</td>
+        <td style="border-bottom: 2px solid black; text-align: center;" colspan="2">net cal.<br/>net points</td>
+    </tr>
+    </table>
+
+
 // 	}
 // 	my $caloriesForDay = $user->getCaloriesForDay( $date );
 // 	my $proteinForDay = $user->getProteinForDay( $date );

@@ -49,5 +49,43 @@ public class FoodEaten {
 	public void setServingQty(float servingQty) {
 		this.servingQty = servingQty;
 	}
-	
+    public int getCalories() {
+        return (int) (food.getCalories() * getRatio());
+    }
+    public int getFat() {
+        return (int) (food.getFat() * getRatio());
+    }
+    public int getSaturatedFat() {
+        return (int) (food.getSaturatedFat() * getRatio());
+    }
+    public int getSodium() {
+        return (int) (food.getSodium() * getRatio());
+    }
+    public int getCarbs() {
+        return (int) (food.getCarbs() * getRatio());
+    }
+    public int getFiber() {
+        return (int) (food.getFiber() * getRatio());
+    }
+    public int getSugar() {
+        return (int) (food.getSugar() * getRatio());
+    }
+    public int getProtein() {
+        return (int) (food.getProtein() * getRatio());
+    }
+    public int getPoints() {
+        return (int) (food.getPoints() * getRatio());
+    }
+
+	private float getRatio() {
+        if(servingType.equals(food.getDefaultServingType())) {
+            // Default serving type was used
+            return servingQty / food.getServingTypeQty();
+        } else {
+            // Serving type needs conversion
+            float ouncesInThisServingType = servingType.getValue();
+            float ouncesInDefaultServingType = food.getDefaultServingType().getValue();
+            return (ouncesInDefaultServingType * food.getServingTypeQty() != 0) ? (ouncesInThisServingType * servingQty) / (ouncesInDefaultServingType * food.getServingTypeQty()) : 0;
+        }
+    }
 }

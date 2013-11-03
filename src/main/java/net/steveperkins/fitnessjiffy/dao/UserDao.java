@@ -65,7 +65,7 @@ public class UserDao extends BaseDao<User> {
     public List<User> findAll() {
     	String sql = "select * from "+USER_TABLE+" where "+ACTIVE+" = 'Y'";
     	List<Map<String, Object>> userMaps = this.jdbcTemplate.queryForList(sql);
-    	List<User> users = new ArrayList<User>();
+    	List<User> users = new ArrayList<>();
     	for(Map<String, Object> userMap : userMaps) {
 			User user = new User();
 			user.setId((Integer)userMap.get(ID));
@@ -89,7 +89,7 @@ public class UserDao extends BaseDao<User> {
     	String sql = "";
     	if(user.getId() == 0 || findById(user.getId()) == null) {
     		// Insert
-    		int maxId = this.jdbcTemplate.queryForObject("select max("+ID+") from "+USER_TABLE, Integer.class).intValue();
+    		int maxId = this.jdbcTemplate.queryForObject("select max(" + ID + ") from " + USER_TABLE, Integer.class);
     		user.setId(maxId + 1);
     		sql = "insert into "+USER_TABLE+"("+ID+", "+GENDER+", "+AGE+", "+HEIGHT_IN_INCHES+", "+ACTIVITY_LEVEL+", "+USERNAME+", "+PASSWORD+", "+FIRST_NAME+", "+LAST_NAME+", "+ACTIVE+")"
     				+" values (:"+ID+", :"+GENDER+", :"+AGE+", :"+HEIGHT_IN_INCHES+", :"+ACTIVITY_LEVEL+", :"+USERNAME+", :"+PASSWORD+", :"+FIRST_NAME+", :"+LAST_NAME+", 'Y')";
@@ -98,7 +98,7 @@ public class UserDao extends BaseDao<User> {
     		sql = "update "+USER_TABLE+" set "+GENDER+" = :"+GENDER+", "+AGE+" = :"+AGE+", "+HEIGHT_IN_INCHES+" = :"+HEIGHT_IN_INCHES+", "+ACTIVITY_LEVEL+" = :"+ACTIVITY_LEVEL+
     				", "+USERNAME+" = :"+USERNAME+", "+PASSWORD+" = :"+PASSWORD+", "+FIRST_NAME+" = :"+FIRST_NAME+", "+LAST_NAME+" = :"+LAST_NAME+", "+ACTIVE+" = 'Y' where "+ID+" = :"+ID;
     	}
-		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		Map<String, Object> namedParameters = new HashMap<>();
 		namedParameters.put(ID, user.getId());
 		namedParameters.put(GENDER, user.getGender().toString());
 		namedParameters.put(AGE, user.getAge());
@@ -116,7 +116,7 @@ public class UserDao extends BaseDao<User> {
 	@Override
     public void delete(User user) {
     	String sql = "update "+USER_TABLE+" set "+USERNAME+" = :"+USERNAME+", "+ACTIVE+" = 'N' where "+ID+" = :"+ID;
-		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		Map<String, Object> namedParameters = new HashMap<>();
 		namedParameters.put(ID, user.getId());
 		namedParameters.put(USERNAME, user.getUsername() + "_deactivated_" + (new Date().toString()));
 		this.namedParameterJdbcTemplate.update(sql, namedParameters);

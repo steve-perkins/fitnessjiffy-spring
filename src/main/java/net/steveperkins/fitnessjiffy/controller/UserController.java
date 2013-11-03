@@ -30,7 +30,7 @@ public class UserController {
 		ModelAndView view = new ModelAndView();
 		view.addObject("users", userDao.findAll());
 		User user = null;
-		if(userId != null && userId.intValue() != 0) {
+		if(userId != null && userId != 0) {
 			// A user has been selected
 			user = userDao.findById(userId.intValue());
 			user = (user != null) ? user : new User();
@@ -57,7 +57,7 @@ public class UserController {
 	
 	@RequestMapping(value={"/user/delete/{id}"}, method=RequestMethod.GET)
 	public ModelAndView deleteUser(@PathVariable Integer id, HttpSession session) {
-		if(id != null && id.intValue() != 0) {
+		if(id != null && id != 0) {
 			User user = userDao.findById(id.intValue());
 			if(user != null) {
 				userDao.delete(user);
