@@ -3,6 +3,7 @@ package net.steveperkins.fitnessjiffy.config;
 import javax.sql.DataSource;
 
 import net.steveperkins.fitnessjiffy.dao.FoodDao;
+import net.steveperkins.fitnessjiffy.dao.FoodEatenDao;
 import net.steveperkins.fitnessjiffy.dao.UserDao;
 import net.steveperkins.fitnessjiffy.dao.WeightDao;
 
@@ -65,6 +66,13 @@ public class WebConfig {
 		FoodDao foodDao = new FoodDao();
 		foodDao.setDataSource(dataSource());
 		return foodDao;
+	}
+	
+	@Bean
+	public FoodEatenDao foodEatenDao() {
+		FoodEatenDao foodEatenDao = new FoodEatenDao();
+		foodEatenDao.setDataSource(dataSource());
+		return foodEatenDao;
 	}
 	
 }

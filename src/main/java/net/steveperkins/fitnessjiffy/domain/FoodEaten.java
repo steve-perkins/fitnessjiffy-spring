@@ -8,7 +8,7 @@ public class FoodEaten {
 
 	private int id;
 	private int userId;
-	private int foodId;
+	private Food food;
 	private Date date;
 	private ServingType servingType;
 	private float servingQty;
@@ -25,11 +25,11 @@ public class FoodEaten {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-	public int getFoodId() {
-		return foodId;
+	public Food getFood() {
+		return food;
 	}
-	public void setFoodId(int foodId) {
-		this.foodId = foodId;
+	public void setFood(Food food) {
+		this.food = food;
 	}
 	public Date getDate() {
 		return date;

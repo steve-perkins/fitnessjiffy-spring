@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import net.steveperkins.fitnessjiffy.config.WebConfig;
 import net.steveperkins.fitnessjiffy.dao.FoodDao;
+import net.steveperkins.fitnessjiffy.dao.FoodEatenDao;
 import net.steveperkins.fitnessjiffy.dao.UserDao;
 import net.steveperkins.fitnessjiffy.dao.WeightDao;
 import net.steveperkins.fitnessjiffy.domain.Food;
@@ -61,7 +62,12 @@ public class BasicSmokeTests {
 		FoodDao foodDao = applicationContext.getBean(FoodDao.class);
 		List<Food> foods = foodDao.findByUser(1);
 		assertEquals(foods.size(), 418);
-		List<FoodEaten> foodsEaten = foodDao.findEatenByDate(1, dateFormatter.parse("2013-10-13"));
+	}
+	
+	@Test
+	public void testFoodEatenDao() throws ParseException {
+		FoodEatenDao foodEatenDao = applicationContext.getBean(FoodEatenDao.class);
+		List<FoodEaten> foodsEaten = foodEatenDao.findEatenByDate(1, dateFormatter.parse("2013-10-13"));
 		assertEquals(foodsEaten.size(), 8);
 	}
 	
