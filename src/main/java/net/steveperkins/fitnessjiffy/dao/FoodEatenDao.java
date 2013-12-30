@@ -32,7 +32,11 @@ public class FoodEatenDao extends BaseDao<FoodEaten> {
 	private Log log = LogFactory.getLog(FoodEatenDao.class);
 
 	public List<FoodEaten> findEatenOnDate(int userId, Date date) {
-		String sql = "select * from "+FOOD_EATEN_TABLE+" where "+USER_ID+" = :"+USER_ID+" and "+DATE+" = :"+DATE;
+		String sql = "select "+FOOD_EATEN_TABLE+".* from "+FOOD_EATEN_TABLE+", "+FoodDao.FOOD_TABLE
+                +" where "+FOOD_EATEN_TABLE+"."+FOOD_ID+" = "+FoodDao.FOOD_TABLE+"."+FoodDao.ID
+                +" and "+FOOD_EATEN_TABLE+"."+USER_ID+" = :"+USER_ID
+                +" and "+FOOD_EATEN_TABLE+"."+DATE+" = :"+DATE
+                +" order by "+FoodDao.NAME+" asc";
 		MapSqlParameterSource namedParameters = new MapSqlParameterSource(USER_ID, userId);
 		namedParameters.addValue(DATE, dateFormatter.format(date));
 		return processFoodEatenMaps( this.namedParameterJdbcTemplate.queryForList(sql, namedParameters) );

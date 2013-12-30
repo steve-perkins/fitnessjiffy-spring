@@ -5,6 +5,7 @@
 <html>
 <head>
 	<title>Diet</title>
+	<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
 	<style>
 	<!--
 	body {
@@ -36,6 +37,7 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 	<script>
   		$(function() {
+            //$.datepicker.formatDate( format, date, settings )
     		$("#datepicker").datepicker();
   		});
   	</script>
@@ -50,13 +52,12 @@
         <td width="25%" align="center"><a href="/weight">Weight</a></td>
 </tr></table><br/>
 
-
 <form>
 	<br/><b>Foods Eaten On:</b><br/>
 	<input type="text" id="datepicker" />
 	<input type="submit" value="Change Date">
 
-	<table><tr><td align="center" valign="middle">
+	<table width="100%"><tr><td align="center" valign="middle">
 		<b>Recently Eaten Foods:</b><br/>
 		<select name="FoodID">
 		<c:forEach items="${foodsEatenRecently}" var="recentFood">
@@ -73,6 +74,7 @@
 			<input type="submit" value="Search Foods">
 		</form>
 	</td></tr></table>
+
 	<table width="100%" cellspacing="0" cellpadding="2">
 	<tr>
 		<td style="border-bottom: 2px solid black;" width="30%">Food</td>
@@ -99,17 +101,17 @@
 	    <td style="border-bottom: 1px solid black; text-align: center;">
 	        <select name="FoodEatenServing">
                 <c:choose>
-                    <c:when test="${foodEaten.servingType} == 'CUSTOM'">
+                    <c:when test="${foodEaten.servingType == 'CUSTOM'}">
                         <option value='CUSTOM' selected>CUSTOM</option>
                     </c:when>
                     <c:otherwise>
-                        <option value='ounce' <c:if test="${foodEaten.servingType} == 'ounce'">selected</c:if>>ounce</option>
-                        <option value='cup' <c:if test="${foodEaten.servingType} == 'cup'">selected</c:if>>cup</option>
-                        <option value='pound' <c:if test="${foodEaten.servingType} == 'pound'">selected</c:if>>pound</option>
-                        <option value='pint' <c:if test="${foodEaten.servingType} == 'pint'">selected</c:if>>pint</option>
-                        <option value='tablespoon' <c:if test="${foodEaten.servingType} == 'tablespoon'">selected</c:if>>tablespoon</option>
-                        <option value='teaspoon' <c:if test="${foodEaten.servingType} == 'teaspoon'">selected</c:if>>teaspoon</option>
-                        <option value='gram' <c:if test="${foodEaten.servingType} == 'gram'">selected</c:if>>gram</option>
+                        <option value='ounce' <c:if test="${foodEaten.servingType == 'ounce'}">selected</c:if>>ounce</option>
+                        <option value='cup' <c:if test="${foodEaten.servingType == 'cup'}">selected</c:if>>cup</option>
+                        <option value='pound' <c:if test="${foodEaten.servingType == 'pound'}">selected</c:if>>pound</option>
+                        <option value='pint' <c:if test="${foodEaten.servingType == 'pint'}">selected</c:if>>pint</option>
+                        <option value='tablespoon' <c:if test="${foodEaten.servingType == 'tablespoon'}">selected</c:if>>tablespoon</option>
+                        <option value='teaspoon' <c:if test="${foodEaten.servingType == 'teaspoon'}">selected</c:if>>teaspoon</option>
+                        <option value='gram' <c:if test="${foodEaten.servingType == 'gram'}">selected</c:if>>gram</option>
                     </c:otherwise>
                 </c:choose>
 	        </select>
@@ -146,44 +148,10 @@
     </tr>
     </table>
 
-
-// 	}
-// 	my $caloriesForDay = $user->getCaloriesForDay( $date );
-// 	my $proteinForDay = $user->getProteinForDay( $date );
-// 	my $fatForDay = $user->getFatForDay( $date );
-// 	my $saturatedFatForDay = $user->getSaturatedFatForDay( $date );
-// 	my $carbsForDay = $user->getCarbsForDay( $date );
-// 	my $fiberForDay = $user->getFiberForDay( $date );
-// 	my $sugarForDay = $user->getSugarForDay( $date );
-// 	my $sodiumForDay = $user->getSodiumForDay( $date );
-// 	my $pointsForDay = $user->getPointsForDay( $date );
-// </%perl>	
-// 	<tr>
-// 		<td style="border-bottom: 2px solid black;" width="30%"><br/>TOTAL: </td>
-// 		<td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
-// 		<td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $caloriesForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $fatForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $saturatedFatForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $sodiumForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $carbsForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $fiberForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $sugarForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $proteinForDay ) %></td> --%>
-<%-- 		<td style="border-bottom: 2px solid black; text-align: center;"><br/><% sprintf( "%d", $pointsForDay ) %></td> --%>
-<!-- 		<td style="border-bottom: 2px solid black; text-align: center;" colspan="2"> -->
-<%-- 			<% sprintf( "%d", $caloriesForDay - $user->getExerciseCaloriesForDay( $date ) ) %> net cal.<br/> --%>
-<%-- 			<% sprintf( "%d", $pointsForDay - $user->getExercisePointsForDay( $date ) ) %> net points --%>
-<!-- 		</td> -->
-<!-- 	</tr> -->
-	</table>
 	<br/>
 	<form><input type="hidden" name="page" value="foods"><input type="submit" value="Add / Manage Foods"></form>
 	<br/>
-	
-	
-	
-	
+
 </div>
 </body>
 </html>

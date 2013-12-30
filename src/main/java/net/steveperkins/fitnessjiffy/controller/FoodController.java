@@ -1,7 +1,9 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.steveperkins.fitnessjiffy.dao.FoodDao;
 import net.steveperkins.fitnessjiffy.dao.FoodEatenDao;
 import net.steveperkins.fitnessjiffy.dao.UserDao;
 import net.steveperkins.fitnessjiffy.domain.Food;
@@ -22,11 +24,14 @@ public class FoodController {
 
 	@Autowired
 	private UserDao userDao;
-	
-	@Autowired
-	private FoodEatenDao foodEatenDao;
-	
-	@RequestMapping(value={"/diet"}, method=RequestMethod.GET)
+
+    @Autowired
+    private FoodDao foodDao;
+
+    @Autowired
+    private FoodEatenDao foodEatenDao;
+
+    @RequestMapping(value={"/diet"}, method=RequestMethod.GET)
 	public ModelAndView viewDiet(HttpSession session) {
 		ModelAndView view = new ModelAndView();
 
@@ -65,5 +70,18 @@ public class FoodController {
 		view.setViewName("diet");
 		return view;
 	}
+
+    @RequestMapping(value={"/food/search"})
+    public ModelAndView searchFoods(HttpServletRequest request) {
+        ModelAndView view = new ModelAndView();
+
+        User user = (User) request.getSession().getAttribute("user");
+        String searchString = request.getParameter("searchString");
+        List<Food> foods = foodDao.findByNameLike(user.getId(), searchString);
+
+        view.addObject("foods", foods);
+        view.setViewName("searchFoods.jsp");
+        return view;
+    }
 	
 }

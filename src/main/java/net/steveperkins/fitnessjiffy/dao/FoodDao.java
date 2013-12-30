@@ -65,6 +65,8 @@ public class FoodDao extends BaseDao<Food> {
     }
     
     public List<Food> findByNameLike(int userId, String searchString) {
+        if(searchString == null || searchString.isEmpty())
+            return findByUser(userId);
     	String sql = 
     			"select * from "+FOOD_TABLE
     			+" where "+USER_ID+" is null"

@@ -66,7 +66,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>vaporware</finalName>
+		<finalName>fitnessjiffy-spring</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
