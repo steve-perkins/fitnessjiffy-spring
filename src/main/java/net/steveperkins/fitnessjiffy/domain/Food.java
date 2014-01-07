@@ -1,140 +1,217 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import java.util.UUID;
+
+@Entity
 public class Food {
 
-	public enum ServingType {
-		ounce(1f), cup(8f), pound(16f), pint(16f), tablespoon(0.5f), teaspoon(0.1667f), gram(0.03527f), CUSTOM(0);
-		private float value;
-		private ServingType(float value) {
-			this.value = value;
-		}
-		public static ServingType fromValue(float value) {
-			for(ServingType servingType : ServingType.values()) {
-				if(servingType.getValue() == value) {
-					return servingType;
-				}
-			}
-			return null;
-		}
-		public static ServingType fromString(String s) {
-			for(ServingType servingType : ServingType.values()) {
-				if(servingType.toString().equalsIgnoreCase(s)) {
-					return servingType;
-				}
-			}
-			return null;
-		}
-		public float getValue() {
-			return this.value;
-		}
-		@Override
-		public String toString() {
-			StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
-			for(int index = 0; index < s.length(); index++) {
-				if(index == 0 || s.charAt(index - 1) == ' ') {
+    public enum ServingType {
+        ounce(1), cup(8), pound(16), pint(16), tablespoon(0.5), teaspoon(0.1667), gram(0.03527), CUSTOM(0);
+        private double value;
+        private ServingType(double value) {
+            this.value = value;
+        }
+        public static ServingType fromValue(double value) {
+            for(ServingType servingType : ServingType.values()) {
+                if(servingType.getValue() == value) {
+                    return servingType;
+                }
+            }
+            return null;
+        }
+        public static ServingType fromString(String s) {
+            for(ServingType servingType : ServingType.values()) {
+                if(servingType.toString().equalsIgnoreCase(s)) {
+                    return servingType;
+                }
+            }
+            return null;
+        }
+        public double getValue() {
+            return this.value;
+        }
+        @Override
+        public String toString() {
+            StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
+            for(int index = 0; index < s.length(); index++) {
+                if(index == 0 || s.charAt(index - 1) == ' ') {
                     String currentCharAsString = s.charAt(index) + "";
-					s.replace(index, index + 1, currentCharAsString.toUpperCase());
-				}
-			}
-			return s.toString();
-		}
-	}
-	
-	private int id;
-	private int userId;
-	private String name;
-	private ServingType defaultServingType;
-	private float servingTypeQty;
-	private int calories;
-	private float fat;
-	private float saturatedFat;
-	private float carbs;
-	private float fiber;
-	private float sugar;
-	private float protein;
-	private float sodium;
-	
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public int getUserId() {
-		return userId;
-	}
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public ServingType getDefaultServingType() {
-		return defaultServingType;
-	}
-	public void setDefaultServingType(ServingType defaultServingType) {
-		this.defaultServingType = defaultServingType;
-	}
-	public float getServingTypeQty() {
-		return servingTypeQty;
-	}
-	public void setServingTypeQty(float servingTypeQty) {
-		this.servingTypeQty = servingTypeQty;
-	}
-	public int getCalories() {
-		return calories;
-	}
-	public void setCalories(int calories) {
-		this.calories = calories;
-	}
-	public float getFat() {
-		return fat;
-	}
-	public void setFat(float fat) {
-		this.fat = fat;
-	}
-	public float getSaturatedFat() {
-		return saturatedFat;
-	}
-	public void setSaturatedFat(float saturatedFat) {
-		this.saturatedFat = saturatedFat;
-	}
-	public float getCarbs() {
-		return carbs;
-	}
-	public void setCarbs(float carbs) {
-		this.carbs = carbs;
-	}
-	public float getFiber() {
-		return fiber;
-	}
-	public void setFiber(float fiber) {
-		this.fiber = fiber;
-	}
-	public float getSugar() {
-		return sugar;
-	}
-	public void setSugar(float sugar) {
-		this.sugar = sugar;
-	}
-	public float getProtein() {
-		return protein;
-	}
-	public void setProtein(float protein) {
-		this.protein = protein;
-	}
-	public float getSodium() {
-		return sodium;
-	}
-	public void setSodium(float sodium) {
-		this.sodium = sodium;
-	}
-    public float getPoints() {
-        float fiber = (this.fiber <= 4) ? this.fiber : 4;
-        float points = (calories / 50) + (fat / 12) - (fiber / 5);
+                    s.replace(index, index + 1, currentCharAsString.toUpperCase());
+                }
+            }
+            return s.toString();
+        }
+    }
+
+    @Id
+    @Column(columnDefinition = "BINARY(16)", length = 16)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "OWNER_ID", nullable = true)
+    private User owner;
+
+    @Column(name = "NAME", length = 50, nullable = false)
+    private String name;
+
+    @Column(name = "DEFAULT_SERVING_TYPE", length = 10, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ServingType defaultServingType;
+
+    @Column(name = "SERVING_TYPE_QTY", nullable = false)
+    private Double servingTypeQty;
+
+    @Column(name = "CALORIES", nullable = false)
+    private Integer calories;
+
+    @Column(name = "FAT", nullable = false)
+    private Double fat;
+
+    @Column(name = "SATURATED_FAT", nullable = false)
+    private Double saturatedFat;
+
+    @Column(name = "CARBS", nullable = false)
+    private Double carbs;
+
+    @Column(name = "FIBER", nullable = false)
+    private Double fiber;
+
+    @Column(name = "SUGAR", nullable = false)
+    private Double sugar;
+
+    @Column(name = "PROTEIN", nullable = false)
+    private Double protein;
+
+    @Column(name = "SODIUM", nullable = false)
+    private Double sodium;
+
+    public Food(UUID id, User owner, String name, ServingType defaultServingType,
+                double servingTypeQty, int calories, double fat, double saturatedFat,
+                double carbs, double fiber, double sugar, double protein, double sodium) {
+        this.id = (id != null) ? id : UUID.randomUUID();
+        this.owner = owner;
+        this.name = name;
+        this.defaultServingType = defaultServingType;
+        this.servingTypeQty = servingTypeQty;
+        this.calories = calories;
+        this.fat = fat;
+        this.saturatedFat = saturatedFat;
+        this.carbs = carbs;
+        this.fiber = fiber;
+        this.sugar = sugar;
+        this.protein = protein;
+        this.sodium = sodium;
+    }
+
+    public Food() {
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ServingType getDefaultServingType() {
+        return defaultServingType;
+    }
+
+    public void setDefaultServingType(ServingType defaultServingType) {
+        this.defaultServingType = defaultServingType;
+    }
+
+    public Double getServingTypeQty() {
+        return servingTypeQty;
+    }
+
+    public void setServingTypeQty(Double servingTypeQty) {
+        this.servingTypeQty = servingTypeQty;
+    }
+
+    public Integer getCalories() {
+        return calories;
+    }
+
+    public void setCalories(Integer calories) {
+        this.calories = calories;
+    }
+
+    public Double getFat() {
+        return fat;
+    }
+
+    public void setFat(Double fat) {
+        this.fat = fat;
+    }
+
+    public Double getSaturatedFat() {
+        return saturatedFat;
+    }
+
+    public void setSaturatedFat(Double saturatedFat) {
+        this.saturatedFat = saturatedFat;
+    }
+
+    public Double getCarbs() {
+        return carbs;
+    }
+
+    public void setCarbs(Double carbs) {
+        this.carbs = carbs;
+    }
+
+    public Double getFiber() {
+        return fiber;
+    }
+
+    public void setFiber(Double fiber) {
+        this.fiber = fiber;
+    }
+
+    public Double getSugar() {
+        return sugar;
+    }
+
+    public void setSugar(Double sugar) {
+        this.sugar = sugar;
+    }
+
+    public Double getProtein() {
+        return protein;
+    }
+
+    public void setProtein(Double protein) {
+        this.protein = protein;
+    }
+
+    public Double getSodium() {
+        return sodium;
+    }
+
+    public void setSodium(Double sodium) {
+        this.sodium = sodium;
+    }
+
+    public double getPoints() {
+        double fiber = (this.fiber <= 4) ? this.fiber : 4;
+        double points = (calories / 50) + (fat / 12) - (fiber / 5);
         return (points > 0) ? points : 0;
     }
 	

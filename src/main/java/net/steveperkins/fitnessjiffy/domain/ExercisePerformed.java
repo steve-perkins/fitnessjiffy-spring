@@ -5,13 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "WEIGHT")
-public class Weight {
+public class ExercisePerformed {
 
     @Id
     @Column(columnDefinition = "BINARY(16)", length = 16)
@@ -21,20 +19,25 @@ public class Weight {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "EXERCISE_ID", nullable = false)
+    private Exercise exercise;
+
     @Column(name = "DATE", nullable = false)
     private Date date;
 
-    @Column(name = "POUNDS", nullable = false)
-    private Double pounds;
+    @Column(name = "MINUTES", nullable = false)
+    private Integer minutes;
 
-    public Weight(UUID id, User user, Date date, double pounds) {
+    public ExercisePerformed(User user, Exercise exercise, Date date, int minutes) {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.user = user;
+        this.exercise = exercise;
         this.date = date;
-        this.pounds = pounds;
+        this.minutes = minutes;
     }
 
-    public Weight() {
+    public ExercisePerformed() {
     }
 
     public UUID getId() {
@@ -53,6 +56,14 @@ public class Weight {
         this.user = user;
     }
 
+    public Exercise getExercise() {
+        return exercise;
+    }
+
+    public void setExercise(Exercise exercise) {
+        this.exercise = exercise;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -61,12 +72,12 @@ public class Weight {
         this.date = date;
     }
 
-    public Double getPounds() {
-        return pounds;
+    public Integer getMinutes() {
+        return minutes;
     }
 
-    public void setPounds(Double pounds) {
-        this.pounds = pounds;
+    public void setMinutes(Integer minutes) {
+        this.minutes = minutes;
     }
-	
+
 }

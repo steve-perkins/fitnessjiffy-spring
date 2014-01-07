@@ -1,90 +1,116 @@
 package net.steveperkins.fitnessjiffy.domain;
 
 import java.util.Date;
+import java.util.UUID;
 
-import net.steveperkins.fitnessjiffy.domain.Food.ServingType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "FOOD_EATEN")
 public class FoodEaten {
 
-	private int id;
-	private int userId;
-	private Food food;
-	private Date date;
-	private ServingType servingType;
-	private float servingQty;
-	
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public int getUserId() {
-		return userId;
-	}
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-	public Food getFood() {
-		return food;
-	}
-	public void setFood(Food food) {
-		this.food = food;
-	}
-	public Date getDate() {
-		return date;
-	}
-	public void setDate(Date date) {
-		this.date = date;
-	}
-	public ServingType getServingType() {
-		return servingType;
-	}
-	public void setServingType(ServingType servingType) {
-		this.servingType = servingType;
-	}
-	public float getServingQty() {
-		return servingQty;
-	}
-	public void setServingQty(float servingQty) {
-		this.servingQty = servingQty;
-	}
-    public int getCalories() {
-        return (int) (food.getCalories() * getRatio());
+    @Id
+    @Column(columnDefinition = "BINARY(16)", length = 16)
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "FOOD_ID", nullable = false)
+    private Food food;
+
+    @Column(name = "DATE", nullable = false)
+    private Date date;
+
+    @Column(name = "SERVING_TYPE", length = 10, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Food.ServingType servingType;
+
+    @Column(name = "SERVING_QTY", nullable = false)
+    private Double servingQty;
+
+    public FoodEaten(UUID id, User user, Food food, Date date, Food.ServingType servingType,
+                     double servingQty) {
+        this.id = (id != null) ? id : UUID.randomUUID();
+        this.user = user;
+        this.food = food;
+        this.date = date;
+        this.servingType = servingType;
+        this.servingQty = servingQty;
     }
-    public int getFat() {
-        return (int) (food.getFat() * getRatio());
+
+    public FoodEaten() {
     }
-    public int getSaturatedFat() {
-        return (int) (food.getSaturatedFat() * getRatio());
+
+    public UUID getId() {
+        return id;
     }
-    public int getSodium() {
-        return (int) (food.getSodium() * getRatio());
+
+    public void setId(UUID id) {
+        this.id = id;
     }
-    public int getCarbs() {
-        return (int) (food.getCarbs() * getRatio());
+
+    public User getUser() {
+        return user;
     }
-    public int getFiber() {
-        return (int) (food.getFiber() * getRatio());
+
+    public void setUser(User user) {
+        this.user = user;
     }
-    public int getSugar() {
-        return (int) (food.getSugar() * getRatio());
+
+    public Food getFood() {
+        return food;
     }
-    public int getProtein() {
-        return (int) (food.getProtein() * getRatio());
+
+    public void setFood(Food food) {
+        this.food = food;
     }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Food.ServingType getServingType() {
+        return servingType;
+    }
+
+    public void setServingType(Food.ServingType servingType) {
+        this.servingType = servingType;
+    }
+
+    public Double getServingQty() {
+        return servingQty;
+    }
+
+    public void setServingQty(Double servingQty) {
+        this.servingQty = servingQty;
+    }
+
     public int getPoints() {
         return (int) (food.getPoints() * getRatio());
     }
 
-	private float getRatio() {
+	private double getRatio() {
         if(servingType.equals(food.getDefaultServingType())) {
             // Default serving type was used
             return servingQty / food.getServingTypeQty();
         } else {
             // Serving type needs conversion
-            float ouncesInThisServingType = servingType.getValue();
-            float ouncesInDefaultServingType = food.getDefaultServingType().getValue();
+            double ouncesInThisServingType = servingType.getValue();
+            double ouncesInDefaultServingType = food.getDefaultServingType().getValue();
             return (ouncesInDefaultServingType * food.getServingTypeQty() != 0) ? (ouncesInThisServingType * servingQty) / (ouncesInDefaultServingType * food.getServingTypeQty()) : 0;
         }
     }

@@ -84,15 +84,15 @@
 	    	</form:select>
 	    </td>
 	</tr>
-	<tr><td>Current weight:</td><td><c:if test="${not empty user && user.id != 0}">${user.currentWeight}</c:if></td></tr>
-	<tr><td>BMI:</td><td><c:if test="${not empty user && user.id != 0}"><fmt:formatNumber type="number" maxFractionDigits="2" value="${user.bmi}" /></c:if></td></tr>
-	<tr><td>Calories needed daily to maintain weight:</td><td><c:if test="${not empty user && user.id != 0}">${user.maintenanceCalories}</c:if></td></tr>
-	<tr><td>Daily Points:</td><td><c:if test="${not empty user && user.id != 0}">${user.dailyPoints}</c:if></td></tr>
+	<tr><td>Current weight:</td><td><c:if test="${not empty user && user.id != null}">${user.currentWeight}</c:if></td></tr>
+	<tr><td>BMI:</td><td><c:if test="${not empty user && user.id != null}"><fmt:formatNumber type="number" maxFractionDigits="2" value="${user.bmi}" /></c:if></td></tr>
+	<tr><td>Calories needed daily to maintain weight:</td><td><c:if test="${not empty user && user.id != null}">${user.maintenanceCalories}</c:if></td></tr>
+	<tr><td>Daily Points:</td><td><c:if test="${not empty user && user.id != null}">${user.dailyPoints}</c:if></td></tr>
 </table>
 <br/><input type='submit' value='Create / Update User'><br/><br/>
 </form:form>
 <form>
-		<c:if test="${not empty user && user.id != 0}">
+		<c:if test="${not empty user && user.id != null}">
 		<script>
 			$(function() {
 
