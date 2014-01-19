@@ -3,6 +3,7 @@
 /h2test.h2.db
 /h2test.lock.db
 /h2test.trace.db
+/src/test/resources/testdata.json
 /.settings
 /.classpath
 /.project

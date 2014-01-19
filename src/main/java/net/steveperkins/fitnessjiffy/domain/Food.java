@@ -121,6 +121,14 @@ public class Food {
         this.id = id;
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
     public String getName() {
         return name;
     }

@@ -2,8 +2,6 @@ package net.steveperkins.fitnessjiffy.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -27,7 +25,7 @@ public class User {
         }
         @Override
         public String toString() {
-            return super.toString().toLowerCase();
+            return super.toString();
         }
     }
 
@@ -74,8 +72,7 @@ public class User {
     private UUID id;
 
     @Column(name = "GENDER", length = 6, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private String gender;
 
     @Column(name = "AGE", nullable = false)
     private int age;
@@ -83,9 +80,8 @@ public class User {
     @Column(name = "HEIGHT_IN_INCHES", nullable = false)
     private double heightInInches;
 
-    @Column(name = "ACTIVITY_LEVEL", length = 17, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ActivityLevel activityLevel;
+    @Column(name = "ACTIVITY_LEVEL", nullable = false)
+    private double activityLevel;
 
     @Column(name = "USERNAME", length = 50, nullable = false)
     private String username;
@@ -117,10 +113,10 @@ public class User {
     public User(UUID id, Gender gender, int age, double heightInInches, ActivityLevel activityLevel,
                 String username, String password, String firstName, String lastName, boolean isActive) {
         this.id = (id != null) ? id : UUID.randomUUID();
-        this.gender = gender;
+        this.gender = gender.toString();
         this.age = age;
         this.heightInInches = heightInInches;
-        this.activityLevel = activityLevel;
+        this.activityLevel = activityLevel.getValue();
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -140,11 +136,11 @@ public class User {
     }
 
     public Gender getGender() {
-        return gender;
+        return Gender.fromString(gender);
     }
 
     public void setGender(Gender gender) {
-        this.gender = gender;
+        this.gender = gender.toString();
     }
 
     public int getAge() {
@@ -164,11 +160,11 @@ public class User {
     }
 
     public ActivityLevel getActivityLevel() {
-        return activityLevel;
+        return ActivityLevel.fromValue(activityLevel);
     }
 
     public void setActivityLevel(ActivityLevel activityLevel) {
-        this.activityLevel = activityLevel;
+        this.activityLevel = activityLevel.getValue();
     }
 
     public String getUsername() {
@@ -304,5 +300,23 @@ public class User {
 			return returnValue;
 		}
 	}
+
+    @Override
+    public boolean equals(Object other) {
+        if(!(other instanceof User)) {
+            return false;
+        }
+        User that = (User) other;
+        return this.getId().equals(that.getId())
+                && this.getGender().equals(that.getGender())
+                && this.getAge() == that.getAge()
+                && this.getHeightInInches() == that.getHeightInInches()
+                && this.getActivityLevel().equals(that.getActivityLevel())
+                && this.getUsername().equals(that.getUsername())
+                && this.getPassword().equals(that.getPassword())
+                && this.getFirstName().equals(that.getFirstName())
+                && this.getLastName().equals(that.getLastName())
+                && this.isActive() == that.isActive();
+    }
 	
 }

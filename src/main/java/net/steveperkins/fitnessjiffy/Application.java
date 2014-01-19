@@ -1,10 +1,7 @@
 package net.steveperkins.fitnessjiffy;
 
 import java.util.Arrays;
-import java.util.UUID;
 
-import net.steveperkins.fitnessjiffy.domain.User;
-import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -81,17 +78,6 @@ public class Application extends SpringBootServletInitializer {
         Arrays.sort(beanNames);
         for (String beanName : beanNames) {
             System.out.println(beanName);
-        }
-
-        UserRepository repository = ctx.getBean(UserRepository.class);
-
-        User user = new User(UUID.randomUUID(), User.Gender.MALE, 30, 70, User.ActivityLevel.SEDENTARY,
-                "username", "password", "Test", "User", true);
-        repository.save(user);
-
-        Iterable<User> users = repository.findAll();
-        for(User theUser : users) {
-            System.out.println("Found: " + theUser.getFirstName() + " " + theUser.getLastName());
         }
     }
 
