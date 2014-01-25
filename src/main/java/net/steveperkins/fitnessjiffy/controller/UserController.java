@@ -10,30 +10,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
 public class UserController {
 	
-//	Log log = LogFactory.getLog(UserController.class);
-
     @Autowired
 	private UserRepository userRepository;
 	
 	@RequestMapping(value={"/", "/user"}, method= RequestMethod.GET)
-	public ModelAndView viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session) {
-        ModelAndView view = new ModelAndView();
-
+	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Map<String, Object> model) {
         List<User> users = new ArrayList<>();
         for(User user : userRepository.findAll()) {
             users.add(user);
         }
-        view.addObject("users", users);
+        model.put("users", users);
 
         User user = null;
 		if(userId != null) {
@@ -48,19 +44,19 @@ public class UserController {
 			user = new User();
 		}
 		session.setAttribute("user", user);
-        view.addObject("user", user);
-        view.setViewName(Views.USER_TEMPLATE);
-        return view;
+        model.put("user", user);
+        System.out.println("returning " + Views.USER_TEMPLATE);
+        return Views.USER_TEMPLATE;
 	}
 
 	@RequestMapping(value={"/user/save"}, method=RequestMethod.POST)
-	public ModelAndView createOrUpdateUser(@ModelAttribute("user") User user, BindingResult result, HttpSession session) {
+	public String createOrUpdateUser(@ModelAttribute("user") User user, BindingResult result, HttpSession session, Map<String, Object> model) {
         user = userRepository.save(user);
-		return viewUser(user.getId(), session);
+		return viewUser(user.getId(), session, model);
 	}
 
 	@RequestMapping(value={"/user/delete/{id}"}, method=RequestMethod.GET)
-	public ModelAndView deleteUser(@PathVariable UUID id, HttpSession session) {
+	public String deleteUser(@PathVariable UUID id, HttpSession session, Map<String, Object> model) {
 		if(id != null) {
 			User user = userRepository.findOne(id);
 			if(user != null) {
@@ -68,7 +64,7 @@ public class UserController {
 			}
 		}
 		session.removeAttribute("user");
-		return viewUser(null, session);
+		return viewUser(null, session, model);
 	}
 	
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.domain.User;
 
-import static junit.framework.Assert.assertNull;
+import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes={Application.class})
+@ContextConfiguration(classes = {Application.class})
 public class BasicSmokeTests {
 
     /**
