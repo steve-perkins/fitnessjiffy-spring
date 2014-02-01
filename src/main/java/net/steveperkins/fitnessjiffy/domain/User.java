@@ -68,7 +68,7 @@ public class User {
     }
 
     @Id
-    @Column(columnDefinition = "BINARY(16)", length = 16)
+    @Column(columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @Column(name = "GENDER", length = 6, nullable = false)

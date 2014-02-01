@@ -17,7 +17,7 @@ import javax.persistence.Table;
 public class FoodEaten {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)", length = 16)
+    @Column(columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @ManyToOne

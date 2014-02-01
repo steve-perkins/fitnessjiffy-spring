@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import net.steveperkins.fitnessjiffy.etl.model.Datastore;
+import net.steveperkins.fitnessjiffy.etl.writer.H2Writer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 @Controller
 public class AdminController {
@@ -21,16 +24,19 @@ public class AdminController {
     }
 
     @RequestMapping(value="/admin/import", method=RequestMethod.POST)
-    public String importDatabase(@RequestParam("file") MultipartFile file){
+    public String importDatabase(@RequestParam("file") MultipartFile file, Map<String, Object> model){
         if (!file.isEmpty()) {
             try {
                 String jsonString = new String(file.getBytes());
-                System.out.println(jsonString);
+                Datastore datastore = Datastore.fromJSONString(jsonString);
+                H2Writer h2Writer = new H2Writer(dataSource.getConnection(), datastore);
+                h2Writer.write();
+                model.put("result", "Database import complete");
             } catch (Exception e) {
-                return "You failed to upload a file => " + e.getMessage();
+                model.put("result", "You failed to upload a file => " + e.getMessage());
             }
         } else {
-            return "You failed to upload because the file was empty.";
+            model.put("result", "You failed to upload because the file was empty.");
         }
         return Views.ADMIN_TEMPLATE;
     }

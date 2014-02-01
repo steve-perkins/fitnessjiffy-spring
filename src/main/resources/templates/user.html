@@ -44,7 +44,7 @@
 <form action="/user" method="get">
 <select name="userId">
 <option value="">NEW USER</option>
-<option th:each="userBuffer : ${users}" value="#{userBuffer.id}">#{userBuffer.firstName} #{userBuffer.lastName}</option>
+<option th:each="userBuffer : ${users}" th:value="${userBuffer.id}"><span th:text="${userBuffer.firstName}"/> <span th:text="${userBuffer.lastName}"/></option>
 </select>
 <input type="submit" value="Select User"/>
 </form>
@@ -77,10 +77,10 @@
 	    	<!--</form:select>-->
 	    </td>
 	</tr>
-	<tr><td>Current weight:</td><td>#{user.currentWeight}</td></tr>
-	<tr><td>BMI:</td><td>#{user.bmi}</td></tr>
-	<tr><td>Calories needed daily to maintain weight:</td><td>#{user.maintenanceCalories}</td></tr>
-	<tr><td>Daily Points:</td><td>#{user.dailyPoints}</td></tr>
+	<tr><td>Current weight:</td><td><span th:text="${user.currentWeight}"/></td></tr>
+	<tr><td>BMI:</td><td><span th:text="${user.bmi}"/></td></tr>
+	<tr><td>Calories needed daily to maintain weight:</td><td><span th:text="${user.maintenanceCalories}"/></td></tr>
+	<tr><td>Daily Points:</td><td><span th:text="${user.dailyPoints}"/></td></tr>
 </table>
 <br/><input type="submit" value="Create / Update User"/><br/><br/>
 </form>
