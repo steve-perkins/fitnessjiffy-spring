@@ -44,7 +44,9 @@
 <form action="/user" method="get">
 <select name="userId">
 <option value="">NEW USER</option>
-<option th:each="userBuffer : ${users}" th:value="${userBuffer.id}"><span th:text="${userBuffer.firstName}"/> <span th:text="${userBuffer.lastName}"/></option>
+<option th:each="userBuffer : ${users}" th:value="${userBuffer.id}" th:selected="${userBuffer.id} eq ${user.id}">
+    <span th:text="${userBuffer.firstName}"/> <span th:text="${userBuffer.lastName}"/>
+</option>
 </select>
 <input type="submit" value="Select User"/>
 </form>
@@ -59,8 +61,9 @@
 	<tr>
 	    <td valign="top">Gender:</td>
 	    <td>
-	    	<input type="radio" th:radiogroup="gender" value="MALE"/> male<br/>
-            <input type="radio" th:radiogroup="gender" value="FEMALE"/> male<br/>
+            <div th:each="gen : ${allGenders}">
+                <input type="radio" th:field="*{gender}" th:value="${gen}" th:text="${#strings.toLowerCase(gen)}"/>
+            </div>
 	    </td>
 	</tr>
 	<tr><td>Age:</td><td><input type="text" th:field="*{age}" maxlength="3" size="3"/></td></tr>
@@ -68,30 +71,28 @@
 	<tr>
 	    <td>Activity Level:</td>
 	    <td>
-	    	<!--<form:select path="activityLevel">-->
-	    		<!--<form:option value="SEDENTARY">Sedentary</form:option>-->
-	    		<!--<form:option value="LIGHTLY_ACTIVE">Lightly Active</form:option>-->
-	    		<!--<form:option value="MODERATELY_ACTIVE">Moderately Active</form:option>-->
-	    		<!--<form:option value="VERY_ACTIVE">Very Active</form:option>-->
-	    		<!--<form:option value="EXTREMELY_ACTIVE">Extremely Active</form:option>-->
-	    	<!--</form:select>-->
+            <select th:field="*{activityLevel}">
+                <option th:each="level : ${allActivityLevels}" th:value="${level}" th:text="${level}"></option>
+            </select>
 	    </td>
 	</tr>
-	<tr><td>Current weight:</td><td><span th:text="${user.currentWeight}"/></td></tr>
-	<tr><td>BMI:</td><td><span th:text="${user.bmi}"/></td></tr>
-	<tr><td>Calories needed daily to maintain weight:</td><td><span th:text="${user.maintenanceCalories}"/></td></tr>
-	<tr><td>Daily Points:</td><td><span th:text="${user.dailyPoints}"/></td></tr>
+	<tr><td>Current weight:</td><td><span th:text="${#numbers.formatDecimal(user.currentWeight, 0, 1)}"/></td></tr>
+	<tr><td>BMI:</td><td><span th:text="${#numbers.formatDecimal(user.bmi, 0, 2)}"/></td></tr>
+	<tr><td>Calories needed daily to maintain weight:</td><td><span th:text="${#numbers.formatInteger(user.maintenanceCalories, 0, 'COMMA')}"/></td></tr>
+	<tr><td>Daily Points:</td><td><span th:text="${#numbers.formatDecimal(user.dailyPoints, 0, 2)}"/></td></tr>
 </table>
 <br/><input type="submit" value="Create / Update User"/><br/><br/>
 </form>
 <form>
-<script th:if="${user}">
+<script th:inline="javascript" th:if="${user}">
+/*<![CDATA[*/
     $(function() {
 
         function deleteUser() {
             var confirmed = confirm("Are you SURE you want to delete this user?");
             if(confirmed) {
-                document.location.href = "/user/delete/${user.id}";
+                var userIdString = /*[[ ${user.id.toString()} ]]*/;
+                document.location.href = "/user/delete/" + userIdString;
             }
         }
 
@@ -100,6 +101,7 @@
         });
 
     });
+/*]]>*/
 </script>
 <input id="deleteButton" type="button" value="Delete User" th:if="${user}"/>
 </form>

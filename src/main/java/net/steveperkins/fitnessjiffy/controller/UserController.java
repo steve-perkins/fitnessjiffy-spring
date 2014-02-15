@@ -30,6 +30,9 @@ public class UserController {
 	
 	@RequestMapping(value = {"/", "/user"}, method = RequestMethod.GET)
 	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Map<String, Object> model) {
+        model.put("allActivityLevels", User.ActivityLevel.values());
+        model.put("allGenders", User.Gender.values());
+
         List<UserDTO> users = new ArrayList<>();
         for(User user : userService.getAllUsers()) {
             users.add(userDTOConverter.convert(user));
@@ -55,12 +58,16 @@ public class UserController {
 
 	@RequestMapping(value = {"/user/save"}, method = RequestMethod.POST)
 	public String createOrUpdateUser(@ModelAttribute("user") UserDTO user, BindingResult result, HttpSession session, Map<String, Object> model) {
+        System.out.println("Inside createOrUpdateUser() with user == " + user.toString());
+
 //        user = userRepository.save(user);
 		return viewUser(user.getId(), session, model);
 	}
 
 	@RequestMapping(value = {"/user/delete/{id}"}, method = RequestMethod.GET)
 	public String deleteUser(@PathVariable UUID id, HttpSession session, Map<String, Object> model) {
+        System.out.println("Inside deleteUser() with id == " + id.toString());
+
 //		if(id != null) {
 //			UserDTO user = userRepository.findOne(id);
 //			if(user != null) {
