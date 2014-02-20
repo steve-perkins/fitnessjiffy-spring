@@ -2,9 +2,11 @@ package net.steveperkins.fitnessjiffy.test;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.List;
 import java.util.UUID;
 
 import net.steveperkins.fitnessjiffy.Application;
+import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.User;
 
 import static junit.framework.TestCase.assertNull;
@@ -112,7 +114,19 @@ public class BasicSmokeTests {
         int count = 0;
         for(User user : userRepository.findAll()) count++;
         assertEquals(count, 1);
+
+        List<Food> foods = foodRepository.findByOwnerIsNull();
+        System.out.println(foods.size());
 	}
+
+//    @Test
+//    public void testFoodRepository() {
+//        User existingUser = userRepository.findAll().iterator().next();
+//        assertNotNull(existingUser);
+//
+//        List<Food> foods = foodRepository.findByOwner(existingUser.getId());
+//        System.out.println(foods.size());
+//    }
 	
 //	@Test
 //	public void testWeightDao() throws ParseException {

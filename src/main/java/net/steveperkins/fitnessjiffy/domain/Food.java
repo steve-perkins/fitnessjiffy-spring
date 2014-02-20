@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Food {
 
     public enum ServingType {
-        ounce(1), cup(8), pound(16), pint(16), tablespoon(0.5), teaspoon(0.1667), gram(0.03527), CUSTOM(0);
+        OUNCE(1), CUP(8), POUND(16), PINT(16), TABLESPOON(0.5), TEASPOON(0.1667), GRAM(0.03527), CUSTOM(0);
         private double value;
         private ServingType(double value) {
             this.value = value;
@@ -36,17 +36,6 @@ public class Food {
         }
         public double getValue() {
             return this.value;
-        }
-        @Override
-        public String toString() {
-            StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
-            for(int index = 0; index < s.length(); index++) {
-                if(index == 0 || s.charAt(index - 1) == ' ') {
-                    String currentCharAsString = s.charAt(index) + "";
-                    s.replace(index, index + 1, currentCharAsString.toUpperCase());
-                }
-            }
-            return s.toString();
         }
     }
 
