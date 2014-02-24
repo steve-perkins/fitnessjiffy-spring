@@ -9,8 +9,9 @@ import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.User;
 
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertNotNull;
 
 import net.steveperkins.fitnessjiffy.etl.model.Datastore;
@@ -21,6 +22,7 @@ import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +82,7 @@ public class BasicSmokeTests {
 
 	@Test
 	public void testUserRepository() {
-        // Test that database is already populated with one user
+        // Test that the database is already populated with one user
         User existingUser = userRepository.findAll().iterator().next();
         assertNotNull(existingUser);
 
@@ -114,19 +116,55 @@ public class BasicSmokeTests {
         int count = 0;
         for(User user : userRepository.findAll()) count++;
         assertEquals(count, 1);
-
-        List<Food> foods = foodRepository.findByOwnerIsNull();
-        System.out.println(foods.size());
 	}
 
-//    @Test
-//    public void testFoodRepository() {
-//        User existingUser = userRepository.findAll().iterator().next();
-//        assertNotNull(existingUser);
-//
-//        List<Food> foods = foodRepository.findByOwner(existingUser.getId());
-//        System.out.println(foods.size());
-//    }
+    @Test
+    public void testFoodRepository() {
+        // Test that the database is already populated with global foods
+        List<Food> globalFoods = foodRepository.findByOwnerIsNull();
+        assertEquals(419, globalFoods.size());
+
+        // Test that the database has at least one user, but no user-owned foods
+        User existingUser = userRepository.findAll().iterator().next();
+        assertNotNull(existingUser);
+        List<Food> userFoods = foodRepository.findByOwner(existingUser);
+        assertEquals(0, userFoods.size());
+
+        // Test creating a user-owned food
+        Food globalFood = globalFoods.get(0);
+        Food userCopyFood = new Food(
+                UUID.randomUUID(),
+                existingUser,
+                globalFood.getName(),
+                globalFood.getDefaultServingType(),
+                globalFood.getServingTypeQty(),
+                globalFood.getCalories(),
+                globalFood.getFat(),
+                globalFood.getSaturatedFat(),
+                globalFood.getCarbs(),
+                globalFood.getFiber(),
+                globalFood.getSugar(),
+                globalFood.getProtein(),
+                globalFood.getSodium()
+        );
+        foodRepository.save(userCopyFood);
+        List<Food> userOnlyFoods = foodRepository.findByOwner(existingUser);
+        assertEquals(1, userOnlyFoods.size());
+
+        // Test that user-owned foods do not show up as global...
+        globalFoods = foodRepository.findByOwnerIsNull();
+        assertEquals(419, globalFoods.size());
+
+        // ... and that global foods with the same name as user-owned food are excluded from the list of foods visible
+        // to that user
+        userFoods = foodRepository.findVisibleByOwner(existingUser);
+        assertEquals(419, userFoods.size());
+        int allFoodsCount = 0;
+        for(Food food : foodRepository.findAll()) {
+            allFoodsCount++;
+        }
+        assertEquals(420, allFoodsCount);
+    }
 	
 //	@Test
 //	public void testWeightDao() throws ParseException {
