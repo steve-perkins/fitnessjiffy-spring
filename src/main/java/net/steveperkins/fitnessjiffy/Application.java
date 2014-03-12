@@ -5,6 +5,7 @@ import java.util.Arrays;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
+import net.steveperkins.fitnessjiffy.service.FoodEatenService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,6 +32,11 @@ public class Application {
     @Bean
     UserService userService() {
         return new UserService();
+    }
+
+    @Bean
+    FoodEatenService foodEatenService() {
+        return new FoodEatenService();
     }
 
     @Bean
