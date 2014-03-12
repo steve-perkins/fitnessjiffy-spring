@@ -1,29 +1,23 @@
 package net.steveperkins.fitnessjiffy.test;
 
-import java.io.File;
-import java.sql.Connection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import junit.framework.TestCase;
 import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.domain.Food;
+import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
 
-import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.*;
 
-import net.steveperkins.fitnessjiffy.etl.model.Datastore;
-import net.steveperkins.fitnessjiffy.etl.writer.H2Writer;
-import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
-import net.steveperkins.fitnessjiffy.repository.ExerciseRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
-import net.steveperkins.fitnessjiffy.repository.WeightRepository;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,54 +25,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {Application.class})
-public class BasicSmokeTests {
-
-    /**
-     * The database setup needs to happen only once, so normally we would use a JUnit method annotated with @BeforeClass
-     * rather than @Before.  However, @BeforeClass methods must be static, and Spring can only inject the necessary DataSource
-     * object into an instance variable.  So we use this static "flag" variable here, to ensure that the @Before method
-     * only populates the database once.
-     */
-    private static boolean databasePopulated = false;
-
-    @Autowired
-    DataSource dataSource;
-
-    @Autowired
-    private ExercisePerformedRepository exercisePerformedRepository;
-
-    @Autowired
-    private ExerciseRepository exerciseRepository;
-
-    @Autowired
-    private FoodEatenRepository foodEatenRepository;
-
-    @Autowired
-    private FoodRepository foodRepository;
+public class RepositoryTests extends AbstractTests {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private WeightRepository weightRepository;
+    private FoodRepository foodRepository;
 
-    private final String CURRENT_WORKING_DIRECTORY = this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
-
-    @Before
-    public void before() throws Exception {
-        if(!databasePopulated) {
-            Datastore datastore = Datastore.fromJSONFile( new File(CURRENT_WORKING_DIRECTORY + "testdata.json") );
-            try ( Connection connection = dataSource.getConnection() ) {
-                new H2Writer(connection, datastore).write();
-                databasePopulated = true;
-            }
-        }
-    }
+    @Autowired
+    private FoodEatenRepository foodEatenRepository;
 
 	@Test
 	public void testUserRepository() {
@@ -113,9 +72,7 @@ public class BasicSmokeTests {
         // Test removal of a user
         userRepository.delete(newUser);
         assertNull(userRepository.findOne(userId));
-        int count = 0;
-        for(User user : userRepository.findAll()) count++;
-        assertEquals(count, 1);
+        assertEquals(1, userRepository.count());
 	}
 
     @Test
@@ -130,8 +87,28 @@ public class BasicSmokeTests {
         List<Food> userFoods = foodRepository.findByOwner(existingUser);
         assertEquals(0, userFoods.size());
 
-        // Test creating a user-owned food
+        // Test creating a global food
         Food globalFood = globalFoods.get(0);
+        Food globalCopyFood = new Food(
+                UUID.randomUUID(),
+                null,
+                "Test Global Food",
+                globalFood.getDefaultServingType(),
+                globalFood.getServingTypeQty(),
+                globalFood.getCalories(),
+                globalFood.getFat(),
+                globalFood.getSaturatedFat(),
+                globalFood.getCarbs(),
+                globalFood.getFiber(),
+                globalFood.getSugar(),
+                globalFood.getProtein(),
+                globalFood.getSodium()
+        );
+        foodRepository.save(globalCopyFood);
+        globalFoods = foodRepository.findByOwnerIsNull();
+        assertEquals(420, globalFoods.size());
+
+        // Test creating a user-owned food
         Food userCopyFood = new Food(
                 UUID.randomUUID(),
                 existingUser,
@@ -153,38 +130,49 @@ public class BasicSmokeTests {
 
         // Test that user-owned foods do not show up as global...
         globalFoods = foodRepository.findByOwnerIsNull();
-        assertEquals(419, globalFoods.size());
+        assertEquals(420, globalFoods.size());
 
         // ... and that global foods with the same name as user-owned food are excluded from the list of foods visible
         // to that user
         userFoods = foodRepository.findVisibleByOwner(existingUser);
-        assertEquals(419, userFoods.size());
-        int allFoodsCount = 0;
-        for(Food food : foodRepository.findAll()) {
-            allFoodsCount++;
-        }
-        assertEquals(420, allFoodsCount);
+        assertEquals(420, userFoods.size());
+        assertEquals(421, foodRepository.count());
+
+        // Test delete food
+        foodRepository.delete(globalCopyFood);
+        foodRepository.delete(userCopyFood);
+        assertEquals(419, foodRepository.count());
     }
 	
-//	@Test
-//	public void testWeightDao() throws ParseException {
-//		WeightDao weightDao = applicationContext.getBean(WeightDao.class);
-//		List<Weight> weights = weightDao.findAllForUser(1, dateFormatter.parse("2007-11-22"), dateFormatter.parse("2013-10-12"));
-//		assertEquals(weights.size(), 2061);
-//	}
-//
-//	@Test
-//	public void testFoodDao() throws ParseException {
-//		FoodDao foodDao = applicationContext.getBean(FoodDao.class);
-//		List<Food> foods = foodDao.findByUser(1);
-//		assertEquals(foods.size(), 418);
-//	}
-//
-//	@Test
-//	public void testFoodEatenDao() throws ParseException {
-//		FoodEatenDao foodEatenDao = applicationContext.getBean(FoodEatenDao.class);
-//		List<FoodEaten> foodsEaten = foodEatenDao.findEatenOnDate(1, dateFormatter.parse("2013-10-13"));
-//		assertEquals(foodsEaten.size(), 8);
-//	}
+    @Test
+    public void testFoodEatenRepository() throws ParseException {
+        // Grab the first test user, and confirm that they have foods eaten
+        User existingUser = userRepository.findAll().iterator().next();
+        assertNotNull(existingUser);
+        assertEquals(19307, foodEatenRepository.count());
+
+        // Test "recently eaten foods" query
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = simpleDateFormat.parse("2013-12-01");
+        List<FoodEaten> recentFoods = foodEatenRepository.findByUserEqualsAndDateAfter(existingUser, date);
+        TestCase.assertEquals(95, recentFoods.size());
+
+        // Test a save
+        FoodEaten foodEaten = recentFoods.get(0);
+        FoodEaten copyFoodEaten = new FoodEaten(
+                UUID.randomUUID(),
+                existingUser,
+                foodEaten.getFood(),
+                new Date(),
+                foodEaten.getServingType(),
+                foodEaten.getServingQty()
+        );
+        foodEatenRepository.save(copyFoodEaten);
+        assertEquals(19308, foodEatenRepository.count());
+
+        // Test delete
+        foodEatenRepository.delete(copyFoodEaten);
+        assertEquals(19307, foodEatenRepository.count());
+    }
 	
 }
