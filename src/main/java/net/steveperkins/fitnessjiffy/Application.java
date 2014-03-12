@@ -2,10 +2,13 @@ package net.steveperkins.fitnessjiffy;
 
 import java.util.Arrays;
 
+import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodToFoodDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
-import net.steveperkins.fitnessjiffy.service.FoodEatenService;
+import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,13 +38,18 @@ public class Application {
     }
 
     @Bean
-    FoodEatenService foodEatenService() {
-        return new FoodEatenService();
+    FoodService foodService() {
+        return new FoodService();
     }
 
     @Bean
     Converter<User, UserDTO> userDTOConverter() {
         return new UserToUserDTO();
+    }
+
+    @Bean
+    Converter<Food, FoodDTO> foodDTOConverter() {
+        return new FoodToFoodDTO();
     }
 
     public static void main(String[] args) {

@@ -4,7 +4,6 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,24 +23,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private Converter<User, UserDTO> userDTOConverter;
-	
 	@RequestMapping(value = {"/", "/user"}, method = RequestMethod.GET)
 	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Map<String, Object> model) {
         model.put("allActivityLevels", User.ActivityLevel.values());
         model.put("allGenders", User.Gender.values());
 
-        List<UserDTO> users = new ArrayList<>();
-        for(User user : userService.getAllUsers()) {
-            users.add(userDTOConverter.convert(user));
-        }
+        List<UserDTO> users = userService.userToDTO(userService.getAllUsers());
         model.put("users", users);
 
         UserDTO user = null;
 		if(userId != null) {
 			// A user has been selected
-			user = userDTOConverter.convert(userService.getUser(userId));
+            user = userService.userToDTO(userService.getUser(userId));
 			user = (user != null) ? user : new UserDTO();
 		} else if(session.getAttribute("user") != null && session.getAttribute("user") instanceof UserDTO) {
 			// A previously-selected user exists in the session

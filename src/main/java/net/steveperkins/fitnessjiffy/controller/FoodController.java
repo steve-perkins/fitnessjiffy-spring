@@ -3,11 +3,11 @@ package net.steveperkins.fitnessjiffy.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.User;
 
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
-import net.steveperkins.fitnessjiffy.service.FoodEatenService;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodDTO;
+import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +21,7 @@ import java.util.List;
 public class FoodController {
 
     @Autowired
-    FoodEatenService foodEatenService;
+    FoodService foodService;
 
     @RequestMapping(value={"/diet"}, method=RequestMethod.GET)
 	public ModelAndView viewDiet(HttpSession session) {
@@ -29,7 +29,10 @@ public class FoodController {
 
 		UserDTO user = (UserDTO) session.getAttribute("user");
         Date date = new Date();  // TODO: Look for dynamic value passed as request parameter
-        List<Food> foodsEatenRecently = foodEatenService.findEatenRecently(user.getId());  // TODO: Convert to DTO before putting on the Model
+        List<FoodDTO> foodsEatenRecently = foodService.foodToDTO(foodService.findEatenRecently(user.getId()));
+
+
+
 //        List<FoodEaten> foodsEatenThisDate = foodEatenDao.findEatenOnDate(user.getId(), new Date());
         int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay, pointsForDay;
         caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = pointsForDay = 0;

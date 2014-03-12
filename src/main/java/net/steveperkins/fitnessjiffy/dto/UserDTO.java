@@ -21,9 +21,21 @@ public class UserDTO {
     private int maintenanceCalories;
     private int dailyPoints;
 
-    public UserDTO(UUID id, User.Gender gender, int age, double heightInInches, User.ActivityLevel activityLevel,
-                   String username, String password, String firstName, String lastName, boolean isActive,
-                   double currentWeight, double bmi, int maintenanceCalories, int dailyPoints) {
+    public UserDTO(UUID id,
+                   User.Gender gender,
+                   int age,
+                   double heightInInches,
+                   User.ActivityLevel activityLevel,
+                   String username,
+                   String password,
+                   String firstName,
+                   String lastName,
+                   boolean isActive,
+                   double currentWeight,
+                   double bmi,
+                   int maintenanceCalories,
+                   int dailyPoints
+    ) {
         this.id = id;
         this.gender = gender;
         this.age = age;
