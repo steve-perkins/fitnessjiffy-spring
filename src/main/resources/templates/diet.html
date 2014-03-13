@@ -27,15 +27,32 @@
 	* html #rap {
 	    width: 730px;
 	    w\idth: 800px;
-	}       
+	}
+	table.foodsEatenOnDate {
+	    width: 100%;
+	}
+	table.foodsEatenOnDate th {
+	    border-bottom: 2px solid black;
+	    text-align: center;
+	    padding: 2px;
+	}
+	table.foodsEatenOnDate td {
+	    border-bottom: 2px solid black;
+	    text-align: center;
+	    padding: 2px;
+	}
 	-->     
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>	
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 	<script>
   		$(function() {
-            //$.datepicker.formatDate( format, date, settings )
-    		$("#datepicker").datepicker();
+    		$("#datepicker").datepicker({
+    		    dateFormat: "yy-mm-dd",
+    		    onSelect: function(dateText) {
+    		        window.location.href = window.location.href.split('?')[0] + "?date=" + this.value;
+                }
+    		});
   		});
   	</script>
 </head>
@@ -57,7 +74,7 @@
             <b>Recently Eaten Foods:</b><br/>
             <form>
                 <input type="text" id="datepicker" />
-                <input type="submit" value="Change Date"/>
+                <!--<input type="submit" value="Change Date"/>-->
                 <select name="FoodID">
                 <option th:each="recentFood : ${foodsEatenRecently}" th:value="${recentFood.id}"><span th:text="${recentFood.name}"/></option>
                 </select>
@@ -75,30 +92,29 @@
     </tr>
 </table>
 
-<table width="100%" cellspacing="0" cellpadding="2">
+<table class="foodsEatenOnDate" cellspacing="0" cellpadding="2">
 <tr>
-    <td style="border-bottom: 2px solid black;" width="30%">Food</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"># of Servings</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Serving Size</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Calories</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Fat</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Sat. Fat</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Sodium</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Carbs</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Fiber</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Sugar</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Protein</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">Points</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">&nbsp;</td>
-    <td style="border-bottom: 2px solid black; text-align: center;">&nbsp;</td>
+    <th width="30%">Food</th>
+    <th># of Servings</th>
+    <th>Serving Size</th>
+    <th>Calories</th>
+    <th>Fat</th>
+    <th>Sat. Fat</th>
+    <th>Sodium</th>
+    <th>Carbs</th>
+    <th>Fiber</th>
+    <th>Sugar</th>
+    <th>Protein</th>
+    <th>Points</th>
+    <th>&nbsp;</th>
+    <th>&nbsp;</th>
 </tr>
-<!--
-<c:forEach items="${foodsEatenThisDate}" var="foodEaten">
-<tr>
+<tr th:each="foodEaten : ${foodsEatenThisDate}">
 <form>
-    <td style="border-bottom: 1px solid black;" width="30%">${foodEaten.food.name}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;"><input type="text" size="2" name="FoodEatenQty" value="${foodEaten.servingQty}"></td>
-    <td style="border-bottom: 1px solid black; text-align: center;">
+    <td width="30%" th:text="${foodEaten.food.name}"></td>
+    <td><input type="text" size="2" name="FoodEatenQty" th:value="${foodEaten.servingQty}"/></td>
+    <td>
+        <!--
         <select name="FoodEatenServing">
             <c:choose>
                 <c:when test="${foodEaten.servingType == 'CUSTOM'}">
@@ -115,42 +131,40 @@
                 </c:otherwise>
             </c:choose>
         </select>
+        -->
     </td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.calories}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.fat}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.saturatedFat}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.sodium}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.carbs}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.fiber}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.sugar}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.protein}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">${foodEaten.points}</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">Update</td>
-    <td style="border-bottom: 1px solid black; text-align: center;">Delete</td>
+    <td th:text="${foodEaten.calories}"></td>
+    <td th:text="${foodEaten.fat}"></td>
+    <td th:text="${foodEaten.saturatedFat}"></td>
+    <td th:text="${foodEaten.sodium}"></td>
+    <td th:text="${foodEaten.carbs}"></td>
+    <td th:text="${foodEaten.fiber}"></td>
+    <td th:text="${foodEaten.sugar}"></td>
+    <td th:text="${foodEaten.protein}"></td>
+    <td th:text="${foodEaten.points}"></td>
+    <td>Update</td>
+    <td>Delete</td>
 </form>
 </tr>
-</c:forEach>
-
 <tr>
-    <td style="border-bottom: 2px solid black;" width="30%"><br/>TOTAL: </td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>&nbsp;</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${caloriesForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${fatForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${saturatedFatForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${sodiumForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${carbsForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${fiberForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${sugarForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${proteinForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;"><br/>${pointsForDay}</td>
-    <td style="border-bottom: 2px solid black; text-align: center;" colspan="2">net cal.<br/>net points</td>
+    <td width="30%"><br/>TOTAL: </td>
+    <td><br/>&nbsp;</td>
+    <td><br/>&nbsp;</td>
+    <td th:value="${caloriesForDay}"><br/></td>
+    <td th:value="${fatForDay}"><br/></td>
+    <td th:value="${saturatedFatForDay}"><br/></td>
+    <td th:value="${sodiumForDay}"><br/></td>
+    <td th:value="${carbsForDay}"><br/></td>
+    <td th:value="${fiberForDay}"><br/></td>
+    <td th:value="${sugarForDay}"><br/></td>
+    <td th:value="${proteinForDay}"><br/></td>
+    <td th:value="${pointsForDay}"><br/></td>
+    <td colspan="2">net cal.<br/>net points</td>
 </tr>
--->
 </table>
 
 <br/>
-<form><input type="hidden" name="page" value="foods"/><input type="submit" value="Add / Manage Foods"/></form>
+<form><input type="submit" value="Add / Manage Foods"/></form>
 <br/>
 
 </div>

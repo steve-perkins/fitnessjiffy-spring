@@ -99,6 +99,38 @@ public class FoodEaten {
         this.servingQty = servingQty;
     }
 
+    public int getCalories() {
+        return (int) (food.getCalories() * getRatio());
+    }
+
+    public double getFat() {
+        return food.getCalories() * getRatio();
+    }
+
+    public double getSaturatedFat() {
+        return food.getSaturatedFat() * getRatio();
+    }
+
+    public double getSodium() {
+        return food.getSodium() * getRatio();
+    }
+
+    public double getCarbs() {
+        return food.getCarbs() * getRatio();
+    }
+
+    public double getFiber() {
+        return food.getFiber() * getRatio();
+    }
+
+    public double getSugar() {
+        return food.getSugar() * getRatio();
+    }
+
+    public double getProtein() {
+        return food.getProtein() * getRatio();
+    }
+
     public int getPoints() {
         return (int) (food.getPoints() * getRatio());
     }

@@ -1,56 +1,66 @@
-package net.steveperkins.fitnessjiffy.dto.converter;
+package net.steveperkins.fitnessjiffy.dto;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
+import java.util.Date;
 import java.util.UUID;
 
-public class FoodDTO {
+public class FoodEatenDTO {
 
     private UUID id;
-    private UUID ownerId;
-    private String name;
-    private Food.ServingType defaultServingType;
-    private double servingTypeQty;
+    private UUID userId;
+    private FoodDTO food;
+    private Date date;
+    private Food.ServingType servingType;
+    private double servingQty;
+
+    // fields derived from the food, times the ratio between the default serving and the serving amount eaten
+
     private int calories;
     private double fat;
     private double saturatedFat;
+    private double sodium;
     private double carbs;
     private double fiber;
     private double sugar;
     private double protein;
-    private double sodium;
+    private double points;
 
-    public FoodDTO(
+    public FoodEatenDTO(
             UUID id,
-            UUID ownerId,
-            String name,
-            Food.ServingType defaultServingType,
-            double servingTypeQty,
+            UUID userId,
+            FoodDTO food,
+            Date date,
+            Food.ServingType servingType,
+            double servingQty,
             int calories,
             double fat,
             double saturatedFat,
+            double sodium,
             double carbs,
             double fiber,
             double sugar,
             double protein,
-            double sodium
+            double points
     ) {
         this.id = id;
-        this.ownerId = ownerId;
-        this.name = name;
-        this.defaultServingType = defaultServingType;
-        this.servingTypeQty = servingTypeQty;
+        this.userId = userId;
+        this.food = food;
+        this.date = date;
+        this.servingType = servingType;
+        this.servingQty = servingQty;
         this.calories = calories;
         this.fat = fat;
         this.saturatedFat = saturatedFat;
+        this.sodium = sodium;
         this.carbs = carbs;
         this.fiber = fiber;
         this.sugar = sugar;
         this.protein = protein;
-        this.sodium = sodium;
+        this.points = points;
     }
 
-    public FoodDTO() {
+    public FoodEatenDTO() {
     }
 
     public UUID getId() {
@@ -61,36 +71,44 @@ public class FoodDTO {
         this.id = id;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setOwnerId(UUID ownerId) {
-        this.ownerId = ownerId;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public FoodDTO getFood() {
+        return food;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFood(FoodDTO food) {
+        this.food = food;
     }
 
-    public Food.ServingType getDefaultServingType() {
-        return defaultServingType;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDefaultServingType(Food.ServingType defaultServingType) {
-        this.defaultServingType = defaultServingType;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public double getServingTypeQty() {
-        return servingTypeQty;
+    public Food.ServingType getServingType() {
+        return servingType;
     }
 
-    public void setServingTypeQty(double servingTypeQty) {
-        this.servingTypeQty = servingTypeQty;
+    public void setServingType(Food.ServingType servingType) {
+        this.servingType = servingType;
+    }
+
+    public double getServingQty() {
+        return servingQty;
+    }
+
+    public void setServingQty(double servingQty) {
+        this.servingQty = servingQty;
     }
 
     public int getCalories() {
@@ -115,6 +133,14 @@ public class FoodDTO {
 
     public void setSaturatedFat(double saturatedFat) {
         this.saturatedFat = saturatedFat;
+    }
+
+    public double getSodium() {
+        return sodium;
+    }
+
+    public void setSodium(double sodium) {
+        this.sodium = sodium;
     }
 
     public double getCarbs() {
@@ -149,11 +175,11 @@ public class FoodDTO {
         this.protein = protein;
     }
 
-    public double getSodium() {
-        return sodium;
+    public double getPoints() {
+        return points;
     }
 
-    public void setSodium(double sodium) {
-        this.sodium = sodium;
+    public void setPoints(double points) {
+        this.points = points;
     }
 }

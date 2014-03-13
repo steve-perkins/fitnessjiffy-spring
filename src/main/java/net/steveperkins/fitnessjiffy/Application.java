@@ -3,9 +3,12 @@ package net.steveperkins.fitnessjiffy;
 import java.util.Arrays;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
+import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
+import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
-import net.steveperkins.fitnessjiffy.dto.converter.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodEatenToFoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.FoodToFoodDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import net.steveperkins.fitnessjiffy.service.FoodService;
@@ -50,6 +53,11 @@ public class Application {
     @Bean
     Converter<Food, FoodDTO> foodDTOConverter() {
         return new FoodToFoodDTO();
+    }
+
+    @Bean
+    Converter<FoodEaten, FoodEatenDTO> foodEatenFoodEatenDTOConverter() {
+        return new FoodEatenToFoodEatenDTO();
     }
 
     public static void main(String[] args) {

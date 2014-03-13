@@ -5,6 +5,7 @@ import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -24,12 +24,12 @@ public class UserController {
     private UserService userService;
 
 	@RequestMapping(value = {"/", "/user"}, method = RequestMethod.GET)
-	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Map<String, Object> model) {
-        model.put("allActivityLevels", User.ActivityLevel.values());
-        model.put("allGenders", User.Gender.values());
+	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Model model) {
+        model.addAttribute("allActivityLevels", User.ActivityLevel.values());
+        model.addAttribute("allGenders", User.Gender.values());
 
         List<UserDTO> users = userService.userToDTO(userService.getAllUsers());
-        model.put("users", users);
+        model.addAttribute("users", users);
 
         UserDTO user = null;
 		if(userId != null) {
@@ -44,12 +44,12 @@ public class UserController {
 			user = new UserDTO();
 		}
 		session.setAttribute("user", user);
-        model.put("user", user);
+        model.addAttribute("user", user);
         return Views.USER_TEMPLATE;
 	}
 
 	@RequestMapping(value = {"/user/save"}, method = RequestMethod.POST)
-	public String createOrUpdateUser(@ModelAttribute("user") UserDTO user, BindingResult result, HttpSession session, Map<String, Object> model) {
+	public String createOrUpdateUser(@ModelAttribute("user") UserDTO user, BindingResult result, HttpSession session, Model model) {
         System.out.println("Inside createOrUpdateUser() with user == " + user.toString());
 
 //        user = userRepository.save(user);
@@ -57,7 +57,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = {"/user/delete/{id}"}, method = RequestMethod.GET)
-	public String deleteUser(@PathVariable UUID id, HttpSession session, Map<String, Object> model) {
+	public String deleteUser(@PathVariable UUID id, HttpSession session, Model model) {
         System.out.println("Inside deleteUser() with id == " + id.toString());
 
 //		if(id != null) {
