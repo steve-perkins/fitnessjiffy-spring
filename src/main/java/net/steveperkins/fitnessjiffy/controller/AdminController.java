@@ -1,7 +1,7 @@
 package net.steveperkins.fitnessjiffy.controller;
 
 import net.steveperkins.fitnessjiffy.etl.model.Datastore;
-import net.steveperkins.fitnessjiffy.etl.writer.H2Writer;
+import net.steveperkins.fitnessjiffy.etl.writer.PostgresWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +29,8 @@ public class AdminController {
             try {
                 String jsonString = new String(file.getBytes());
                 Datastore datastore = Datastore.fromJSONString(jsonString);
-                H2Writer h2Writer = new H2Writer(dataSource.getConnection(), datastore);
-                h2Writer.write();
+                PostgresWriter postgresWriter = new PostgresWriter(dataSource.getConnection(), datastore);
+                postgresWriter.write();
                 model.put("result", "Database import complete");
             } catch (Exception e) {
                 model.put("result", "You failed to upload a file => " + e.getMessage());

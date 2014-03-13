@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "FITNESSJIFFY_USER")
 public class User {
 
     public enum Gender {
