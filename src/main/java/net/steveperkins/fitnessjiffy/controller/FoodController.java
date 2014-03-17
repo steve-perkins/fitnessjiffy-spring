@@ -34,9 +34,9 @@ public class FoodController {
             Model model
     ) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
         if(dateString != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 date = new Date(simpleDateFormat.parse(dateString).getTime());
             } catch (ParseException e) {
@@ -44,7 +44,9 @@ public class FoodController {
             }
         } else {
             date = new Date(new java.util.Date().getTime());
+            dateString = simpleDateFormat.format(date);
         }
+        System.out.println("dateString == " + dateString);
 
         List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
         List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
@@ -63,7 +65,7 @@ public class FoodController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("date", date);
+        model.addAttribute("dateString", dateString);
         model.addAttribute("foodsEatenRecently", foodsEatenRecently);
         model.addAttribute("foodsEatenThisDate", foodsEatenThisDate);
         model.addAttribute("caloriesForDay", caloriesForDay);
@@ -75,6 +77,9 @@ public class FoodController {
         model.addAttribute("sugarForDay", sugarForDay);
         model.addAttribute("proteinForDay", proteinForDay);
         model.addAttribute("pointsForDay", pointsForDay);
+        // TODO: Adjust the two values below to account for calories burned through exercise
+        model.addAttribute("netCalories", caloriesForDay);
+        model.addAttribute("netPoints", pointsForDay);
 
 		return Views.DIET_TEMPLATE;
 	}

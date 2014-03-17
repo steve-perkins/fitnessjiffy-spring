@@ -2,13 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
 <head>
 	<title>Diet</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
 	<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
 	<style>
 	<!--
 	body {
 	    background: #5B211A repeat-x center top;
 	    color: #000;
-	    font-family: "Hoefler Text", Georgia, "Times New Roman", Times, serif;
+	    font-family: 'Open Sans', sans-serif;
 	    margin: 0;
 	    padding: 0;
 	    text-align: center;
@@ -48,15 +49,7 @@
 	<script th:inline="javascript">
     /*<![CDATA[*/
   		$(function() {
-  		    $.urlParam = function(name) {
-                var results = new RegExp("[\\?&amp;]" + name + "=([^&amp;#]*)").exec(window.location.href);
-                if(results == null) {
-                    return null;
-                }
-                return results[1] || "";
-            };
-
-            var dateString = $.urlParam("date");
+            var dateString = /*[[${dateString}]]*/;
             if(!dateString || dateString === "") {
                 var date = new Date();
                 var year = date.getFullYear();
@@ -101,6 +94,7 @@
         <td align="center" valign="middle">
             <b>Recently Eaten Foods:</b><br/>
             <form>
+                <input type="hidden" name="date" th:value="${dateString}"/>
                 <select name="FoodID">
                 <option th:each="recentFood : ${foodsEatenRecently}" th:value="${recentFood.id}"><span th:text="${recentFood.name}"/></option>
                 </select>
@@ -110,7 +104,7 @@
         <td align="center" valign="middle">
             <form method="get">
                 &nbsp;<br/>
-                <input type="hidden" name="page" value="searchfoods"/>
+                <input type="hidden" name="date" th:value="${dateString}"/>
                 <input type="text" name="FoodName"/>
                 <input type="submit" value="Search Foods"/>
             </form>
@@ -137,27 +131,35 @@
 </tr>
 <tr th:each="foodEaten : ${foodsEatenThisDate}">
 <form>
+    <input type="hidden" name="date" th:value="${dateString}"/>
     <td width="30%" th:text="${foodEaten.food.name}"></td>
     <td><input type="text" size="2" name="FoodEatenQty" th:value="${foodEaten.servingQty}"/></td>
     <td>
-        <!--
-        <select name="FoodEatenServing">
-            <c:choose>
-                <c:when test="${foodEaten.servingType == 'CUSTOM'}">
-                    <option value='CUSTOM' selected>CUSTOM</option>
-                </c:when>
-                <c:otherwise>
-                    <option value='ounce' <c:if test="${foodEaten.servingType == 'ounce'}">selected</c:if>>ounce</option>
-                    <option value='cup' <c:if test="${foodEaten.servingType == 'cup'}">selected</c:if>>cup</option>
-                    <option value='pound' <c:if test="${foodEaten.servingType == 'pound'}">selected</c:if>>pound</option>
-                    <option value='pint' <c:if test="${foodEaten.servingType == 'pint'}">selected</c:if>>pint</option>
-                    <option value='tablespoon' <c:if test="${foodEaten.servingType == 'tablespoon'}">selected</c:if>>tablespoon</option>
-                    <option value='teaspoon' <c:if test="${foodEaten.servingType == 'teaspoon'}">selected</c:if>>teaspoon</option>
-                    <option value='gram' <c:if test="${foodEaten.servingType == 'gram'}">selected</c:if>>gram</option>
-                </c:otherwise>
-            </c:choose>
+        <select name="FoodEatenServing" th:if="${foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
+            <option selected="selected">CUSTOM</option>
         </select>
-        -->
+        <select name="FoodEatenServing" th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce" selected="selected">ounce</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce">ounce</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('cup')}" value="cup" selected="selected">cup</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('cup')}" value="cup">cup</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('pound')}" value="pound" selected="selected">pound</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('pound')}" value="pound">pound</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('pint')}" value="pint" selected="selected">pint</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('pint')}" value="pint">pint</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('tablespoon')}" value="tablespoon" selected="selected">tablespoon</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('tablespoon')}" value="tablespoon">tablespoon</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('teaspoon')}" value="teaspoon" selected="selected">teaspoon</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('teaspoon')}" value="teaspoon">teaspoon</option>
+
+            <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('gram')}" value="gram" selected="selected">gram</option>
+            <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('gram')}" value="gram">gram</option>
+        </select>
     </td>
     <td th:text="${foodEaten.calories} % 1 == 0 ? ${foodEaten.calories} : ${#numbers.formatDecimal(foodEaten.calories, 0, 2)}"></td>
     <td th:text="${foodEaten.fat} % 1 == 0 ? ${foodEaten.fat} : ${#numbers.formatDecimal(foodEaten.fat, 0, 2)}"></td>
@@ -185,7 +187,7 @@
     <td th:text="${sugarForDay} % 1 == 0 ? ${sugarForDay} : ${#numbers.formatDecimal(sugarForDay, 0, 2)}"><br/></td>
     <td th:text="${proteinForDay} % 1 == 0 ? ${proteinForDay} : ${#numbers.formatDecimal(proteinForDay, 0, 2)}"><br/></td>
     <td th:text="${pointsForDay} % 1 == 0 ? ${pointsForDay} : ${#numbers.formatDecimal(pointsForDay, 0, 2)}"><br/></td>
-    <td colspan="2">net cal.<br/>net points</td>
+    <td colspan="2"><span th:text="${netCalories}"/> net cal.<br/><span th:text="${netPoints}"/> net points</td>
 </tr>
 </table>
 
