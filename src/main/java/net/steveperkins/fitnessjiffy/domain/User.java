@@ -239,68 +239,6 @@ public class User {
         this.exercisesPerformed = exercisesPerformed;
     }
 
-	
-	public double getCurrentWeight() {
-		return (this.weights != null && this.weights.size() > 0) ? this.weights.iterator().next().getPounds() : 0;
-	}
-	
-	public double getBmi() {
-		return (getCurrentWeight() == 0 || getHeightInInches() == 0) ? 0 : (getCurrentWeight() * 703) / (getHeightInInches() * getHeightInInches());
-	}
-	
-	public int getMaintenanceCalories() {
-		if(getGender() == null || getCurrentWeight() == 0 || getHeightInInches() == 0 || getAge() == 0 || getActivityLevel() == null) {
-			return 0;
-		} else {
-			double centimeters = getHeightInInches() * 2.54f;
-			double kilograms   = getCurrentWeight() / 2.2f;
-			double adjustedWeight = getGender().equals(Gender.FEMALE) ? 655f + (9.6f * kilograms) : 66f + (13.7f * kilograms);
-			double adjustedHeight = getGender().equals(Gender.FEMALE) ? 1.7f * centimeters : 5f * centimeters;
-			float adjustedAge = getGender().equals(Gender.FEMALE) ? 4.7f * getAge() : 6.8f * getAge();
-			
-			return (int) ((adjustedWeight + adjustedHeight - adjustedAge) * getActivityLevel().value);
-		}
-	}
-	
-	public int getDailyPoints() {
-		if(getGender() == null || getAge() == 0 || getCurrentWeight() == 0 || getHeightInInches() == 0 || getActivityLevel() == null) {
-			return 0;
-		} else {
-			// Factor in gender
-			int returnValue = getGender().equals(Gender.FEMALE) ? 2 : 8;
-			// Factor in age
-			if(getAge() <= 26) {
-				returnValue += 4;
-			} else if(getAge() <= 37) {
-				returnValue += 3;
-			} else if(getAge() <= 47) {
-				returnValue += 2;
-			} else if(getAge() <= 58) {
-				returnValue += 1;
-			}
-			// Factor in weight
-			returnValue += (getCurrentWeight() / 10f);
-			// Factor in height
-			if(getHeightInInches() >= 61 && getHeightInInches() <= 70) {
-				returnValue += 1;
-			} else if(getHeightInInches() > 70) {
-				returnValue += 2;
-			}
-			// Factor in activity level
-			if(getActivityLevel().equals(ActivityLevel.EXTREMELY_ACTIVE) || getActivityLevel().equals(ActivityLevel.VERY_ACTIVE)) {
-				returnValue += 6;
-			} else if(getActivityLevel().equals(ActivityLevel.MODERATELY_ACTIVE)) {
-				returnValue += 4;
-			} else if(getActivityLevel().equals(ActivityLevel.LIGHTLY_ACTIVE)) {
-				returnValue += 2;
-			}
-			// Factor in daily "flex" points quota 
-			returnValue += 5;
-			
-			return returnValue;
-		}
-	}
-
     @Override
     public boolean equals(Object other) {
         if(!(other instanceof User)) {

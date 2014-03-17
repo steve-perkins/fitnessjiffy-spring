@@ -10,14 +10,15 @@ import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Date;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Controller
@@ -28,17 +29,25 @@ public class FoodController {
 
     @RequestMapping(value={"/diet"}, method=RequestMethod.GET)
 	public String viewDiet(
-            @RequestParam(value="date", required=false) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) Date date,
+            @RequestParam(value="date", required=false) String dateString,
             HttpSession session,
             Model model
     ) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
-        if(date == null) {
-            date = new Date();
+        Date date = null;
+        if(dateString != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                date = new Date(simpleDateFormat.parse(dateString).getTime());
+            } catch (ParseException e) {
+                date = new Date(new java.util.Date().getTime());
+            }
+        } else {
+            date = new Date(new java.util.Date().getTime());
         }
 
-        List<FoodDTO> foodsEatenRecently = foodService.foodToDTO(foodService.findEatenRecently(user.getId()));
-        List<FoodEatenDTO> foodsEatenThisDate = foodService.foodEatenToDTO(foodService.findEatenOnDate(user.getId(), date));
+        List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
+        List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
         int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay, pointsForDay;
         caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = pointsForDay = 0;
         for(FoodEatenDTO foodEaten : foodsEatenThisDate) {

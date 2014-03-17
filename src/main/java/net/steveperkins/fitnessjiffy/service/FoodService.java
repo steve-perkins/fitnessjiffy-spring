@@ -6,13 +6,14 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
+import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
@@ -20,10 +21,13 @@ import java.util.UUID;
 public class FoodService {
 
     @Autowired
-    FoodEatenRepository foodEatenRepository;
+    UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    FoodRepository foodRepository;
+
+    @Autowired
+    FoodEatenRepository foodEatenRepository;
 
     @Autowired
     Converter<Food, FoodDTO> foodDTOConverter;
@@ -31,29 +35,31 @@ public class FoodService {
     @Autowired
     Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
 
-    public List<FoodEaten> findEatenOnDate(UUID userId, Date date) {
+    public List<FoodEatenDTO> findEatenOnDate(UUID userId, Date date) {
         User user = userRepository.findOne(userId);
-        return foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
+        List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
+        return foodEatenToDTO(foodEatens);
     }
 
-    public List<Food> findEatenRecently(UUID userId) {
+    public List<FoodDTO> findEatenRecently(UUID userId, Date currentDate) {
         User user = userRepository.findOne(userId);
         Calendar calendar = new GregorianCalendar();
+        calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, -14);
-        Date twoWeeksAgo = calendar.getTime();
-
-        List<Food> foods = new ArrayList<>();
-        for(FoodEaten foodEaten : foodEatenRepository.findByUserEqualsAndDateAfter(user, twoWeeksAgo)) {
-            foods.add(foodEaten.getFood());
-        }
-        return foods;
+        Date twoWeeksAgo = new Date(calendar.getTime().getTime());
+        List<Food> recentFoods = foodEatenRepository.findByUserEatenWithinRange(
+                user,
+                new java.sql.Date(twoWeeksAgo.getTime()),
+                new java.sql.Date(currentDate.getTime())
+        );
+        return foodToDTO(recentFoods);
     }
 
-    public FoodDTO foodToDTO(Food food) {
+    private FoodDTO foodToDTO(Food food) {
         return foodDTOConverter.convert(food);
     }
 
-    public List<FoodDTO> foodToDTO(List<Food> foods) {
+    private List<FoodDTO> foodToDTO(List<Food> foods) {
         List<FoodDTO> dtos = new ArrayList<>();
         for(Food food : foods) {
             dtos.add(foodDTOConverter.convert(food));
@@ -61,11 +67,11 @@ public class FoodService {
         return dtos;
     }
 
-    public FoodEatenDTO foodEatenToDTO(FoodEaten foodEaten) {
+    private FoodEatenDTO foodEatenToDTO(FoodEaten foodEaten) {
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    public List<FoodEatenDTO> foodEatenToDTO(List<FoodEaten> foodsEaten) {
+    private List<FoodEatenDTO> foodEatenToDTO(List<FoodEaten> foodsEaten) {
         List<FoodEatenDTO> dtos = new ArrayList<>();
         for(FoodEaten foodEaten : foodsEaten) {
             dtos.add(foodEatenDTOConverter.convert(foodEaten));

@@ -1,8 +1,10 @@
 package net.steveperkins.fitnessjiffy.test;
 
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +14,6 @@ import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
@@ -153,17 +154,25 @@ public class RepositoryTests extends AbstractTests {
 
         // Test "recently eaten foods" query
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = simpleDateFormat.parse("2013-12-01");
-        List<FoodEaten> recentFoods = foodEatenRepository.findByUserEqualsAndDateAfter(existingUser, date);
-        TestCase.assertEquals(95, recentFoods.size());
+        Date currentDate = new Date(simpleDateFormat.parse("2013-12-01").getTime());
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(currentDate);
+        calendar.add(Calendar.DATE, -14);
+        Date twoWeeksAgo = new Date(calendar.getTime().getTime());
+        List<Food> recentFoods = foodEatenRepository.findByUserEatenWithinRange(
+                existingUser,
+                new java.sql.Date(twoWeeksAgo.getTime()),
+                new java.sql.Date(currentDate.getTime())
+        );
+        TestCase.assertEquals(72, recentFoods.size());
 
         // Test a save
-        FoodEaten foodEaten = recentFoods.get(0);
+        FoodEaten foodEaten = foodEatenRepository.findAll().iterator().next();
         FoodEaten copyFoodEaten = new FoodEaten(
                 UUID.randomUUID(),
                 existingUser,
                 foodEaten.getFood(),
-                new Date(),
+                new java.sql.Date(new java.util.Date().getTime()),
                 foodEaten.getServingType(),
                 foodEaten.getServingQty()
         );

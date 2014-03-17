@@ -37,7 +37,7 @@
 	    padding: 2px;
 	}
 	table.foodsEatenOnDate td {
-	    border-bottom: 2px solid black;
+	    border-bottom: 1px solid black;
 	    text-align: center;
 	    padding: 2px;
 	}
@@ -45,15 +45,41 @@
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>	
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-	<script>
+	<script th:inline="javascript">
+    /*<![CDATA[*/
   		$(function() {
+  		    $.urlParam = function(name) {
+                var results = new RegExp("[\\?&amp;]" + name + "=([^&amp;#]*)").exec(window.location.href);
+                if(results == null) {
+                    return null;
+                }
+                return results[1] || "";
+            };
+
+            var dateString = $.urlParam("date");
+            if(!dateString || dateString === "") {
+                var date = new Date();
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                if(month < 10) {
+                    month = "0" + month;
+                }
+                var day = date.getDate();
+                if(day < 10) {
+                    day = "0" + day;
+                }
+                dateString = year + "-" + month + "-" + day;
+            }
+
     		$("#datepicker").datepicker({
     		    dateFormat: "yy-mm-dd",
     		    onSelect: function(dateText) {
     		        window.location.href = window.location.href.split('?')[0] + "?date=" + this.value;
                 }
     		});
+    		$("#datepicker").datepicker("setDate", dateString);
   		});
+    /*]]>*/
   	</script>
 </head>
 
@@ -66,15 +92,15 @@
         <td width="25%" align="center"><a href="/weight">Weight</a></td>
 </tr></table><br/>
 
-<br/><b>Foods Eaten On:</b><br/>
+<form>
+    <br/><b>Foods Eaten On:</b> <input type="text" id="datepicker" /> <span style="font-size: 75%;">(click to change)</span><br/><br/>
+</form>
 
 <table width="100%">
     <tr>
         <td align="center" valign="middle">
             <b>Recently Eaten Foods:</b><br/>
             <form>
-                <input type="text" id="datepicker" />
-                <!--<input type="submit" value="Change Date"/>-->
                 <select name="FoodID">
                 <option th:each="recentFood : ${foodsEatenRecently}" th:value="${recentFood.id}"><span th:text="${recentFood.name}"/></option>
                 </select>
@@ -133,15 +159,15 @@
         </select>
         -->
     </td>
-    <td th:text="${foodEaten.calories}"></td>
-    <td th:text="${foodEaten.fat}"></td>
-    <td th:text="${foodEaten.saturatedFat}"></td>
-    <td th:text="${foodEaten.sodium}"></td>
-    <td th:text="${foodEaten.carbs}"></td>
-    <td th:text="${foodEaten.fiber}"></td>
-    <td th:text="${foodEaten.sugar}"></td>
-    <td th:text="${foodEaten.protein}"></td>
-    <td th:text="${foodEaten.points}"></td>
+    <td th:text="${foodEaten.calories} % 1 == 0 ? ${foodEaten.calories} : ${#numbers.formatDecimal(foodEaten.calories, 0, 2)}"></td>
+    <td th:text="${foodEaten.fat} % 1 == 0 ? ${foodEaten.fat} : ${#numbers.formatDecimal(foodEaten.fat, 0, 2)}"></td>
+    <td th:text="${foodEaten.saturatedFat} % 1 == 0 ? ${foodEaten.saturatedFat} : ${#numbers.formatDecimal(foodEaten.saturatedFat, 0, 2)}"></td>
+    <td th:text="${foodEaten.sodium} % 1 == 0 ? ${foodEaten.sodium} : ${#numbers.formatDecimal(foodEaten.sodium, 0, 2)}"></td>
+    <td th:text="${foodEaten.carbs} % 1 == 0 ? ${foodEaten.carbs} : ${#numbers.formatDecimal(foodEaten.carbs, 0, 2)}"></td>
+    <td th:text="${foodEaten.fiber} % 1 == 0 ? ${foodEaten.fiber} : ${#numbers.formatDecimal(foodEaten.fiber, 0, 2)}"></td>
+    <td th:text="${foodEaten.sugar} % 1 == 0 ? ${foodEaten.sugar} : ${#numbers.formatDecimal(foodEaten.sugar, 0, 2)}"></td>
+    <td th:text="${foodEaten.protein} % 1 == 0 ? ${foodEaten.protein} : ${#numbers.formatDecimal(foodEaten.protein, 0, 2)}"></td>
+    <td th:text="${foodEaten.points} % 1 == 0 ? ${foodEaten.points} : ${#numbers.formatDecimal(foodEaten.points, 0, 2)}"></td>
     <td>Update</td>
     <td>Delete</td>
 </form>
@@ -150,15 +176,15 @@
     <td width="30%"><br/>TOTAL: </td>
     <td><br/>&nbsp;</td>
     <td><br/>&nbsp;</td>
-    <td th:value="${caloriesForDay}"><br/></td>
-    <td th:value="${fatForDay}"><br/></td>
-    <td th:value="${saturatedFatForDay}"><br/></td>
-    <td th:value="${sodiumForDay}"><br/></td>
-    <td th:value="${carbsForDay}"><br/></td>
-    <td th:value="${fiberForDay}"><br/></td>
-    <td th:value="${sugarForDay}"><br/></td>
-    <td th:value="${proteinForDay}"><br/></td>
-    <td th:value="${pointsForDay}"><br/></td>
+    <td th:text="${caloriesForDay} % 1 == 0 ? ${caloriesForDay} : ${#numbers.formatDecimal(caloriesForDay, 0, 2)}"><br/></td>
+    <td th:text="${fatForDay} % 1 == 0 ? ${fatForDay} : ${#numbers.formatDecimal(fatForDay, 0, 2)}"><br/></td>
+    <td th:text="${saturatedFatForDay} % 1 == 0 ? ${saturatedFatForDay} : ${#numbers.formatDecimal(saturatedFatForDay, 0, 2)}"><br/></td>
+    <td th:text="${sodiumForDay} % 1 == 0 ? ${sodiumForDay} : ${#numbers.formatDecimal(sodiumForDay, 0, 2)}"><br/></td>
+    <td th:text="${carbsForDay} % 1 == 0 ? ${carbsForDay} : ${#numbers.formatDecimal(carbsForDay, 0, 2)}"><br/></td>
+    <td th:text="${fiberForDay} % 1 == 0 ? ${fiberForDay} : ${#numbers.formatDecimal(fiberForDay, 0, 2)}"><br/></td>
+    <td th:text="${sugarForDay} % 1 == 0 ? ${sugarForDay} : ${#numbers.formatDecimal(sugarForDay, 0, 2)}"><br/></td>
+    <td th:text="${proteinForDay} % 1 == 0 ? ${proteinForDay} : ${#numbers.formatDecimal(proteinForDay, 0, 2)}"><br/></td>
+    <td th:text="${pointsForDay} % 1 == 0 ? ${pointsForDay} : ${#numbers.formatDecimal(pointsForDay, 0, 2)}"><br/></td>
     <td colspan="2">net cal.<br/>net points</td>
 </tr>
 </table>

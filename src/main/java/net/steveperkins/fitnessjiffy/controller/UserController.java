@@ -28,13 +28,13 @@ public class UserController {
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
 
-        List<UserDTO> users = userService.userToDTO(userService.getAllUsers());
+        List<UserDTO> users = userService.getAllUsers();
         model.addAttribute("users", users);
 
         UserDTO user = null;
 		if(userId != null) {
 			// A user has been selected
-            user = userService.userToDTO(userService.getUser(userId));
+            user = userService.getUser(userId);
 			user = (user != null) ? user : new UserDTO();
 		} else if(session.getAttribute("user") != null && session.getAttribute("user") instanceof UserDTO) {
 			// A previously-selected user exists in the session

@@ -28,7 +28,7 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
             + "OR ("
             + "food.owner IS NULL "
             + "AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
-            + ")"
+            + ") ORDER BY food"
     )
     List<Food> findVisibleByOwner(@Param("owner") User owner);
 
