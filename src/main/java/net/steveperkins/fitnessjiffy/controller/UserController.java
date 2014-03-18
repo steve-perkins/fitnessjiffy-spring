@@ -24,7 +24,7 @@ public class UserController {
     private UserService userService;
 
 	@RequestMapping(value = {"/", "/user"}, method = RequestMethod.GET)
-	public String viewUser(@RequestParam(value="userId", required=false) UUID userId, HttpSession session, Model model) {
+	public String viewMainUserPage(@RequestParam(value = "userId", required = false) UUID userId, HttpSession session, Model model) {
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
 
@@ -53,7 +53,7 @@ public class UserController {
         System.out.println("Inside createOrUpdateUser() with user == " + user.toString());
 
 //        user = userRepository.save(user);
-		return viewUser(user.getId(), session, model);
+		return viewMainUserPage(user.getId(), session, model);
 	}
 
 	@RequestMapping(value = {"/user/delete/{id}"}, method = RequestMethod.GET)
@@ -67,7 +67,7 @@ public class UserController {
 //			}
 //		}
 		session.removeAttribute("user");
-		return viewUser(null, session, model);
+		return viewMainUserPage(null, session, model);
     }
 	
 }

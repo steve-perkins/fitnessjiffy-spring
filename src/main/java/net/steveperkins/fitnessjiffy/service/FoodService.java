@@ -55,6 +55,23 @@ public class FoodService {
         return foodToDTO(recentFoods);
     }
 
+    public FoodEatenDTO findFoodEatenById(UUID foodEatenId) {
+        FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        return foodEatenToDTO(foodEaten);
+    }
+
+    public void updateFoodEaten(UUID foodEatenId, double servingQty, Food.ServingType servingType) {
+        FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        foodEaten.setServingQty(servingQty);
+        foodEaten.setServingType(servingType);
+        foodEatenRepository.save(foodEaten);
+    }
+
+    public void deleteFoodEaten(UUID foodEatenId) {
+        FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        foodEatenRepository.delete(foodEaten);
+    }
+
     private FoodDTO foodToDTO(Food food) {
         return foodDTOConverter.convert(food);
     }

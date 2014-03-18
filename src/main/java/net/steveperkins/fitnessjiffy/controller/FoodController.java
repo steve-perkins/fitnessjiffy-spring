@@ -3,6 +3,7 @@ package net.steveperkins.fitnessjiffy.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.User;
 
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
@@ -20,6 +21,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class FoodController {
@@ -27,14 +29,15 @@ public class FoodController {
     @Autowired
     FoodService foodService;
 
-    @RequestMapping(value={"/diet"}, method=RequestMethod.GET)
-	public String viewDiet(
-            @RequestParam(value="date", required=false) String dateString,
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    @RequestMapping(value = {"/food"}, method=RequestMethod.GET)
+	public String viewMainFoodPage(
+            @RequestParam(value = "date", required = false) String dateString,
             HttpSession session,
             Model model
     ) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
         if(dateString != null) {
             try {
@@ -46,7 +49,6 @@ public class FoodController {
             date = new Date(new java.util.Date().getTime());
             dateString = simpleDateFormat.format(date);
         }
-        System.out.println("dateString == " + dateString);
 
         List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
         List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
@@ -81,10 +83,35 @@ public class FoodController {
         model.addAttribute("netCalories", caloriesForDay);
         model.addAttribute("netPoints", pointsForDay);
 
-		return Views.DIET_TEMPLATE;
+		return Views.FOOD_TEMPLATE;
 	}
 
-    @RequestMapping(value={"/food/search"})
+    @RequestMapping(value = "/food/eaten/update")
+    public String updateFoodEaten(
+            @RequestParam(value = "foodEatenId", required = true) String foodEatenId,
+            @RequestParam(value = "foodEatenQty", required = true) double foodEatenQty,
+            @RequestParam(value = "foodEatenServing", required = true) String foodEatenServing,
+            @RequestParam(value = "action", required = true) String action,
+            HttpSession session,
+            Model model
+    ) {
+        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        UUID foodEatenUUID = UUID.fromString(foodEatenId);
+        FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
+        String dateString = simpleDateFormat.format(foodEatenDTO.getDate());
+        if(!userDTO.getId().equals(foodEatenDTO.getUserId())) {
+            // TODO: Add logging, and flash message on view template
+            System.out.println("\n\nThis user is unable to update this food eaten\n");
+        } else if(action.equalsIgnoreCase("update")) {
+            Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);
+            foodService.updateFoodEaten(foodEatenUUID, foodEatenQty, servingType);
+        } else if(action.equalsIgnoreCase("delete")) {
+            foodService.deleteFoodEaten(foodEatenUUID);
+        }
+        return viewMainFoodPage(dateString, session, model);
+    }
+
+    @RequestMapping(value = {"/food/search"})
     public String searchFoods(HttpServletRequest request, Model model) {
         User user = (User) request.getSession().getAttribute("user");
         String searchString = request.getParameter("searchString");

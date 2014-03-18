@@ -13,7 +13,13 @@ import java.util.UUID;
 
 public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
 
-    List<FoodEaten> findByUserEqualsAndDateEquals(User user, Date date);
+    @Query(
+            "SELECT foodEaten FROM FoodEaten foodEaten, Food food "
+                    + "WHERE foodEaten.food = food "
+                    + "AND foodEaten.user = :user "
+                    + "AND foodEaten.date = :date "
+                    + "ORDER BY food.name ASC")
+    List<FoodEaten> findByUserEqualsAndDateEquals(@Param("user") User user, @Param("date") Date date);
 
     @Query(
             "SELECT DISTINCT food FROM Food food, FoodEaten foodEaten "

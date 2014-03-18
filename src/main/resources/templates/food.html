@@ -67,7 +67,7 @@
     		$("#datepicker").datepicker({
     		    dateFormat: "yy-mm-dd",
     		    onSelect: function(dateText) {
-    		        window.location.href = window.location.href.split('?')[0] + "?date=" + this.value;
+    		        window.location.href = "/food?date=" + this.value;
                 }
     		});
     		$("#datepicker").datepicker("setDate", dateString);
@@ -80,7 +80,7 @@
 <div id="border"><br/>
 <table style="width: 100%; border-top: 2px solid #000000; border-bottom: 2px solid #000000;"><tr>
         <td width="25%" align="center"><a href="/user">User</a></td>
-        <td width="25%" align="center"><a href="/diet">Diet</a></td>
+        <td width="25%" align="center"><a href="/food">Food</a></td>
         <td width="25%" align="center"><a href="/exercise">Exercise</a></td>
         <td width="25%" align="center"><a href="/weight">Weight</a></td>
 </tr></table><br/>
@@ -130,15 +130,15 @@
     <th>&nbsp;</th>
 </tr>
 <tr th:each="foodEaten : ${foodsEatenThisDate}">
-<form>
-    <input type="hidden" name="date" th:value="${dateString}"/>
+<form action="/food/eaten/update">
+    <input type="hidden" name="foodEatenId" th:value="${foodEaten.id}"/>
     <td width="30%" th:text="${foodEaten.food.name}"></td>
-    <td><input type="text" size="2" name="FoodEatenQty" th:value="${foodEaten.servingQty}"/></td>
+    <td><input type="text" size="2" name="foodEatenQty" th:value="${foodEaten.servingQty}"/></td>
     <td>
-        <select name="FoodEatenServing" th:if="${foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
+        <select name="foodEatenServing" th:if="${foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
             <option selected="selected">CUSTOM</option>
         </select>
-        <select name="FoodEatenServing" th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
+        <select name="foodEatenServing" th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('CUSTOM')}">
             <option th:if="${foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce" selected="selected">ounce</option>
             <option th:if="${not foodEaten.servingType.toString().equalsIgnoreCase('ounce')}" value="ounce">ounce</option>
 
@@ -170,8 +170,8 @@
     <td th:text="${foodEaten.sugar} % 1 == 0 ? ${foodEaten.sugar} : ${#numbers.formatDecimal(foodEaten.sugar, 0, 2)}"></td>
     <td th:text="${foodEaten.protein} % 1 == 0 ? ${foodEaten.protein} : ${#numbers.formatDecimal(foodEaten.protein, 0, 2)}"></td>
     <td th:text="${foodEaten.points} % 1 == 0 ? ${foodEaten.points} : ${#numbers.formatDecimal(foodEaten.points, 0, 2)}"></td>
-    <td>Update</td>
-    <td>Delete</td>
+    <td><input type="submit" name="action" value="Update"/></td>
+    <td><input type="submit" name="action" value="Delete" onclick="javascript:return confirm('Are you SURE you want to delete this food entry?');"/></td>
 </form>
 </tr>
 <tr>
