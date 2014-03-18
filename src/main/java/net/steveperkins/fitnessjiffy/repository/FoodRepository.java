@@ -28,8 +28,20 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
             + "OR ("
             + "food.owner IS NULL "
             + "AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
-            + ") ORDER BY food"
+            + ") ORDER BY food.name ASC"
     )
     List<Food> findVisibleByOwner(@Param("owner") User owner);
+
+    @Query(
+            "SELECT food FROM Food food "
+            + "WHERE ("
+            + "   food.owner = :owner "
+            + "   OR ("
+            + "      food.owner IS NULL "
+            + "      AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
+            + "   )"
+            + ") AND LOWER(food.name) LIKE LOWER(CONCAT('%', :name, '%')) "
+            + "ORDER BY food.name ASC")
+    List<Food> findByNameLike(@Param("owner") User owner, @Param("name") String name);
 
 }

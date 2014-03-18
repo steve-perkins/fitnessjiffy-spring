@@ -38,7 +38,7 @@ public class FoodService {
     public List<FoodEatenDTO> findEatenOnDate(UUID userId, Date date) {
         User user = userRepository.findOne(userId);
         List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
-        return foodEatenToDTO(foodEatens);
+        return foodsEatenToDTO(foodEatens);
     }
 
     public List<FoodDTO> findEatenRecently(UUID userId, Date currentDate) {
@@ -52,7 +52,7 @@ public class FoodService {
                 new java.sql.Date(twoWeeksAgo.getTime()),
                 new java.sql.Date(currentDate.getTime())
         );
-        return foodToDTO(recentFoods);
+        return foodsToDTO(recentFoods);
     }
 
     public FoodEatenDTO findFoodEatenById(UUID foodEatenId) {
@@ -72,11 +72,19 @@ public class FoodService {
         foodEatenRepository.delete(foodEaten);
     }
 
+    public List<FoodDTO> searchFoods(UUID userId, String searchString) {
+        User user = userRepository.findOne(userId);
+        List<Food> foods = foodRepository.findByNameLike(user, searchString);
+        return foodsToDTO(foods);
+    }
+
+
+
     private FoodDTO foodToDTO(Food food) {
         return foodDTOConverter.convert(food);
     }
 
-    private List<FoodDTO> foodToDTO(List<Food> foods) {
+    private List<FoodDTO> foodsToDTO(List<Food> foods) {
         List<FoodDTO> dtos = new ArrayList<>();
         for(Food food : foods) {
             dtos.add(foodDTOConverter.convert(food));
@@ -88,7 +96,7 @@ public class FoodService {
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    private List<FoodEatenDTO> foodEatenToDTO(List<FoodEaten> foodsEaten) {
+    private List<FoodEatenDTO> foodsEatenToDTO(List<FoodEaten> foodsEaten) {
         List<FoodEatenDTO> dtos = new ArrayList<>();
         for(FoodEaten foodEaten : foodsEaten) {
             dtos.add(foodEatenDTOConverter.convert(foodEaten));

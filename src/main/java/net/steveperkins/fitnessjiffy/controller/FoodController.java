@@ -1,10 +1,8 @@
 package net.steveperkins.fitnessjiffy.controller;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
-import net.steveperkins.fitnessjiffy.domain.User;
 
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
@@ -13,9 +11,11 @@ import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.Date;
 import java.text.ParseException;
@@ -111,13 +111,15 @@ public class FoodController {
         return viewMainFoodPage(dateString, session, model);
     }
 
-    @RequestMapping(value = {"/food/search"})
-    public String searchFoods(HttpServletRequest request, Model model) {
-        User user = (User) request.getSession().getAttribute("user");
-        String searchString = request.getParameter("searchString");
-//        List<Food> foods = foodDao.findByNameLike(user.getId(), searchString);
-//        model.addAttribute("foods", foods);
-        return Views.SEARCH_FOODS_TEMPLATE;
+    @RequestMapping(value = "/food/search/{searchString}")
+    public @ResponseBody List<FoodDTO> searchFoods(
+            @PathVariable String searchString,
+            HttpSession session,
+            Model model
+    ) {
+        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        List<FoodDTO> foods = foodService.searchFoods(userDTO.getId(), searchString);
+        return foods;
     }
 	
 }

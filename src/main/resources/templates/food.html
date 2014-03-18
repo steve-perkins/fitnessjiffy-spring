@@ -42,6 +42,10 @@
 	    text-align: center;
 	    padding: 2px;
 	}
+	.ui-widget {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 0.8em;
+    }
 	-->     
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>	
@@ -71,6 +75,27 @@
                 }
     		});
     		$("#datepicker").datepicker("setDate", dateString);
+
+            $("#searchFoodsButton").click(function() {
+    		    var searchFoodName = $("#searchFoodName").val();
+    		    var request = $.ajax({
+    		        url: "/food/search/" + encodeURIComponent(searchFoodName),
+    		        dataType: "json",
+
+    		        success: function(response) {
+    		            $("#searchFoodsModalBody").html(JSON.stringify(response));
+                        $("#searchFoodsModal").dialog({
+                            width: 900,
+                            height: 400,
+                            modal: true
+                        });
+    		        },
+
+    		        fail: function(jqXHR, textStatus) {
+    		            alert( "Request failed: " + textStatus );
+    		        }
+    		    });
+            });
   		});
     /*]]>*/
   	</script>
@@ -105,8 +130,8 @@
             <form method="get">
                 &nbsp;<br/>
                 <input type="hidden" name="date" th:value="${dateString}"/>
-                <input type="text" name="FoodName"/>
-                <input type="submit" value="Search Foods"/>
+                <input type="text" id="searchFoodName" name="searchFoodName"/>
+                <input type="button" id="searchFoodsButton" value="Search Foods"/>
             </form>
         </td>
     </tr>
@@ -194,6 +219,15 @@
 <br/>
 <form><input type="submit" value="Add / Manage Foods"/></form>
 <br/>
+
+
+
+<div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
+    <div id="searchFoodsModal" title="Search Foods">
+        <div id="searchFoodsModalBody"/>
+    </div>
+</div>
+
 
 </div>
 </body>
