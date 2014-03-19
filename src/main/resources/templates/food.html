@@ -53,6 +53,7 @@
 	<script th:inline="javascript">
     /*<![CDATA[*/
   		$(function() {
+
             var dateString = /*[[${dateString}]]*/;
             if(!dateString || dateString === "") {
                 var date = new Date();
@@ -87,9 +88,16 @@
     		            $("#searchFoodsTable").append("<tr><th>Name</th><th>Default Serving</th><th>Calories</th><th>Fat</th><th>Carbs</th><th></th></tr>");
     		            for(var index = 0; index < response.length; index++) {
     		                var food = response[index];
-    		                var foodRow = "<tr><td>" + food.name + "</td><td>" + food.servingTypeQty + " " + food.defaultServingType.toLowerCase() + "</td>";
-    		                foodRow += "<td>" + food.calories + "</td><td>" + food.fat + "</td><td>" + food.carbs + "</td>";
-    		                foodRow += "<td><input type='button' value='Add'/> <input type='button' value='Edit/Copy'/></td></tr>";
+    		                var fat = (food.fat % 1 === 0) ? food.fat : food.fat.toFixed(1);
+    		                var carbs = (food.carbs % 1 === 0) ? food.carbs : food.carbs.toFixed(1);
+    		                var foodRow = "<tr><td><a href='/food/eaten/add?date=" + dateString + "&foodId=" + food.id + "'>" + food.name + "</a></td>";
+    		                foodRow += "<td>" + food.servingTypeQty + " " + food.defaultServingType.toLowerCase() + "</td>";
+    		                foodRow += "<td>" + food.calories + "</td><td>" + fat + "</td><td>" + carbs + "</td>";
+    		                if(!food.ownerId) {
+        		                foodRow += "<td><input type='button' value='Customize'/></td></tr>";
+    		                } else {
+        		                foodRow += "<td><input type='button' value='Edit'/></td></tr>";
+    		                }
     		                $("#searchFoodsTable").append(foodRow);
     		            }
                         $("#searchFoodsModal").dialog({
@@ -104,6 +112,7 @@
     		        }
     		    });
             });
+
   		});
     /*]]>*/
   	</script>
@@ -231,8 +240,14 @@
 
 
 <div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
-    <div id="searchFoodsModal" title="Search Foods">
-        <table id="searchFoodsTable">
+    <div id="searchFoodsModal" title="Search Foods" style="text-align: center;">
+        <div style="margin: 0 auto; width: 75%">Click a food's name to add it to the foods eaten on this date.<br/><br/></div>
+        <div style="margin: 0 auto; width: 75%">
+            Click the "Customize" button to take a food from the global list available to everyone, and make your
+            own private customized version of it.  Click the "Edit" button to modify a food that's already in your
+            own private custom list.<br/><br/>
+        </div>
+        <table id="searchFoodsTable" style="margin: 0 auto;">
 
         </table>
     </div>

@@ -60,6 +60,29 @@ public class FoodService {
         return foodEatenToDTO(foodEaten);
     }
 
+    public void addFoodEaten(UUID userId, UUID foodId, Date date) {
+        boolean duplicate = false;
+        for(FoodEatenDTO foodAlreadyEaten : findEatenOnDate(userId, date)) {
+            if(foodAlreadyEaten.getFood().getId().equals(foodId)) {
+                duplicate = true;
+                break;
+            }
+        }
+        if(!duplicate) {
+            User user = userRepository.findOne(userId);
+            Food food = foodRepository.findOne(foodId);
+            FoodEaten foodEaten = new FoodEaten(
+                    UUID.randomUUID(),
+                    user,
+                    food,
+                    date,
+                    food.getDefaultServingType(),
+                    food.getServingTypeQty()
+            );
+            foodEatenRepository.save(foodEaten);
+        }
+    }
+
     public void updateFoodEaten(UUID foodEatenId, double servingQty, Food.ServingType servingType) {
         FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         foodEaten.setServingQty(servingQty);

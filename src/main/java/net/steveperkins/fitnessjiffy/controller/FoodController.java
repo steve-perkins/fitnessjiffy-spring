@@ -86,6 +86,26 @@ public class FoodController {
 		return Views.FOOD_TEMPLATE;
 	}
 
+    @RequestMapping(value = "/food/eaten/add")
+    public String addFoodEaten(
+            @RequestParam(value = "foodId", required = true) String foodIdString,
+            @RequestParam(value = "date", required = true) String dateString,
+            HttpSession session,
+            Model model
+    ) {
+        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        UUID foodId = UUID.fromString(foodIdString);
+        Date date = null;
+        try {
+            date = new Date(simpleDateFormat.parse(dateString).getTime());
+        } catch (ParseException e) {
+            date = new Date(new java.util.Date().getTime());
+        }
+        foodService.addFoodEaten(userDTO.getId(), foodId, date);
+
+        return viewMainFoodPage(dateString, session, model);
+    }
+
     @RequestMapping(value = "/food/eaten/update")
     public String updateFoodEaten(
             @RequestParam(value = "foodEatenId", required = true) String foodEatenId,
