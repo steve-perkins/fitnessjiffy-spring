@@ -83,7 +83,15 @@
     		        dataType: "json",
 
     		        success: function(response) {
-    		            $("#searchFoodsModalBody").html(JSON.stringify(response));
+    		            $("#searchFoodsTable").html("");
+    		            $("#searchFoodsTable").append("<tr><th>Name</th><th>Default Serving</th><th>Calories</th><th>Fat</th><th>Carbs</th><th></th></tr>");
+    		            for(var index = 0; index < response.length; index++) {
+    		                var food = response[index];
+    		                var foodRow = "<tr><td>" + food.name + "</td><td>" + food.servingTypeQty + " " + food.defaultServingType.toLowerCase() + "</td>";
+    		                foodRow += "<td>" + food.calories + "</td><td>" + food.fat + "</td><td>" + food.carbs + "</td>";
+    		                foodRow += "<td><input type='button' value='Add'/> <input type='button' value='Edit/Copy'/></td></tr>";
+    		                $("#searchFoodsTable").append(foodRow);
+    		            }
                         $("#searchFoodsModal").dialog({
                             width: 900,
                             height: 400,
@@ -224,7 +232,9 @@
 
 <div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
     <div id="searchFoodsModal" title="Search Foods">
-        <div id="searchFoodsModalBody"/>
+        <table id="searchFoodsTable">
+
+        </table>
     </div>
 </div>
 
