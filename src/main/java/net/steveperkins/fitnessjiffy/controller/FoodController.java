@@ -11,11 +11,7 @@ import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.text.ParseException;
@@ -134,12 +130,37 @@ public class FoodController {
     @RequestMapping(value = "/food/search/{searchString}")
     public @ResponseBody List<FoodDTO> searchFoods(
             @PathVariable String searchString,
+            HttpSession session
+    ) {
+        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        return foodService.searchFoods(userDTO.getId(), searchString);
+    }
+
+    @RequestMapping(value = "/food/get/{foodId}")
+    public @ResponseBody FoodDTO getFood(
+            @PathVariable String foodId,
+            HttpSession session
+    ) {
+        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+
+        // TODO: Don't return the food if it's not visible to this user
+
+        return foodService.getFoodById(UUID.fromString(foodId));
+    }
+
+    @RequestMapping(value = "/food/update")
+    public String createOrUpdateFood(
+            @ModelAttribute FoodDTO foodDTO,
+            @RequestParam(value = "date", required = true) String dateString,
             HttpSession session,
             Model model
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
-        List<FoodDTO> foods = foodService.searchFoods(userDTO.getId(), searchString);
-        return foods;
+
+        // TODO: If the food already exists ("foodId" != null) and is private ("ownerId" != null), then simply update the food.
+        // TODO: If the food is new ("foodId" == null) or is an existing global food ("ownerId" == null), then create a new private food if the name is unique for this user.
+
+        return viewMainFoodPage(dateString, session, model);
     }
 	
 }

@@ -68,7 +68,9 @@
             dateString = year + "-" + month + "-" + day;
         }
 
+        // On document load...
   		$(function() {
+            // Initialize date picker widget
     		$("#datepicker").datepicker({
     		    dateFormat: "yy-mm-dd",
     		    onSelect: function(dateText) {
@@ -77,13 +79,14 @@
     		});
     		$("#datepicker").datepicker("setDate", dateString);
 
+            // Add event handling to the "Search Foods" button
             $("#searchFoodsButton").click(function() {
-    		    var searchFoodName = $("#searchFoodName").val();
-                searchFoods(searchFoodName);
+                searchFoods();
             });
   		});
 
-  		function searchFoods(searchString) {
+  		function searchFoods() {
+            var searchString = $("#searchFoodName").val();
             var request = $.ajax({
                 url: "/food/search/" + encodeURIComponent(searchString),
                 dataType: "json",
@@ -126,13 +129,48 @@
                 $("#editFoodModal").attr("title", "Edit Food");
                 $("#editFoodMessage").html("<p>You are about to edit a food from your private customized list.</p>");
             }
+            var request = $.ajax({
+                url: "/food/get/" + encodeURIComponent(foodId),
+                dataType: "json",
 
-            // TODO: Make an AJAX call to retrieve the current state of the food, and populate editable form fields on the modal.  Have the form submit to a page-loading controller method.
+                success: function(food) {
+                    $("#editFoodServingType").html("");
+                    if(food.defaultServingType.toUpperCase() === "CUSTOM") {
+                        $("#editFoodServingType").append("<option value='CUSTOM'>CUSTOM</option>");
+                    } else {
+                        var servingTypes = ["OUNCE", "CUP", "POUND", "PINT", "TABLESPOON", "TEASPOON", "GRAM"];
+                        for(var index = 0; index < servingTypes.length; index++) {
+                            if(food.defaultServingType.toUpperCase() === servingTypes[index]) {
+                                $("#editFoodServingType").append("<option value='" + servingTypes[index] + "' selected='selected'>" + servingTypes[index].toLowerCase() + "</option>");
+                            } else {
+                                $("#editFoodServingType").append("<option value='" + servingTypes[index] + "'>" + servingTypes[index].toLowerCase() + "</option>");
+                            }
+                        }
+                    }
+                    $("#editFoodId").val(food.id);
+                    $("#editFoodOwnerId").val(food.ownerId);
+                    $("#editFoodName").val(food.name);
+                    $("#editFoodServingQty").val(food.servingTypeQty);
+                    $("#editFoodCalories").val(food.calories);
+                    $("#editFoodFat").val(food.fat);
+                    $("#editFoodSaturatedFat").val(food.saturatedFat);
+                    $("#editFoodCarbs").val(food.carbs);
+                    $("#editFoodFiber").val(food.fiber);
+                    $("#editFoodSugar").val(food.sugar);
+                    $("#editFoodProtein").val(food.protein);
+                    $("#editFoodSodium").val(food.sodium);
 
-            $("#editFoodModal").dialog({
-                width: 400,
-                height: 500,
-                modal: true
+                    $("#searchFoodsModal").dialog("close");
+                    $("#editFoodModal").dialog({
+                        width: 600,
+                        height: 500,
+                        modal: true
+                    });
+                },
+
+                fail: function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus );
+                }
             });
         }
 
@@ -166,12 +204,10 @@
             </form>
         </td>
         <td align="center" valign="middle">
-            <form method="get">
-                &nbsp;<br/>
-                <input type="hidden" name="date" th:value="${dateString}"/>
-                <input type="text" id="searchFoodName" name="searchFoodName"/>
-                <input type="button" id="searchFoodsButton" value="Search Foods"/>
-            </form>
+            <br/>
+            <input type="hidden" name="date" th:value="${dateString}"/>
+            <input type="text" id="searchFoodName" name="searchFoodName"/>
+            <input type="button" id="searchFoodsButton" value="Search Foods"/>
         </td>
     </tr>
 </table>
@@ -276,6 +312,61 @@
 <div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
     <div id="editFoodModal" title="" style="text-align: center;">
         <div id="editFoodMessage" style="margin: 0 auto; width: 75%"></div>
+        <form action="/food/update" method="post">
+            <input type="hidden" id="editFoodId" name="id"/>
+            <input type="hidden" id="editFoodOwnerId" name="ownerId"/>
+            <table style="margin: 0 auto;">
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" size="50" maxlength="50" id="editFoodName" name="name"/></td>
+                </tr>
+            </table>
+            <table style="margin: 0 auto;">
+                <tr>
+                    <td>Default Serving Type:</td>
+                    <td>
+                        <select id="editFoodServingType" name="defaultServingType"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Default Serving Qty:</td>
+                    <td><input type="text" size="4" id="editFoodServingQty" name="servingTypeQty"/></td>
+                </tr>
+                <tr>
+                    <td>Calories:</td>
+                    <td><input type="text" size="4" id="editFoodCalories" name="calories"/></td>
+                </tr>
+                <tr>
+                    <td>Fat:</td>
+                    <td><input type="text" size="4" id="editFoodFat" name="fat"/></td>
+                </tr>
+                <tr>
+                    <td>Saturated Fat:</td>
+                    <td><input type="text" size="4" id="editFoodSaturatedFat" name="saturatedFat"/></td>
+                </tr>
+                <tr>
+                    <td>Carbs:</td>
+                    <td><input type="text" size="4" id="editFoodCarbs" name="carbs"/></td>
+                </tr>
+                <tr>
+                    <td>Fiber:</td>
+                    <td><input type="text" size="4" id="editFoodFiber" name="fiber"/></td>
+                </tr>
+                <tr>
+                    <td>Sugar:</td>
+                    <td><input type="text" size="4" id="editFoodSugar" name="sugar"/></td>
+                </tr>
+                <tr>
+                    <td>Protein:</td>
+                    <td><input type="text" size="4" id="editFoodProtein" name="protein"/></td>
+                </tr>
+                <tr>
+                    <td>Sodium:</td>
+                    <td><input type="text" size="4" id="editFoodSodium" name="sodium"/></td>
+                </tr>
+            </table>
+            <input type="submit" value="Submit"/>
+        </form>
     </div>
 </div>
 

@@ -101,6 +101,11 @@ public class FoodService {
         return foodsToDTO(foods);
     }
 
+    public FoodDTO getFoodById(UUID foodId) {
+        Food food = foodRepository.findOne(foodId);
+        return foodToDTO(food);
+    }
+
 
 
     private FoodDTO foodToDTO(Food food) {
