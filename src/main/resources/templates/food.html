@@ -52,23 +52,23 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 	<script th:inline="javascript">
     /*<![CDATA[*/
-  		$(function() {
 
-            var dateString = /*[[${dateString}]]*/;
-            if(!dateString || dateString === "") {
-                var date = new Date();
-                var year = date.getFullYear();
-                var month = date.getMonth() + 1;
-                if(month < 10) {
-                    month = "0" + month;
-                }
-                var day = date.getDate();
-                if(day < 10) {
-                    day = "0" + day;
-                }
-                dateString = year + "-" + month + "-" + day;
+        var dateString = /*[[${dateString}]]*/;
+        if(!dateString || dateString === "") {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            if(month < 10) {
+                month = "0" + month;
             }
+            var day = date.getDate();
+            if(day < 10) {
+                day = "0" + day;
+            }
+            dateString = year + "-" + month + "-" + day;
+        }
 
+  		$(function() {
     		$("#datepicker").datepicker({
     		    dateFormat: "yy-mm-dd",
     		    onSelect: function(dateText) {
@@ -79,41 +79,63 @@
 
             $("#searchFoodsButton").click(function() {
     		    var searchFoodName = $("#searchFoodName").val();
-    		    var request = $.ajax({
-    		        url: "/food/search/" + encodeURIComponent(searchFoodName),
-    		        dataType: "json",
-
-    		        success: function(response) {
-    		            $("#searchFoodsTable").html("");
-    		            $("#searchFoodsTable").append("<tr><th>Name</th><th>Default Serving</th><th>Calories</th><th>Fat</th><th>Carbs</th><th></th></tr>");
-    		            for(var index = 0; index < response.length; index++) {
-    		                var food = response[index];
-    		                var fat = (food.fat % 1 === 0) ? food.fat : food.fat.toFixed(1);
-    		                var carbs = (food.carbs % 1 === 0) ? food.carbs : food.carbs.toFixed(1);
-    		                var foodRow = "<tr><td><a href='/food/eaten/add?date=" + dateString + "&foodId=" + food.id + "'>" + food.name + "</a></td>";
-    		                foodRow += "<td>" + food.servingTypeQty + " " + food.defaultServingType.toLowerCase() + "</td>";
-    		                foodRow += "<td>" + food.calories + "</td><td>" + fat + "</td><td>" + carbs + "</td>";
-    		                if(!food.ownerId) {
-        		                foodRow += "<td><input type='button' value='Customize'/></td></tr>";
-    		                } else {
-        		                foodRow += "<td><input type='button' value='Edit'/></td></tr>";
-    		                }
-    		                $("#searchFoodsTable").append(foodRow);
-    		            }
-                        $("#searchFoodsModal").dialog({
-                            width: 900,
-                            height: 400,
-                            modal: true
-                        });
-    		        },
-
-    		        fail: function(jqXHR, textStatus) {
-    		            alert( "Request failed: " + textStatus );
-    		        }
-    		    });
+                searchFoods(searchFoodName);
             });
-
   		});
+
+  		function searchFoods(searchString) {
+            var request = $.ajax({
+                url: "/food/search/" + encodeURIComponent(searchString),
+                dataType: "json",
+
+                success: function(response) {
+                    $("#searchFoodsTable").html("");
+                    $("#searchFoodsTable").append("<tr><th>Name</th><th>Default Serving</th><th>Calories</th><th>Fat</th><th>Carbs</th><th></th></tr>");
+                    for(var index = 0; index < response.length; index++) {
+                        var food = response[index];
+                        var foodRow = "<tr><td><a title='Click to edit this food' href='#' onclick='editFood(\"" + food.id + "\", \"" + food.ownerId + "\");return false;'>" + food.name + "</a></td>";
+                        foodRow += "<td>" + parseFloat(food.servingTypeQty.toFixed(2)) + " " + food.defaultServingType.toLowerCase() + "</td>";
+                        foodRow += "<td>" + food.calories + "</td>";
+                        foodRow += "<td>" + parseFloat(food.fat.toFixed(2)) + "</td>";
+                        foodRow += "<td>" + parseFloat(food.carbs.toFixed(2)) + "</td>";
+                        foodRow += "<td><input type='button' value='Add' onclick='addFoodEaten(\"" + food.id + "\")'/></td></tr>";
+                        $("#searchFoodsTable").append(foodRow);
+                    }
+                    $("#searchFoodsModal").dialog({
+                        width: 900,
+                        height: 400,
+                        modal: true
+                    });
+                },
+
+                fail: function(jqXHR, textStatus) {
+                    alert( "Request failed: " + textStatus );
+                }
+            });
+  		}
+
+        function addFoodEaten(foodId) {
+            window.location.href = "/food/eaten/add?date=" + dateString + "&foodId=" + foodId;
+        }
+
+        function editFood(foodId, ownerId) {
+            if(!ownerId) {
+                $("#editFoodModal").attr("title", "Create Customized Food");
+                $("#editFoodMessage").html("<p>You are about to create a private customized copy of a food from the global list.</p>");
+            } else {
+                $("#editFoodModal").attr("title", "Edit Food");
+                $("#editFoodMessage").html("<p>You are about to edit a food from your private customized list.</p>");
+            }
+
+            // TODO: Make an AJAX call to retrieve the current state of the food, and populate editable form fields on the modal.  Have the form submit to a page-loading controller method.
+
+            $("#editFoodModal").dialog({
+                width: 400,
+                height: 500,
+                modal: true
+            });
+        }
+
     /*]]>*/
   	</script>
 </head>
@@ -241,11 +263,9 @@
 
 <div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
     <div id="searchFoodsModal" title="Search Foods" style="text-align: center;">
-        <div style="margin: 0 auto; width: 75%">Click a food's name to add it to the foods eaten on this date.<br/><br/></div>
         <div style="margin: 0 auto; width: 75%">
-            Click the "Customize" button to take a food from the global list available to everyone, and make your
-            own private customized version of it.  Click the "Edit" button to modify a food that's already in your
-            own private custom list.<br/><br/>
+            <p>Click the "Add" button to add a food to the list of foods eaten on this day.</p>
+            <p>Click a food's name to modify its nutritional information.</p>
         </div>
         <table id="searchFoodsTable" style="margin: 0 auto;">
 
@@ -253,6 +273,11 @@
     </div>
 </div>
 
+<div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
+    <div id="editFoodModal" title="" style="text-align: center;">
+        <div id="editFoodMessage" style="margin: 0 auto; width: 75%"></div>
+    </div>
+</div>
 
 </div>
 </body>
