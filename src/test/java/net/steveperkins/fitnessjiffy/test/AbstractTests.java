@@ -1,14 +1,22 @@
 package net.steveperkins.fitnessjiffy.test;
 
+import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.etl.model.Datastore;
 import net.steveperkins.fitnessjiffy.etl.writer.H2Writer;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = {Application.class})
 public abstract class AbstractTests {
 
     /**

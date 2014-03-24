@@ -58,7 +58,7 @@ public class Application {
     }
 
     @Bean
-    Converter<FoodEaten, FoodEatenDTO> foodEatenFoodEatenDTOConverter() {
+    Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter() {
         return new FoodEatenToFoodEatenDTO();
     }
 

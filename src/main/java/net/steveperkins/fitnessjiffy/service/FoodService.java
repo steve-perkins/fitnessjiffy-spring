@@ -5,6 +5,7 @@ import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
@@ -106,6 +107,73 @@ public class FoodService {
         return foodToDTO(food);
     }
 
+    public String updateFood(FoodDTO foodDTO, UserDTO userDTO) {
+        // Halt if this operation is not allowed
+        if(foodDTO.getOwnerId() != null && !foodDTO.getOwnerId().equals(userDTO.getId())) {
+            return "Error:  You are attempting to modify another user's customized food.";
+        }
+
+        // Halt if this update would create two foods with duplicate names owned by the same user.
+        User user = userRepository.findOne(userDTO.getId());
+        List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
+        for(Food possibleCollision : foodsWithSameNameOwnedByThisUser) {
+            if(!foodDTO.getId().equals(possibleCollision.getId())) {
+                return "Error:  You already have another customized food with this name.";
+            }
+        }
+
+        // If this is already a user-owned food, then simply update it.  Otherwise, if it's a global food then create a
+        // user-owned copy for this user.
+        Food food = null;
+        if(foodDTO.getOwnerId() != null) {
+            food = foodRepository.findOne(foodDTO.getId());
+        } else {
+            food = new Food();
+            food.setId(UUID.randomUUID());
+            food.setOwner(user);
+        }
+        food.setName(foodDTO.getName());
+        food.setDefaultServingType(foodDTO.getDefaultServingType());
+        food.setServingTypeQty(foodDTO.getServingTypeQty());
+        food.setCalories(foodDTO.getCalories());
+        food.setFat(foodDTO.getFat());
+        food.setSaturatedFat(foodDTO.getSaturatedFat());
+        food.setCarbs(foodDTO.getCarbs());
+        food.setFiber(foodDTO.getFiber());
+        food.setSugar(foodDTO.getSugar());
+        food.setProtein(foodDTO.getProtein());
+        food.setSodium(foodDTO.getSodium());
+        foodRepository.save(food);
+        return "Success!";
+    }
+
+    public String createFood(FoodDTO foodDTO, UserDTO userDTO) {
+        // Halt if this update would create two foods with duplicate names owned by the same user.
+        User user = userRepository.findOne(userDTO.getId());
+        List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
+        for(Food possibleCollision : foodsWithSameNameOwnedByThisUser) {
+            if(!foodDTO.getId().equals(possibleCollision.getId())) {
+                return "Error:  You already have another customized food with this name.";
+            }
+        }
+
+        Food food = new Food();
+        food.setId(UUID.randomUUID());
+        food.setOwner(user);
+        food.setName(foodDTO.getName());
+        food.setDefaultServingType(foodDTO.getDefaultServingType());
+        food.setServingTypeQty(foodDTO.getServingTypeQty());
+        food.setCalories(foodDTO.getCalories());
+        food.setFat(foodDTO.getFat());
+        food.setSaturatedFat(foodDTO.getSaturatedFat());
+        food.setCarbs(foodDTO.getCarbs());
+        food.setFiber(foodDTO.getFiber());
+        food.setSugar(foodDTO.getSugar());
+        food.setProtein(foodDTO.getProtein());
+        food.setSodium(foodDTO.getSodium());
+        foodRepository.save(food);
+        return "Success!";
+    }
 
 
     private FoodDTO foodToDTO(Food food) {

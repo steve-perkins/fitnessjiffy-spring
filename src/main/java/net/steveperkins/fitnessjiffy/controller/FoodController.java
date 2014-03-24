@@ -142,25 +142,23 @@ public class FoodController {
             HttpSession session
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
-
-        // TODO: Don't return the food if it's not visible to this user
-
-        return foodService.getFoodById(UUID.fromString(foodId));
+        FoodDTO foodDTO = foodService.getFoodById(UUID.fromString(foodId));
+        // Only return foods that are visible to the requesting user
+        if(foodDTO.getOwnerId() == null || foodDTO.getOwnerId().equals(userDTO.getId())) {
+            return foodDTO;
+        } else {
+            return null;
+        }
     }
 
     @RequestMapping(value = "/food/update")
-    public String createOrUpdateFood(
+    public @ResponseBody String createOrUpdateFood(
             @ModelAttribute FoodDTO foodDTO,
-            @RequestParam(value = "date", required = true) String dateString,
             HttpSession session,
             Model model
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
-
-        // TODO: If the food already exists ("foodId" != null) and is private ("ownerId" != null), then simply update the food.
-        // TODO: If the food is new ("foodId" == null) or is an existing global food ("ownerId" == null), then create a new private food if the name is unique for this user.
-
-        return viewMainFoodPage(dateString, session, model);
+        return (foodDTO.getId() != null) ? foodService.updateFood(foodDTO, userDTO) : foodService.createFood(foodDTO, userDTO);
     }
 	
 }

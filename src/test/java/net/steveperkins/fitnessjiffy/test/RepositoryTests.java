@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
@@ -20,15 +19,8 @@ import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration(classes = {Application.class})
 public class RepositoryTests extends AbstractTests {
 
     @Autowired

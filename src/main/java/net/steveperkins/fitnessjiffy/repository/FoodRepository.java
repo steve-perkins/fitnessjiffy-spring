@@ -44,4 +44,6 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
             + "ORDER BY food.name ASC")
     List<Food> findByNameLike(@Param("owner") User owner, @Param("name") String name);
 
+    List<Food> findByOwnerEqualsAndNameEquals(User owner, String name);
+
 }

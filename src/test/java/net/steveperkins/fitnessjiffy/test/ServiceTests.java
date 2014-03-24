@@ -1,25 +1,17 @@
 package net.steveperkins.fitnessjiffy.test;
 
-import net.steveperkins.fitnessjiffy.Application;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.sql.Date;
 import java.util.List;
 
 import static junit.framework.TestCase.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration(classes = {Application.class})
 public class ServiceTests extends AbstractTests {
 
     @Autowired
