@@ -3,7 +3,6 @@ package net.steveperkins.fitnessjiffy.service;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
-import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
@@ -15,9 +14,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private WeightRepository weightRepository;
 
     @Autowired
     private Converter<User, UserDTO> userDTOConverter;
@@ -35,16 +31,25 @@ public class UserService {
         return users;
     }
 
-    private UserDTO userToDTO(User user) {
-        return userDTOConverter.convert(user);
+    public void createUser(UserDTO userDTO) {
+        User user = new User(
+                userDTO.getId(),
+                userDTO.getGender(),
+                userDTO.getAge(),
+                userDTO.getHeightInInches(),
+                userDTO.getActivityLevel(),
+                userDTO.getUsername(),
+                userDTO.getPassword(),
+                userDTO.getFirstName(),
+                userDTO.getLastName(),
+                userDTO.isActive()
+        );
+        userRepository.save(user);
     }
 
-    private List<UserDTO> userToDTO(List<User> users) {
-        List<UserDTO> dtos = new ArrayList<>();
-        for(User user : users) {
-            dtos.add(userDTOConverter.convert(user));
-        }
-        return dtos;
+
+    private UserDTO userToDTO(User user) {
+        return userDTOConverter.convert(user);
     }
 
 }

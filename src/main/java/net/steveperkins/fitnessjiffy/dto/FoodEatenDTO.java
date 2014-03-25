@@ -182,4 +182,21 @@ public class FoodEatenDTO {
     public void setPoints(double points) {
         this.points = points;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if(!(other instanceof FoodEatenDTO)) {
+            return false;
+        }
+        FoodEatenDTO that = (FoodEatenDTO) other;
+        if((this == null && that != null) || (that == null && this != null)) {
+            return false;
+        }
+        return this.getId().equals(that.getId())
+                && this.getUserId().equals(that.getUserId())
+                && this.getFood().equals(that.getFood())
+                && this.getDate().equals(that.getDate())
+                && this.getServingType().equals(that.getServingType())
+                && this.getServingQty() == that.getServingQty();
+    }
 }

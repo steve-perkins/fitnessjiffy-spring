@@ -101,7 +101,7 @@ public class RepositoryTests extends AbstractTests {
         globalFoods = foodRepository.findByOwnerIsNull();
         assertEquals(420, globalFoods.size());
 
-        // Test creating a user-owned food
+        // Test creating user-owned food, with and without names that match a global food name
         Food userCopyFood = new Food(
                 UUID.randomUUID(),
                 existingUser,
@@ -117,9 +117,25 @@ public class RepositoryTests extends AbstractTests {
                 globalFood.getProtein(),
                 globalFood.getSodium()
         );
+        Food userNewFood = new Food(
+                UUID.randomUUID(),
+                existingUser,
+                "Test User-Owned Food",
+                globalFood.getDefaultServingType(),
+                globalFood.getServingTypeQty(),
+                globalFood.getCalories(),
+                globalFood.getFat(),
+                globalFood.getSaturatedFat(),
+                globalFood.getCarbs(),
+                globalFood.getFiber(),
+                globalFood.getSugar(),
+                globalFood.getProtein(),
+                globalFood.getSodium()
+        );
         foodRepository.save(userCopyFood);
+        foodRepository.save(userNewFood);
         List<Food> userOnlyFoods = foodRepository.findByOwner(existingUser);
-        assertEquals(1, userOnlyFoods.size());
+        assertEquals(2, userOnlyFoods.size());
 
         // Test that user-owned foods do not show up as global...
         globalFoods = foodRepository.findByOwnerIsNull();
@@ -128,13 +144,17 @@ public class RepositoryTests extends AbstractTests {
         // ... and that global foods with the same name as user-owned food are excluded from the list of foods visible
         // to that user
         userFoods = foodRepository.findVisibleByOwner(existingUser);
-        assertEquals(420, userFoods.size());
-        assertEquals(421, foodRepository.count());
+        assertEquals(421, userFoods.size());
+        assertEquals(422, foodRepository.count());
+
+        // Test that name-collisions for user-owned foods are detected
+        List<Food> foodsWithNameCollision = foodRepository.findByOwnerEqualsAndNameEquals(existingUser, "Test User-Owned Food");
+        assertEquals(1, foodsWithNameCollision.size());
 
         // Test delete food
         foodRepository.delete(globalCopyFood);
         foodRepository.delete(userCopyFood);
-        assertEquals(419, foodRepository.count());
+        assertEquals(420, foodRepository.count());
     }
 	
     @Test

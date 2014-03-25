@@ -167,4 +167,29 @@ public class UserDTO {
         this.dailyPoints = dailyPoints;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if(!(other instanceof UserDTO)) {
+            return false;
+        }
+        UserDTO that = (UserDTO) other;
+        if((this == null && that != null) || (that == null && this != null)) {
+            return false;
+        }
+        return this.getId().equals(that.getId())
+                && this.getGender().equals(that.getGender())
+                && this.getAge() == that.getAge()
+                && this.getHeightInInches() == that.getHeightInInches()
+                && this.getActivityLevel().equals(that.getActivityLevel())
+                && this.getUsername() == that.getUsername()
+                && this.getPassword() == that.getPassword()
+                && this.getFirstName() == that.getFirstName()
+                && this.getLastName() == that.getLastName()
+                && this.isActive() == that.isActive()
+                && this.getCurrentWeight() == that.getCurrentWeight()
+                && this.getBmi() == that.getBmi()
+                && this.getMaintenanceCalories() == that.getMaintenanceCalories()
+                && this.getDailyPoints() == that.getDailyPoints();
+    }
+
 }

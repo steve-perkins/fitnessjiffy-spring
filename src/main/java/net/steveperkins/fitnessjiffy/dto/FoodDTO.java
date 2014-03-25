@@ -156,4 +156,28 @@ public class FoodDTO {
     public void setSodium(double sodium) {
         this.sodium = sodium;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if(!(other instanceof FoodDTO)) {
+            return false;
+        }
+        FoodDTO that = (FoodDTO) other;
+        if((this == null && that != null) || (that == null && this != null)) {
+            return false;
+        }
+        return this.getId().equals(that.getId())
+                && ((this.getOwnerId() == null && that.getOwnerId() == null) || (this.getOwnerId().equals(that.getOwnerId())))
+                && this.getName().equals(that.getName())
+                && this.getDefaultServingType().equals(that.getDefaultServingType())
+                && this.getServingTypeQty() == that.getServingTypeQty()
+                && this.getCalories() == that.getCalories()
+                && this.getFat() == that.getFat()
+                && this.getSaturatedFat() == that.getSaturatedFat()
+                && this.getCarbs() == that.getCarbs()
+                && this.getFiber() == that.getFiber()
+                && this.getSugar() == that.getSugar()
+                && this.getProtein() == that.getProtein()
+                && this.getSodium() == that.getSodium();
+    }
 }

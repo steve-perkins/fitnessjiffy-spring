@@ -151,14 +151,16 @@ public class FoodService {
         // Halt if this update would create two foods with duplicate names owned by the same user.
         User user = userRepository.findOne(userDTO.getId());
         List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
-        for(Food possibleCollision : foodsWithSameNameOwnedByThisUser) {
-            if(!foodDTO.getId().equals(possibleCollision.getId())) {
-                return "Error:  You already have another customized food with this name.";
-            }
+        if(foodsWithSameNameOwnedByThisUser.size() > 0) {
+            return "Error:  You already have another customized food with this name.";
         }
 
         Food food = new Food();
-        food.setId(UUID.randomUUID());
+        if(foodDTO.getId() != null) {
+            food.setId(foodDTO.getId());
+        } else {
+            food.setId(UUID.randomUUID());
+        }
         food.setOwner(user);
         food.setName(foodDTO.getName());
         food.setDefaultServingType(foodDTO.getDefaultServingType());
