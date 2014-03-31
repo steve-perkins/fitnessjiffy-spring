@@ -2,20 +2,19 @@ package net.steveperkins.fitnessjiffy.dto;
 
 import net.steveperkins.fitnessjiffy.domain.User;
 
+import java.sql.Date;
 import java.util.UUID;
 
 public class UserDTO {
 
     private UUID id;
     private User.Gender gender;
-    private int age;
+    private Date birthdate;
     private double heightInInches;
     private User.ActivityLevel activityLevel;
-    private String username;
-    private String password;
+    private String email;
     private String firstName;
     private String lastName;
-    private boolean isActive;
     private double currentWeight;
     private double bmi;
     private int maintenanceCalories;
@@ -23,14 +22,12 @@ public class UserDTO {
 
     public UserDTO(UUID id,
                    User.Gender gender,
-                   int age,
+                   Date birthdate,
                    double heightInInches,
                    User.ActivityLevel activityLevel,
-                   String username,
-                   String password,
+                   String email,
                    String firstName,
                    String lastName,
-                   boolean isActive,
                    double currentWeight,
                    double bmi,
                    int maintenanceCalories,
@@ -38,14 +35,12 @@ public class UserDTO {
     ) {
         this.id = id;
         this.gender = gender;
-        this.age = age;
+        this.birthdate = birthdate;
         this.heightInInches = heightInInches;
         this.activityLevel = activityLevel;
-        this.username = username;
-        this.password = password;
+        this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.isActive = isActive;
         this.currentWeight = currentWeight;
         this.bmi = bmi;
         this.maintenanceCalories = maintenanceCalories;
@@ -71,12 +66,12 @@ public class UserDTO {
         this.gender = gender;
     }
 
-    public int getAge() {
-        return age;
+    public Date getBirthdate() {
+        return birthdate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
     }
 
     public double getHeightInInches() {
@@ -95,20 +90,12 @@ public class UserDTO {
         this.activityLevel = activityLevel;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -125,14 +112,6 @@ public class UserDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public double getCurrentWeight() {
@@ -178,14 +157,12 @@ public class UserDTO {
         }
         return this.getId().equals(that.getId())
                 && this.getGender().equals(that.getGender())
-                && this.getAge() == that.getAge()
+                && this.getBirthdate() == that.getBirthdate()
                 && this.getHeightInInches() == that.getHeightInInches()
                 && this.getActivityLevel().equals(that.getActivityLevel())
-                && this.getUsername() == that.getUsername()
-                && this.getPassword() == that.getPassword()
+                && this.getEmail() == that.getEmail()
                 && this.getFirstName() == that.getFirstName()
                 && this.getLastName() == that.getLastName()
-                && this.isActive() == that.isActive()
                 && this.getCurrentWeight() == that.getCurrentWeight()
                 && this.getBmi() == that.getBmi()
                 && this.getMaintenanceCalories() == that.getMaintenanceCalories()

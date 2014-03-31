@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
@@ -81,9 +82,29 @@ public class Food {
     @Column(name = "SODIUM", nullable = false)
     private Double sodium;
 
-    public Food(UUID id, User owner, String name, ServingType defaultServingType,
-                double servingTypeQty, int calories, double fat, double saturatedFat,
-                double carbs, double fiber, double sugar, double protein, double sodium) {
+    @Column(name = "CREATED_TIME", nullable = false)
+    private Timestamp createdTime = new Timestamp(new java.util.Date().getTime());
+
+    @Column(name = "LAST_UPDATED_TIME", nullable = false)
+    private Timestamp lastUpdatedTime = new Timestamp(new java.util.Date().getTime());
+
+    public Food(
+            UUID id,
+            User owner,
+            String name,
+            ServingType defaultServingType,
+            double servingTypeQty,
+            int calories,
+            double fat,
+            double saturatedFat,
+            double carbs,
+            double fiber,
+            double sugar,
+            double protein,
+            double sodium,
+            Timestamp createdTime,
+            Timestamp lastUpdatedTime
+    ) {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.owner = owner;
         this.name = name;
@@ -97,6 +118,8 @@ public class Food {
         this.sugar = sugar;
         this.protein = protein;
         this.sodium = sodium;
+        this.createdTime = createdTime;
+        this.lastUpdatedTime = lastUpdatedTime;
     }
 
     public Food() {
@@ -204,6 +227,22 @@ public class Food {
 
     public void setSodium(Double sodium) {
         this.sodium = sodium;
+    }
+
+    public Timestamp getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Timestamp createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public Timestamp getLastUpdatedTime() {
+        return lastUpdatedTime;
+    }
+
+    public void setLastUpdatedTime(Timestamp lastUpdatedTime) {
+        this.lastUpdatedTime = lastUpdatedTime;
     }
 
     public double getPoints() {

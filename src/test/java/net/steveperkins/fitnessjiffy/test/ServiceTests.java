@@ -49,27 +49,27 @@ public class ServiceTests extends AbstractTests {
     public void testFoodService() {
         // Test get recently-eaten foods (NOTE: the most recent date in the test data set is 2013-12-12).
         UserDTO user = userService.getAllUsers().get(0);
-        Calendar december12 = new GregorianCalendar(2013, 11, 12);
-        Date currentDate = new Date(december12.getTimeInMillis());
+        Calendar december11 = new GregorianCalendar(2013, Calendar.DECEMBER, 11);
+        Date currentDate = new Date(december11.getTimeInMillis());
         List<FoodDTO> recentFoods = foodService.findEatenRecently(user.getId(), currentDate);
         assertEquals(69, recentFoods.size());
 
         // Test retrieving foods eaten on a specific date
-        List<FoodEatenDTO> eatenOnDecember12 = foodService.findEatenOnDate(user.getId(), currentDate);
-        assertEquals(2, eatenOnDecember12.size());
+        List<FoodEatenDTO> eatenOnDecember11 = foodService.findEatenOnDate(user.getId(), currentDate);
+        assertEquals(2, eatenOnDecember11.size());
 
         // Test retrieving a specific food eaten by ID
-        FoodEatenDTO knownFoodEaten = eatenOnDecember12.get(0);
+        FoodEatenDTO knownFoodEaten = eatenOnDecember11.get(0);
         FoodEatenDTO copyOfFoodEaten = foodService.findFoodEatenById(knownFoodEaten.getId());
         assertEquals(knownFoodEaten, copyOfFoodEaten);
 
         // Attempt to add a duplicate food eaten (should not be allowed)
         foodService.addFoodEaten(user.getId(), knownFoodEaten.getFood().getId(), currentDate);
-        eatenOnDecember12 = foodService.findEatenOnDate(user.getId(), currentDate);
-        assertEquals(2, eatenOnDecember12.size());
+        eatenOnDecember11 = foodService.findEatenOnDate(user.getId(), currentDate);
+        assertEquals(2, eatenOnDecember11.size());
 
         // Add a non-duplicate food eaten
-        Calendar december13 = (Calendar) december12.clone();
+        Calendar december13 = (Calendar) december11.clone();
         december13.add(Calendar.DATE, 1);
         foodService.addFoodEaten(user.getId(), knownFoodEaten.getFood().getId(), new Date(december13.getTimeInMillis()));
         List<FoodEatenDTO> eatenOnDecember13 = foodService.findEatenOnDate(user.getId(), new Date(december13.getTimeInMillis()));
@@ -112,7 +112,7 @@ public class ServiceTests extends AbstractTests {
         UserDTO additionalUser = new UserDTO();
         BeanUtils.copyProperties(user, additionalUser);
         additionalUser.setId(UUID.randomUUID());
-        additionalUser.setUsername("fake");
+        additionalUser.setEmail("fake@address.com");
         userService.createUser(additionalUser);
         result = foodService.updateFood(userOwnedFood, additionalUser);
         assertEquals("Error:  You are attempting to modify another user's customized food.", result);
@@ -128,7 +128,7 @@ public class ServiceTests extends AbstractTests {
         User userEntity = userRepository.findOne(user.getId());
         int globalFoodsBefore = foodRepository.findByOwnerIsNull().size();
         int userOwnedFoodsBefore = foodRepository.findByOwner(userEntity).size();
-        FoodDTO otherGlobalFood = eatenOnDecember12.get(1).getFood();
+        FoodDTO otherGlobalFood = eatenOnDecember11.get(1).getFood();
         result = foodService.updateFood(otherGlobalFood, user);
         assertEquals("Success!", result);
         int globalFoodsAfter = foodRepository.findByOwnerIsNull().size();

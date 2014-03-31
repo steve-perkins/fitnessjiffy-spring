@@ -56,7 +56,7 @@
 <form th:object="${user}" action="/user/save" method="post">
 <input type="hidden" th:field="*{id}"/>
 <table style="margin-left: auto; margin-right: auto;">
-	<tr><td>Username:</td><td><input type="text" th:field="*{username}" maxlength="50" size="50"/></td></tr>
+	<tr><td>Email:</td><td><input type="text" th:field="*{email}" maxlength="50" size="50"/></td></tr>
 	<tr><td>First Name:</td><td><input type="text" th:field="*{firstName}" maxlength="50" size="50"/></td></tr>
 	<tr><td>Last Name:</td><td><input type="text" th:field="*{lastName}" maxlength="50" size="50"/></td></tr>
 	<tr>
@@ -67,7 +67,7 @@
             </div>
 	    </td>
 	</tr>
-	<tr><td>Age:</td><td><input type="text" th:field="*{age}" maxlength="3" size="3"/></td></tr>
+	<tr><td>Birthdate:</td><td><input type="text" th:field="*{birthdate}" maxlength="10" size="10"/></td></tr>
 	<tr><td>Height in Inches:</td><td><input type="text" th:field="*{heightInInches}" maxlength="5" size="5"/></td></tr>
 	<tr>
 	    <td>Activity Level:</td>

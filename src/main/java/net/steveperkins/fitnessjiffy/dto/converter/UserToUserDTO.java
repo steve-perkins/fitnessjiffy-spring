@@ -4,6 +4,7 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
@@ -23,14 +24,12 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         return new UserDTO(
                 user.getId(),
                 user.getGender(),
-                user.getAge(),
+                user.getBirthdate(),
                 user.getHeightInInches(),
                 user.getActivityLevel(),
-                user.getUsername(),
-                user.getPassword(),
+                user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.isActive(),
                 currentWeight,
                 getBmi(user, currentWeight),
                 getMaintenanceCalories(user, currentWeight),
@@ -56,32 +55,34 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     }
 
     private int getMaintenanceCalories(User user, double currentWeight) {
-        if(user.getGender() == null || currentWeight == 0 || user.getHeightInInches() == 0 || user.getAge() == 0 || user.getActivityLevel() == null) {
+        int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
+        if(user.getGender() == null || currentWeight == 0 || user.getHeightInInches() == 0 || age == 0 || user.getActivityLevel() == null) {
             return 0;
         } else {
             double centimeters = user.getHeightInInches() * 2.54f;
             double kilograms   = currentWeight / 2.2f;
             double adjustedWeight = user.getGender().equals(User.Gender.FEMALE) ? 655f + (9.6f * kilograms) : 66f + (13.7f * kilograms);
             double adjustedHeight = user.getGender().equals(User.Gender.FEMALE) ? 1.7f * centimeters : 5f * centimeters;
-            float adjustedAge = user.getGender().equals(User.Gender.FEMALE) ? 4.7f * user.getAge() : 6.8f * user.getAge();
+            float adjustedAge = user.getGender().equals(User.Gender.FEMALE) ? 4.7f * age : 6.8f * age;
             return (int) ((adjustedWeight + adjustedHeight - adjustedAge) * user.getActivityLevel().getValue());
         }
     }
 
     public int getDailyPoints(User user, double currentWeight) {
-        if(user.getGender() == null || user.getAge() == 0 || currentWeight == 0 || user.getHeightInInches() == 0 || user.getActivityLevel() == null) {
+        int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
+        if(user.getGender() == null || age == 0 || currentWeight == 0 || user.getHeightInInches() == 0 || user.getActivityLevel() == null) {
             return 0;
         } else {
             // Factor in gender
             int dailyPoints = user.getGender().equals(User.Gender.FEMALE) ? 2 : 8;
             // Factor in age
-            if(user.getAge() <= 26) {
+            if(age <= 26) {
                 dailyPoints += 4;
-            } else if(user.getAge() <= 37) {
+            } else if(age <= 37) {
                 dailyPoints += 3;
-            } else if(user.getAge() <= 47) {
+            } else if(age <= 47) {
                 dailyPoints += 2;
-            } else if(user.getAge() <= 58) {
+            } else if(age <= 58) {
                 dailyPoints += 1;
             }
             // Factor in weight

@@ -1,6 +1,7 @@
 package net.steveperkins.fitnessjiffy.test;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -43,14 +44,16 @@ public class RepositoryTests extends AbstractTests {
         User newUser = new User(
                 userId,
                 User.Gender.MALE,
-                30,
+                new Date(new java.util.Date().getTime()),
                 70,
                 User.ActivityLevel.SEDENTARY,
-                "username",
-                "password",
+                "fake@address.com",
+                null,
+                null,
                 "Jane",
                 "Doe",
-                true
+                new Timestamp(new java.util.Date().getTime()),
+                new Timestamp(new java.util.Date().getTime())
         );
         userRepository.save(newUser);
         User retrievedNewUser = userRepository.findOne(userId);
@@ -95,7 +98,9 @@ public class RepositoryTests extends AbstractTests {
                 globalFood.getFiber(),
                 globalFood.getSugar(),
                 globalFood.getProtein(),
-                globalFood.getSodium()
+                globalFood.getSodium(),
+                new Timestamp(new java.util.Date().getTime()),
+                new Timestamp(new java.util.Date().getTime())
         );
         foodRepository.save(globalCopyFood);
         globalFoods = foodRepository.findByOwnerIsNull();
@@ -115,7 +120,9 @@ public class RepositoryTests extends AbstractTests {
                 globalFood.getFiber(),
                 globalFood.getSugar(),
                 globalFood.getProtein(),
-                globalFood.getSodium()
+                globalFood.getSodium(),
+                new Timestamp(new java.util.Date().getTime()),
+                new Timestamp(new java.util.Date().getTime())
         );
         Food userNewFood = new Food(
                 UUID.randomUUID(),
@@ -130,7 +137,9 @@ public class RepositoryTests extends AbstractTests {
                 globalFood.getFiber(),
                 globalFood.getSugar(),
                 globalFood.getProtein(),
-                globalFood.getSodium()
+                globalFood.getSodium(),
+                new Timestamp(new java.util.Date().getTime()),
+                new Timestamp(new java.util.Date().getTime())
         );
         foodRepository.save(userCopyFood);
         foodRepository.save(userNewFood);
@@ -176,7 +185,7 @@ public class RepositoryTests extends AbstractTests {
                 new java.sql.Date(twoWeeksAgo.getTime()),
                 new java.sql.Date(currentDate.getTime())
         );
-        TestCase.assertEquals(72, recentFoods.size());
+        TestCase.assertEquals(71, recentFoods.size());
 
         // Test a save
         FoodEaten foodEaten = foodEatenRepository.findAll().iterator().next();
