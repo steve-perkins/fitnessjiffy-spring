@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -27,45 +29,54 @@ public class Weight {
     @Column(name = "POUNDS", nullable = false)
     private Double pounds;
 
-    public Weight(UUID id, User user, Date date, double pounds) {
+    public Weight(
+            @Nullable UUID id,
+            @Nonnull User user,
+            @Nonnull Date date,
+            double pounds
+    ) {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.user = user;
-        this.date = date;
+        this.date = (Date) date.clone();
         this.pounds = pounds;
     }
 
     public Weight() {
     }
 
+    @Nonnull
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@Nonnull UUID id) {
         this.id = id;
     }
 
+    @Nonnull
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(@Nonnull User user) {
         this.user = user;
     }
 
+    @Nonnull
     public Date getDate() {
-        return date;
+        return (Date) date.clone();
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(@Nonnull Date date) {
+        this.date = (Date) date.clone();
     }
 
+    @Nonnull
     public Double getPounds() {
         return pounds;
     }
 
-    public void setPounds(Double pounds) {
+    public void setPounds(@Nonnull Double pounds) {
         this.pounds = pounds;
     }
 	

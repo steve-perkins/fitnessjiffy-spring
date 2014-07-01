@@ -8,6 +8,8 @@ import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public final class UserToUserDTO implements Converter<User, UserDTO> {
@@ -16,7 +18,8 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
     private WeightRepository weightRepository;
 
     @Override
-    public UserDTO convert(User user) {
+    @Nullable
+    public UserDTO convert(@Nullable User user) {
         if(user == null) {
             return null;
         }
@@ -37,7 +40,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         );
     }
 
-    private double getCurrentWeight(User user) {
+    private double getCurrentWeight(@Nonnull User user) {
         List<Weight> weights = weightRepository.findByUserOrderByDateDesc(user);
         if(weights == null || weights.isEmpty()) {
             return 0;
@@ -46,7 +49,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         }
     }
 
-    private double getBmi(User user, double currentWeight) {
+    private double getBmi(@Nonnull User user, double currentWeight) {
         if(currentWeight == 0 || user.getHeightInInches() == 0) {
             return 0;
         } else {
@@ -54,7 +57,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         }
     }
 
-    private int getMaintenanceCalories(User user, double currentWeight) {
+    private int getMaintenanceCalories(@Nonnull User user, double currentWeight) {
         int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
         if(user.getGender() == null || currentWeight == 0 || user.getHeightInInches() == 0 || age == 0 || user.getActivityLevel() == null) {
             return 0;
@@ -68,7 +71,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         }
     }
 
-    public int getDailyPoints(User user, double currentWeight) {
+    public int getDailyPoints(@Nonnull User user, double currentWeight) {
         int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
         if(user.getGender() == null || age == 0 || currentWeight == 0 || user.getHeightInInches() == 0 || user.getActivityLevel() == null) {
             return 0;

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,11 @@ public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
                     + "AND foodEaten.user = :user "
                     + "AND foodEaten.date = :date "
                     + "ORDER BY food.name ASC")
-    List<FoodEaten> findByUserEqualsAndDateEquals(@Param("user") User user, @Param("date") Date date);
+    @Nonnull
+    List<FoodEaten> findByUserEqualsAndDateEquals(
+            @Nonnull @Param("user") User user,
+            @Nonnull @Param("date") Date date
+    );
 
     @Query(
             "SELECT DISTINCT food FROM Food food, FoodEaten foodEaten "
@@ -27,6 +32,11 @@ public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
             + "AND foodEaten.user = :user "
             + "AND foodEaten.date BETWEEN :startDate AND :endDate "
             + "ORDER BY food.name ASC")
-    List<Food> findByUserEatenWithinRange(@Param("user") User user, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    @Nonnull
+    List<Food> findByUserEatenWithinRange(
+            @Nonnull @Param("user") User user,
+            @Nonnull @Param("startDate") Date startDate,
+            @Nonnull @Param("endDate") Date endDate
+    );
 
 }

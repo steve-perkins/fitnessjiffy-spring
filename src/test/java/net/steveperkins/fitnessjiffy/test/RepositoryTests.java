@@ -165,7 +165,7 @@ public class RepositoryTests extends AbstractTests {
         foodRepository.delete(userCopyFood);
         assertEquals(420, foodRepository.count());
     }
-	
+
     @Test
     public void testFoodEatenRepository() throws ParseException {
         // Grab the first test user, and confirm that they have foods eaten
@@ -204,5 +204,5 @@ public class RepositoryTests extends AbstractTests {
         foodEatenRepository.delete(copyFoodEaten);
         assertEquals(19307, foodEatenRepository.count());
     }
-	
+
 }

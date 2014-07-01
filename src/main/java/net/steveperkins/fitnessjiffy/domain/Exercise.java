@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,7 +28,13 @@ public class Exercise {
     @Column(name = "DESCRIPTION", length = 250, nullable = false)
     private String description;
 
-    public Exercise(UUID id, String code, double metabolicEquivalent, String category, String description) {
+    public Exercise(
+            @Nullable UUID id,
+            @Nonnull String code,
+            double metabolicEquivalent,
+            @Nonnull String category,
+            @Nonnull String description
+    ) {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.code = code;
         this.metabolicEquivalent = metabolicEquivalent;
@@ -37,43 +45,48 @@ public class Exercise {
     public Exercise() {
     }
 
+    @Nonnull
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@Nonnull UUID id) {
         this.id = id;
     }
 
+    @Nonnull
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(@Nonnull String code) {
         this.code = code;
     }
 
+    @Nonnull
     public Double getMetabolicEquivalent() {
         return metabolicEquivalent;
     }
 
-    public void setMetabolicEquivalent(Double metabolicEquivalent) {
+    public void setMetabolicEquivalent(@Nonnull Double metabolicEquivalent) {
         this.metabolicEquivalent = metabolicEquivalent;
     }
 
+    @Nonnull
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(@Nonnull String category) {
         this.category = category;
     }
 
+    @Nonnull
     public String getDescription() {
-        return (description != null) ? description.trim() : null;
+        return description.trim();
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Nonnull String description) {
         if(description != null) description = description.trim();
         this.description = description;
     }

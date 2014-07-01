@@ -4,10 +4,13 @@ import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import org.springframework.core.convert.converter.Converter;
 
+import javax.annotation.Nullable;
+
 public class FoodToFoodDTO implements Converter<Food, FoodDTO> {
 
     @Override
-    public FoodDTO convert(Food food) {
+    @Nullable
+    public FoodDTO convert(@Nullable Food food) {
         if(food == null) {
             return null;
         }

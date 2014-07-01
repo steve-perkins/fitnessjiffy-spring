@@ -6,6 +6,8 @@ import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +21,13 @@ public class UserService {
     @Autowired
     private Converter<User, UserDTO> userDTOConverter;
 
-    public UserDTO getUser(UUID userId) {
+    @Nullable
+    public UserDTO getUser(@Nonnull UUID userId) {
         User user = userRepository.findOne(userId);
         return userToDTO(user);
     }
 
+    @Nonnull
     public List<UserDTO> getAllUsers() {
         List<UserDTO> users = new ArrayList<>();
         for(User user : userRepository.findAll()) {
@@ -32,7 +36,7 @@ public class UserService {
         return users;
     }
 
-    public void createUser(UserDTO userDTO) {
+    public void createUser(@Nonnull UserDTO userDTO) {
         User user = new User(
                 userDTO.getId(),
                 userDTO.getGender(),
@@ -51,8 +55,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-
-    private UserDTO userToDTO(User user) {
+    @Nullable
+    private UserDTO userToDTO(@Nullable User user) {
         return userDTOConverter.convert(user);
     }
 

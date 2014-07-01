@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
@@ -28,10 +30,11 @@ public class FoodController {
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @RequestMapping(value = {"/food"}, method=RequestMethod.GET)
+    @Nonnull
 	public String viewMainFoodPage(
-            @RequestParam(value = "date", required = false) String dateString,
-            HttpSession session,
-            Model model
+            @Nullable @RequestParam(value = "date", required = false) String dateString,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
     ) {
 		UserDTO user = (UserDTO) session.getAttribute("user");
         Date date = null;
@@ -83,11 +86,12 @@ public class FoodController {
 	}
 
     @RequestMapping(value = "/food/eaten/add")
+    @Nonnull
     public String addFoodEaten(
-            @RequestParam(value = "foodId", required = true) String foodIdString,
-            @RequestParam(value = "date", required = true) String dateString,
-            HttpSession session,
-            Model model
+            @Nonnull @RequestParam(value = "foodId", required = true) String foodIdString,
+            @Nonnull @RequestParam(value = "date", required = true) String dateString,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
         UUID foodId = UUID.fromString(foodIdString);
@@ -103,13 +107,14 @@ public class FoodController {
     }
 
     @RequestMapping(value = "/food/eaten/update")
+    @Nonnull
     public String updateFoodEaten(
-            @RequestParam(value = "foodEatenId", required = true) String foodEatenId,
-            @RequestParam(value = "foodEatenQty", required = true) double foodEatenQty,
-            @RequestParam(value = "foodEatenServing", required = true) String foodEatenServing,
-            @RequestParam(value = "action", required = true) String action,
-            HttpSession session,
-            Model model
+            @Nonnull @RequestParam(value = "foodEatenId", required = true) String foodEatenId,
+            @Nonnull @RequestParam(value = "foodEatenQty", required = true) double foodEatenQty,
+            @Nonnull @RequestParam(value = "foodEatenServing", required = true) String foodEatenServing,
+            @Nonnull @RequestParam(value = "action", required = true) String action,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
         UUID foodEatenUUID = UUID.fromString(foodEatenId);
@@ -128,18 +133,20 @@ public class FoodController {
     }
 
     @RequestMapping(value = "/food/search/{searchString}")
+    @Nonnull
     public @ResponseBody List<FoodDTO> searchFoods(
-            @PathVariable String searchString,
-            HttpSession session
+            @Nonnull @PathVariable String searchString,
+            @Nonnull HttpSession session
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
         return foodService.searchFoods(userDTO.getId(), searchString);
     }
 
     @RequestMapping(value = "/food/get/{foodId}")
+    @Nullable
     public @ResponseBody FoodDTO getFood(
-            @PathVariable String foodId,
-            HttpSession session
+            @Nonnull @PathVariable String foodId,
+            @Nonnull HttpSession session
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
         FoodDTO foodDTO = foodService.getFoodById(UUID.fromString(foodId));
@@ -152,10 +159,11 @@ public class FoodController {
     }
 
     @RequestMapping(value = "/food/update")
+    @Nonnull
     public @ResponseBody String createOrUpdateFood(
-            @ModelAttribute FoodDTO foodDTO,
-            HttpSession session,
-            Model model
+            @Nonnull @ModelAttribute FoodDTO foodDTO,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
     ) {
         UserDTO userDTO = (UserDTO) session.getAttribute("user");
         return (foodDTO.getId() != null) ? foodService.updateFood(foodDTO, userDTO) : foodService.createFood(foodDTO, userDTO);

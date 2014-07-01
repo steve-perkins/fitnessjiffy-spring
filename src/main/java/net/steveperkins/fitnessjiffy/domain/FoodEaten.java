@@ -3,6 +3,8 @@ package net.steveperkins.fitnessjiffy.domain;
 import java.sql.Date;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,12 +40,18 @@ public class FoodEaten {
     @Column(name = "SERVING_QTY", nullable = false)
     private Double servingQty;
 
-    public FoodEaten(UUID id, User user, Food food, Date date, Food.ServingType servingType,
-                     double servingQty) {
+    public FoodEaten(
+            @Nullable UUID id,
+            @Nonnull User user,
+            @Nonnull Food food,
+            @Nonnull Date date,
+            @Nonnull Food.ServingType servingType,
+            double servingQty
+    ) {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.user = user;
         this.food = food;
-        this.date = date;
+        this.date = (Date) date.clone();
         this.servingType = servingType;
         this.servingQty = servingQty;
     }
@@ -51,51 +59,57 @@ public class FoodEaten {
     public FoodEaten() {
     }
 
+    @Nonnull
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@Nonnull UUID id) {
         this.id = id;
     }
 
+    @Nonnull
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(@Nonnull User user) {
         this.user = user;
     }
 
+    @Nonnull
     public Food getFood() {
         return food;
     }
 
-    public void setFood(Food food) {
+    public void setFood(@Nonnull Food food) {
         this.food = food;
     }
 
+    @Nonnull
     public Date getDate() {
-        return date;
+        return (Date) date.clone();
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(@Nonnull Date date) {
+        this.date = (Date) date.clone();
     }
 
+    @Nonnull
     public Food.ServingType getServingType() {
         return servingType;
     }
 
-    public void setServingType(Food.ServingType servingType) {
+    public void setServingType(@Nonnull Food.ServingType servingType) {
         this.servingType = servingType;
     }
 
+    @Nonnull
     public Double getServingQty() {
         return servingQty;
     }
 
-    public void setServingQty(Double servingQty) {
+    public void setServingQty(@Nonnull Double servingQty) {
         this.servingQty = servingQty;
     }
 

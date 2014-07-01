@@ -2,6 +2,8 @@ package net.steveperkins.fitnessjiffy.dto;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class FoodDTO {
@@ -21,10 +23,10 @@ public class FoodDTO {
     private double sodium;
 
     public FoodDTO(
-            UUID id,
-            UUID ownerId,
-            String name,
-            Food.ServingType defaultServingType,
+            @Nullable UUID id, // will be null if this represents a new Food which hasn't yet been persisted
+            @Nullable UUID ownerId, // will be null if this represents a "global" Food, usable by all users
+            @Nonnull String name,
+            @Nonnull Food.ServingType defaultServingType,
             double servingTypeQty,
             int calories,
             double fat,
@@ -53,35 +55,39 @@ public class FoodDTO {
     public FoodDTO() {
     }
 
+    @Nullable
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@Nullable UUID id) {
         this.id = id;
     }
 
+    @Nullable
     public UUID getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(UUID ownerId) {
+    public void setOwnerId(@Nullable UUID ownerId) {
         this.ownerId = ownerId;
     }
 
+    @Nonnull
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@Nonnull String name) {
         this.name = name;
     }
 
+    @Nonnull
     public Food.ServingType getDefaultServingType() {
         return defaultServingType;
     }
 
-    public void setDefaultServingType(Food.ServingType defaultServingType) {
+    public void setDefaultServingType(@Nonnull Food.ServingType defaultServingType) {
         this.defaultServingType = defaultServingType;
     }
 
@@ -159,13 +165,10 @@ public class FoodDTO {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof FoodDTO)) {
+        if(other == null || !(other instanceof FoodDTO)) {
             return false;
         }
         FoodDTO that = (FoodDTO) other;
-        if((this == null && that != null) || (that == null && this != null)) {
-            return false;
-        }
         return this.getId().equals(that.getId())
                 && ((this.getOwnerId() == null && that.getOwnerId() == null) || (this.getOwnerId().equals(that.getOwnerId())))
                 && this.getName().equals(that.getName())
@@ -180,4 +183,22 @@ public class FoodDTO {
                 && this.getProtein() == that.getProtein()
                 && this.getSodium() == that.getSodium();
     }
+
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode()
+                + (this.getOwnerId() != null ? this.getOwnerId().hashCode() : 0)
+                + this.getName().hashCode()
+                + this.getDefaultServingType().hashCode()
+                + (int) this.getServingTypeQty()
+                + this.getCalories()
+                + (int) this.getFat()
+                + (int) this.getSaturatedFat()
+                + (int) this.getCarbs()
+                + (int) this.getFiber()
+                + (int) this.getSugar()
+                + (int) this.getProtein()
+                + (int) this.getSodium();
+    }
+
 }

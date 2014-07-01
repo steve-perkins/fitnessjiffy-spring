@@ -7,13 +7,16 @@ import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
+import javax.annotation.Nullable;
+
 public class FoodEatenToFoodEatenDTO implements Converter<FoodEaten, FoodEatenDTO> {
 
     @Autowired
     Converter<Food, FoodDTO> foodDTOConverter;
 
     @Override
-    public FoodEatenDTO convert(FoodEaten foodEaten) {
+    @Nullable
+    public FoodEatenDTO convert(@Nullable FoodEaten foodEaten) {
         if(foodEaten == null) {
             return null;
         }

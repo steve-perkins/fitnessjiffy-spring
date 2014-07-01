@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +26,12 @@ public class UserController {
     private UserService userService;
 
 	@RequestMapping(value = {"/", "/user"}, method = RequestMethod.GET)
-	public String viewMainUserPage(@RequestParam(value = "userId", required = false) UUID userId, HttpSession session, Model model) {
+    @Nonnull
+    public String viewMainUserPage(
+            @Nullable @RequestParam(value = "userId", required = false) UUID userId,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
+    ) {
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
 
@@ -49,7 +56,13 @@ public class UserController {
 	}
 
 	@RequestMapping(value = {"/user/save"}, method = RequestMethod.POST)
-	public String createOrUpdateUser(@ModelAttribute("user") UserDTO user, BindingResult result, HttpSession session, Model model) {
+    @Nonnull
+	public String createOrUpdateUser(
+            @Nonnull @ModelAttribute("user") UserDTO user,
+            @Nonnull BindingResult result,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
+    ) {
         System.out.println("Inside createOrUpdateUser() with user == " + user.toString());
 
 //        user = userRepository.save(user);
@@ -57,7 +70,12 @@ public class UserController {
 	}
 
 	@RequestMapping(value = {"/user/delete/{id}"}, method = RequestMethod.GET)
-	public String deleteUser(@PathVariable UUID id, HttpSession session, Model model) {
+    @Nonnull
+    public String deleteUser(
+            @Nonnull @PathVariable UUID id,
+            @Nonnull HttpSession session,
+            @Nonnull Model model
+    ) {
         System.out.println("Inside deleteUser() with id == " + id.toString());
 
 //		if(id != null) {

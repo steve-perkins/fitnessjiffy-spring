@@ -12,6 +12,8 @@ import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,13 +38,21 @@ public class FoodService {
     @Autowired
     Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
 
-    public List<FoodEatenDTO> findEatenOnDate(UUID userId, Date date) {
+    @Nonnull
+    public List<FoodEatenDTO> findEatenOnDate(
+            @Nonnull UUID userId,
+            @Nonnull Date date
+    ) {
         User user = userRepository.findOne(userId);
         List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
         return foodsEatenToDTO(foodEatens);
     }
 
-    public List<FoodDTO> findEatenRecently(UUID userId, Date currentDate) {
+    @Nonnull
+    public List<FoodDTO> findEatenRecently(
+            @Nonnull UUID userId,
+            @Nonnull Date currentDate
+    ) {
         User user = userRepository.findOne(userId);
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(currentDate);
@@ -56,12 +66,17 @@ public class FoodService {
         return foodsToDTO(recentFoods);
     }
 
-    public FoodEatenDTO findFoodEatenById(UUID foodEatenId) {
+    @Nullable
+    public FoodEatenDTO findFoodEatenById(@Nonnull UUID foodEatenId) {
         FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         return foodEatenToDTO(foodEaten);
     }
 
-    public void addFoodEaten(UUID userId, UUID foodId, Date date) {
+    public void addFoodEaten(
+            @Nonnull UUID userId,
+            @Nonnull UUID foodId,
+            @Nonnull Date date
+    ) {
         boolean duplicate = false;
         for(FoodEatenDTO foodAlreadyEaten : findEatenOnDate(userId, date)) {
             if(foodAlreadyEaten.getFood().getId().equals(foodId)) {
@@ -84,30 +99,46 @@ public class FoodService {
         }
     }
 
-    public void updateFoodEaten(UUID foodEatenId, double servingQty, Food.ServingType servingType) {
+    public void updateFoodEaten(
+            @Nonnull UUID foodEatenId,
+            double servingQty,
+            @Nonnull Food.ServingType servingType
+    ) {
         FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         foodEaten.setServingQty(servingQty);
         foodEaten.setServingType(servingType);
         foodEatenRepository.save(foodEaten);
     }
 
-    public void deleteFoodEaten(UUID foodEatenId) {
+    public void deleteFoodEaten(@Nonnull UUID foodEatenId) {
         FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         foodEatenRepository.delete(foodEaten);
     }
 
-    public List<FoodDTO> searchFoods(UUID userId, String searchString) {
+    @Nonnull
+    public List<FoodDTO> searchFoods(
+            @Nonnull UUID userId,
+            @Nonnull String searchString
+    ) {
         User user = userRepository.findOne(userId);
         List<Food> foods = foodRepository.findByNameLike(user, searchString);
         return foodsToDTO(foods);
     }
 
-    public FoodDTO getFoodById(UUID foodId) {
+    @Nullable
+    public FoodDTO getFoodById(@Nonnull UUID foodId) {
         Food food = foodRepository.findOne(foodId);
         return foodToDTO(food);
     }
 
-    public String updateFood(FoodDTO foodDTO, UserDTO userDTO) {
+    @Nonnull
+    public String updateFood(
+            @Nonnull FoodDTO foodDTO,
+            @Nonnull UserDTO userDTO
+    ) {
+
+        // TODO: Maybe this method should return some sort of ID, which maps to a message string elsewhere... rather than directly returning hardcoded strings meant for display.
+
         // Halt if this operation is not allowed
         if(foodDTO.getOwnerId() != null && !foodDTO.getOwnerId().equals(userDTO.getId())) {
             return "Error:  You are attempting to modify another user's customized food.";
@@ -147,7 +178,14 @@ public class FoodService {
         return "Success!";
     }
 
-    public String createFood(FoodDTO foodDTO, UserDTO userDTO) {
+    @Nonnull
+    public String createFood(
+            @Nonnull FoodDTO foodDTO,
+            @Nonnull UserDTO userDTO
+    ) {
+
+        // TODO: Maybe this method should return some sort of ID, which maps to a message string elsewhere... rather than directly returning hardcoded strings meant for display.
+
         // Halt if this update would create two foods with duplicate names owned by the same user.
         User user = userRepository.findOne(userDTO.getId());
         List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
@@ -177,12 +215,13 @@ public class FoodService {
         return "Success!";
     }
 
-
-    private FoodDTO foodToDTO(Food food) {
+    @Nullable
+    private FoodDTO foodToDTO(@Nullable Food food) {
         return foodDTOConverter.convert(food);
     }
 
-    private List<FoodDTO> foodsToDTO(List<Food> foods) {
+    @Nonnull
+    private List<FoodDTO> foodsToDTO(@Nonnull List<Food> foods) {
         List<FoodDTO> dtos = new ArrayList<>();
         for(Food food : foods) {
             dtos.add(foodDTOConverter.convert(food));
@@ -190,11 +229,13 @@ public class FoodService {
         return dtos;
     }
 
-    private FoodEatenDTO foodEatenToDTO(FoodEaten foodEaten) {
+    @Nullable
+    private FoodEatenDTO foodEatenToDTO(@Nullable FoodEaten foodEaten) {
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    private List<FoodEatenDTO> foodsEatenToDTO(List<FoodEaten> foodsEaten) {
+    @Nonnull
+    private List<FoodEatenDTO> foodsEatenToDTO(@Nonnull List<FoodEaten> foodsEaten) {
         List<FoodEatenDTO> dtos = new ArrayList<>();
         for(FoodEaten foodEaten : foodsEaten) {
             dtos.add(foodEatenDTOConverter.convert(foodEaten));

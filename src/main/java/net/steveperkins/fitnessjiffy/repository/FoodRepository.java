@@ -6,16 +6,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
 public interface FoodRepository extends CrudRepository<Food, UUID> {
 
     /** Returns all "global" foods (i.e. where ownerId is null). */
+    @Nonnull
     List<Food> findByOwnerIsNull();
 
     /** Returns all foods owned by a particular user. */
-    List<Food> findByOwner(User owner);
+    @Nonnull
+    List<Food> findByOwner(@Nonnull User owner);
 
     /**
      * Returns all foods visible to a particular user.  This includes the foods that they own, as well as all global
@@ -30,7 +33,8 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
             + "AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
             + ") ORDER BY food.name ASC"
     )
-    List<Food> findVisibleByOwner(@Param("owner") User owner);
+    @Nonnull
+    List<Food> findVisibleByOwner(@Nonnull @Param("owner") User owner);
 
     @Query(
             "SELECT food FROM Food food "
@@ -42,8 +46,16 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
             + "   )"
             + ") AND LOWER(food.name) LIKE LOWER(CONCAT('%', :name, '%')) "
             + "ORDER BY food.name ASC")
-    List<Food> findByNameLike(@Param("owner") User owner, @Param("name") String name);
+    @Nonnull
+    List<Food> findByNameLike(
+            @Nonnull @Param("owner") User owner,
+            @Nonnull @Param("name") String name
+    );
 
-    List<Food> findByOwnerEqualsAndNameEquals(User owner, String name);
+    @Nonnull
+    List<Food> findByOwnerEqualsAndNameEquals(
+            @Nonnull User owner,
+            @Nonnull String name
+    );
 
 }

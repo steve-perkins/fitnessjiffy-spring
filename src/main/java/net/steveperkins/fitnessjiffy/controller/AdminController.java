@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nonnull;
 import javax.sql.DataSource;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 @Controller
@@ -19,15 +21,20 @@ public class AdminController {
     DataSource dataSource;
 
     @RequestMapping(value={"/admin"}, method= RequestMethod.GET)
+    @Nonnull
     public String viewAdmin() {
         return Views.ADMIN_TEMPLATE;
     }
 
     @RequestMapping(value="/admin/import", method=RequestMethod.POST)
-    public String importDatabase(@RequestParam("file") MultipartFile file, Map<String, Object> model){
+    @Nonnull
+    public String importDatabase(
+            @Nonnull @RequestParam("file") MultipartFile file,
+            @Nonnull Map<String, Object> model
+    ) {
         if (!file.isEmpty()) {
             try {
-                String jsonString = new String(file.getBytes());
+                String jsonString = new String(file.getBytes(), Charset.forName("UTF-8"));
                 Datastore datastore = Datastore.fromJSONString(jsonString);
                 PostgresWriter postgresWriter = new PostgresWriter(dataSource.getConnection(), datastore);
                 postgresWriter.write();

@@ -2,6 +2,7 @@ package net.steveperkins.fitnessjiffy.dto;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
+import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.UUID;
 
@@ -27,11 +28,11 @@ public class FoodEatenDTO {
     private double points;
 
     public FoodEatenDTO(
-            UUID id,
-            UUID userId,
-            FoodDTO food,
-            Date date,
-            Food.ServingType servingType,
+            @Nonnull UUID id,
+            @Nonnull UUID userId,
+            @Nonnull FoodDTO food,
+            @Nonnull Date date,
+            @Nonnull Food.ServingType servingType,
             double servingQty,
             int calories,
             double fat,
@@ -46,7 +47,7 @@ public class FoodEatenDTO {
         this.id = id;
         this.userId = userId;
         this.food = food;
-        this.date = date;
+        this.date = (Date) date.clone();
         this.servingType = servingType;
         this.servingQty = servingQty;
         this.calories = calories;
@@ -63,43 +64,48 @@ public class FoodEatenDTO {
     public FoodEatenDTO() {
     }
 
+    @Nonnull
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@Nonnull UUID id) {
         this.id = id;
     }
 
+    @Nonnull
     public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
+    public void setUserId(@Nonnull UUID userId) {
         this.userId = userId;
     }
 
+    @Nonnull
     public FoodDTO getFood() {
         return food;
     }
 
-    public void setFood(FoodDTO food) {
+    public void setFood(@Nonnull FoodDTO food) {
         this.food = food;
     }
 
+    @Nonnull
     public Date getDate() {
-        return date;
+        return (Date) date.clone();
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(@Nonnull Date date) {
+        this.date = (Date) date.clone();
     }
 
+    @Nonnull
     public Food.ServingType getServingType() {
         return servingType;
     }
 
-    public void setServingType(Food.ServingType servingType) {
+    public void setServingType(@Nonnull Food.ServingType servingType) {
         this.servingType = servingType;
     }
 
@@ -185,13 +191,10 @@ public class FoodEatenDTO {
 
     @Override
     public boolean equals(Object other) {
-        if(!(other instanceof FoodEatenDTO)) {
+        if(other == null || !(other instanceof FoodEatenDTO)) {
             return false;
         }
         FoodEatenDTO that = (FoodEatenDTO) other;
-        if((this == null && that != null) || (that == null && this != null)) {
-            return false;
-        }
         return this.getId().equals(that.getId())
                 && this.getUserId().equals(that.getUserId())
                 && this.getFood().equals(that.getFood())
@@ -199,4 +202,15 @@ public class FoodEatenDTO {
                 && this.getServingType().equals(that.getServingType())
                 && this.getServingQty() == that.getServingQty();
     }
+
+    @Override
+    public int hashCode() {
+        return this.getId().hashCode()
+                + this.getUserId().hashCode()
+                + this.getFood().hashCode()
+                + this.getDate().hashCode()
+                + (int) this.getServingQty()
+                + (int) this.getServingQty();
+    }
+
 }
