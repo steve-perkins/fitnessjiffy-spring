@@ -12,11 +12,15 @@ import java.util.UUID;
 
 public interface FoodRepository extends CrudRepository<Food, UUID> {
 
-    /** Returns all "global" foods (i.e. where ownerId is null). */
+    /**
+     * Returns all "global" foods (i.e. where ownerId is null).
+     */
     @Nonnull
     List<Food> findByOwnerIsNull();
 
-    /** Returns all foods owned by a particular user. */
+    /**
+     * Returns all foods owned by a particular user.
+     */
     @Nonnull
     List<Food> findByOwner(@Nonnull User owner);
 
@@ -28,24 +32,24 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
      */
     @Query(
             "SELECT food FROM Food food WHERE food.owner = :owner "
-            + "OR ("
-            + "food.owner IS NULL "
-            + "AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
-            + ") ORDER BY food.name ASC"
+                    + "OR ("
+                    + "food.owner IS NULL "
+                    + "AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
+                    + ") ORDER BY food.name ASC"
     )
     @Nonnull
     List<Food> findVisibleByOwner(@Nonnull @Param("owner") User owner);
 
     @Query(
             "SELECT food FROM Food food "
-            + "WHERE ("
-            + "   food.owner = :owner "
-            + "   OR ("
-            + "      food.owner IS NULL "
-            + "      AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
-            + "   )"
-            + ") AND LOWER(food.name) LIKE LOWER(CONCAT('%', :name, '%')) "
-            + "ORDER BY food.name ASC")
+                    + "WHERE ("
+                    + "   food.owner = :owner "
+                    + "   OR ("
+                    + "      food.owner IS NULL "
+                    + "      AND NOT EXISTS (SELECT subFood FROM Food subFood WHERE subFood.owner = :owner AND subFood.name = food.name)"
+                    + "   )"
+                    + ") AND LOWER(food.name) LIKE LOWER(CONCAT('%', :name, '%')) "
+                    + "ORDER BY food.name ASC")
     @Nonnull
     List<Food> findByNameLike(
             @Nonnull @Param("owner") User owner,

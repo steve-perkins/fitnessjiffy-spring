@@ -10,13 +10,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @Controller
-public class AuthenticationController {
+public final class AuthenticationController {
 
-    @RequestMapping(value = {"/login"}, method= RequestMethod.GET)
+    @RequestMapping(value = {"/login"}, method = RequestMethod.GET)
     @Nonnull
     public String viewLoginPage(
-            @Nullable @RequestParam(value = "date", required = false) String dateString,
-            @Nonnull Model model
+            @Nullable @RequestParam(value = "date", required = false) final String dateString,
+            @Nonnull final Model model
     ) {
 
         // TODO: Render login (and/or OpenID/OAuth provider selector) page

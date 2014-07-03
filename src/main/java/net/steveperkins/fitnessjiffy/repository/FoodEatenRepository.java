@@ -28,10 +28,10 @@ public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
 
     @Query(
             "SELECT DISTINCT food FROM Food food, FoodEaten foodEaten "
-            + "WHERE food = foodEaten.food "
-            + "AND foodEaten.user = :user "
-            + "AND foodEaten.date BETWEEN :startDate AND :endDate "
-            + "ORDER BY food.name ASC")
+                    + "WHERE food = foodEaten.food "
+                    + "AND foodEaten.user = :user "
+                    + "AND foodEaten.date BETWEEN :startDate AND :endDate "
+                    + "ORDER BY food.name ASC")
     @Nonnull
     List<Food> findByUserEatenWithinRange(
             @Nonnull @Param("user") User user,

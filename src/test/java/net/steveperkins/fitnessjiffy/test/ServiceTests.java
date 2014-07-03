@@ -37,21 +37,21 @@ public class ServiceTests extends AbstractTests {
     @Test
     public void testUserService() {
         // Test get all users
-        List<UserDTO> allUsers = userService.getAllUsers();
+        final List<UserDTO> allUsers = userService.getAllUsers();
         assertEquals(1, allUsers.size());
 
         // Test get a single user by ID
-        UserDTO user = userService.getUser(allUsers.get(0).getId());
+        final UserDTO user = userService.getUser(allUsers.get(0).getId());
         assertNotNull(user);
     }
 
     @Test
     public void testFoodService() {
         // Test get recently-eaten foods (NOTE: the most recent date in the test data set is 2013-12-12).
-        UserDTO user = userService.getAllUsers().get(0);
-        Calendar december11 = new GregorianCalendar(2013, Calendar.DECEMBER, 11);
-        Date currentDate = new Date(december11.getTimeInMillis());
-        List<FoodDTO> recentFoods = foodService.findEatenRecently(user.getId(), currentDate);
+        final UserDTO user = userService.getAllUsers().get(0);
+        final Calendar december11 = new GregorianCalendar(2013, Calendar.DECEMBER, 11);
+        final Date currentDate = new Date(december11.getTimeInMillis());
+        final List<FoodDTO> recentFoods = foodService.findEatenRecently(user.getId(), currentDate);
         assertEquals(69, recentFoods.size());
 
         // Test retrieving foods eaten on a specific date
@@ -59,8 +59,8 @@ public class ServiceTests extends AbstractTests {
         assertEquals(2, eatenOnDecember11.size());
 
         // Test retrieving a specific food eaten by ID
-        FoodEatenDTO knownFoodEaten = eatenOnDecember11.get(0);
-        FoodEatenDTO copyOfFoodEaten = foodService.findFoodEatenById(knownFoodEaten.getId());
+        final FoodEatenDTO knownFoodEaten = eatenOnDecember11.get(0);
+        final FoodEatenDTO copyOfFoodEaten = foodService.findFoodEatenById(knownFoodEaten.getId());
         assertEquals(knownFoodEaten, copyOfFoodEaten);
 
         // Attempt to add a duplicate food eaten (should not be allowed)
@@ -69,18 +69,18 @@ public class ServiceTests extends AbstractTests {
         assertEquals(2, eatenOnDecember11.size());
 
         // Add a non-duplicate food eaten
-        Calendar december13 = (Calendar) december11.clone();
+        final Calendar december13 = (Calendar) december11.clone();
         december13.add(Calendar.DATE, 1);
         foodService.addFoodEaten(user.getId(), knownFoodEaten.getFood().getId(), new Date(december13.getTimeInMillis()));
         List<FoodEatenDTO> eatenOnDecember13 = foodService.findEatenOnDate(user.getId(), new Date(december13.getTimeInMillis()));
         assertEquals(1, eatenOnDecember13.size());
 
         // Update food eaten
-        FoodEatenDTO addedFoodEaten = eatenOnDecember13.get(0);
-        double oldServingQty = addedFoodEaten.getServingQty();
+        final FoodEatenDTO addedFoodEaten = eatenOnDecember13.get(0);
+        final double oldServingQty = addedFoodEaten.getServingQty();
         foodService.updateFoodEaten(addedFoodEaten.getId(), oldServingQty * 2, addedFoodEaten.getServingType());
         eatenOnDecember13 = foodService.findEatenOnDate(user.getId(), new Date(december13.getTimeInMillis()));
-        FoodEatenDTO copyOfAddedFoodEaten = foodService.findFoodEatenById(addedFoodEaten.getId());
+        final FoodEatenDTO copyOfAddedFoodEaten = foodService.findFoodEatenById(addedFoodEaten.getId());
         assertEquals(oldServingQty * 2, copyOfAddedFoodEaten.getServingQty());
 
         // Delete a food eaten
@@ -89,12 +89,12 @@ public class ServiceTests extends AbstractTests {
         assertEquals(0, eatenOnDecember13.size());
 
         // Search for foods by partial name
-        List<FoodDTO> foodsContainingChicken = foodService.searchFoods(user.getId(), "chicken");
+        final List<FoodDTO> foodsContainingChicken = foodService.searchFoods(user.getId(), "chicken");
         assertEquals(44, foodsContainingChicken.size());
 
         // Test creating a user-owned food with the same name as a global food (should be allowed)
-        FoodDTO globalFood = knownFoodEaten.getFood();
-        FoodDTO userOwnedFood = new FoodDTO();
+        final FoodDTO globalFood = knownFoodEaten.getFood();
+        final FoodDTO userOwnedFood = new FoodDTO();
         BeanUtils.copyProperties(globalFood, userOwnedFood);
         userOwnedFood.setId(UUID.randomUUID());
         userOwnedFood.setOwnerId(user.getId());
@@ -102,21 +102,21 @@ public class ServiceTests extends AbstractTests {
         assertEquals("Success!", result);
 
         // Test creating a user-owned food with the same name as an existing food owned by that user (should NOT be allowed)
-        FoodDTO userOwnedDuplicate = new FoodDTO();
+        final FoodDTO userOwnedDuplicate = new FoodDTO();
         BeanUtils.copyProperties(userOwnedFood, userOwnedDuplicate);
         userOwnedDuplicate.setId(UUID.randomUUID());
         result = foodService.createFood(userOwnedDuplicate, user);
         assertEquals("Error:  You already have another customized food with this name.", result);
 
         // Test updating a food that belongs to a different user (should NOT be allowed)
-        UserDTO additionalUser = new UserDTO();
+        final UserDTO additionalUser = new UserDTO();
         BeanUtils.copyProperties(user, additionalUser);
         additionalUser.setId(UUID.randomUUID());
         additionalUser.setEmail("fake@address.com");
         userService.createUser(additionalUser);
         result = foodService.updateFood(userOwnedFood, additionalUser);
         assertEquals("Error:  You are attempting to modify another user's customized food.", result);
-        User additionalUserEntity = userRepository.findOne(additionalUser.getId());
+        final User additionalUserEntity = userRepository.findOne(additionalUser.getId());
         userRepository.delete(additionalUserEntity);
 
         // Test updating a food that belongs to this user
@@ -125,14 +125,14 @@ public class ServiceTests extends AbstractTests {
         assertEquals("Success!", result);
 
         // Test updating a global food (should create a copy owned by this user)
-        User userEntity = userRepository.findOne(user.getId());
-        int globalFoodsBefore = foodRepository.findByOwnerIsNull().size();
-        int userOwnedFoodsBefore = foodRepository.findByOwner(userEntity).size();
-        FoodDTO otherGlobalFood = eatenOnDecember11.get(1).getFood();
+        final User userEntity = userRepository.findOne(user.getId());
+        final int globalFoodsBefore = foodRepository.findByOwnerIsNull().size();
+        final int userOwnedFoodsBefore = foodRepository.findByOwner(userEntity).size();
+        final FoodDTO otherGlobalFood = eatenOnDecember11.get(1).getFood();
         result = foodService.updateFood(otherGlobalFood, user);
         assertEquals("Success!", result);
-        int globalFoodsAfter = foodRepository.findByOwnerIsNull().size();
-        int userOwnedFoodsAfter = foodRepository.findByOwner(userEntity).size();
+        final int globalFoodsAfter = foodRepository.findByOwnerIsNull().size();
+        final int userOwnedFoodsAfter = foodRepository.findByOwner(userEntity).size();
         assertEquals(globalFoodsBefore, globalFoodsAfter);
         assertEquals(userOwnedFoodsBefore + 1, userOwnedFoodsAfter);
     }

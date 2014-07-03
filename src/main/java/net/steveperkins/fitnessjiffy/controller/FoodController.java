@@ -27,33 +27,33 @@ public class FoodController {
     @Autowired
     FoodService foodService;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    @RequestMapping(value = {"/food"}, method=RequestMethod.GET)
+    @RequestMapping(value = {"/food"}, method = RequestMethod.GET)
     @Nonnull
-	public String viewMainFoodPage(
+    public String viewMainFoodPage(
             @Nullable @RequestParam(value = "date", required = false) String dateString,
-            @Nonnull HttpSession session,
-            @Nonnull Model model
+            @Nonnull final HttpSession session,
+            @Nonnull final Model model
     ) {
-		UserDTO user = (UserDTO) session.getAttribute("user");
+        final UserDTO user = (UserDTO) session.getAttribute("user");
         Date date = null;
-        if(dateString != null) {
+        if (dateString == null) {
+            date = new Date(new java.util.Date().getTime());
+            dateString = simpleDateFormat.format(date);
+        } else {
             try {
                 date = new Date(simpleDateFormat.parse(dateString).getTime());
             } catch (ParseException e) {
                 date = new Date(new java.util.Date().getTime());
             }
-        } else {
-            date = new Date(new java.util.Date().getTime());
-            dateString = simpleDateFormat.format(date);
         }
 
-        List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
-        List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
+        final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
+        final List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
         int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay, pointsForDay;
         caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = pointsForDay = 0;
-        for(FoodEatenDTO foodEaten : foodsEatenThisDate) {
+        for (final FoodEatenDTO foodEaten : foodsEatenThisDate) {
             caloriesForDay += foodEaten.getCalories();
             fatForDay += foodEaten.getFat();
             saturatedFatForDay += foodEaten.getSaturatedFat();
@@ -82,19 +82,19 @@ public class FoodController {
         model.addAttribute("netCalories", caloriesForDay);
         model.addAttribute("netPoints", pointsForDay);
 
-		return Views.FOOD_TEMPLATE;
-	}
+        return Views.FOOD_TEMPLATE;
+    }
 
     @RequestMapping(value = "/food/eaten/add")
     @Nonnull
     public String addFoodEaten(
-            @Nonnull @RequestParam(value = "foodId", required = true) String foodIdString,
-            @Nonnull @RequestParam(value = "date", required = true) String dateString,
-            @Nonnull HttpSession session,
-            @Nonnull Model model
+            @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
+            @Nonnull @RequestParam(value = "date", required = true) final String dateString,
+            @Nonnull final HttpSession session,
+            @Nonnull final Model model
     ) {
-        UserDTO userDTO = (UserDTO) session.getAttribute("user");
-        UUID foodId = UUID.fromString(foodIdString);
+        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UUID foodId = UUID.fromString(foodIdString);
         Date date = null;
         try {
             date = new Date(simpleDateFormat.parse(dateString).getTime());
@@ -109,24 +109,24 @@ public class FoodController {
     @RequestMapping(value = "/food/eaten/update")
     @Nonnull
     public String updateFoodEaten(
-            @Nonnull @RequestParam(value = "foodEatenId", required = true) String foodEatenId,
-            @Nonnull @RequestParam(value = "foodEatenQty", required = true) double foodEatenQty,
-            @Nonnull @RequestParam(value = "foodEatenServing", required = true) String foodEatenServing,
-            @Nonnull @RequestParam(value = "action", required = true) String action,
-            @Nonnull HttpSession session,
-            @Nonnull Model model
+            @Nonnull @RequestParam(value = "foodEatenId", required = true) final String foodEatenId,
+            @Nonnull @RequestParam(value = "foodEatenQty", required = true) final double foodEatenQty,
+            @Nonnull @RequestParam(value = "foodEatenServing", required = true) final String foodEatenServing,
+            @Nonnull @RequestParam(value = "action", required = true) final String action,
+            @Nonnull final HttpSession session,
+            @Nonnull final Model model
     ) {
-        UserDTO userDTO = (UserDTO) session.getAttribute("user");
-        UUID foodEatenUUID = UUID.fromString(foodEatenId);
-        FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
-        String dateString = simpleDateFormat.format(foodEatenDTO.getDate());
-        if(!userDTO.getId().equals(foodEatenDTO.getUserId())) {
+        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UUID foodEatenUUID = UUID.fromString(foodEatenId);
+        final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
+        final String dateString = simpleDateFormat.format(foodEatenDTO.getDate());
+        if (!userDTO.getId().equals(foodEatenDTO.getUserId())) {
             // TODO: Add logging, and flash message on view template
             System.out.println("\n\nThis user is unable to update this food eaten\n");
-        } else if(action.equalsIgnoreCase("update")) {
-            Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);
+        } else if (action.equalsIgnoreCase("update")) {
+            final Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);
             foodService.updateFoodEaten(foodEatenUUID, foodEatenQty, servingType);
-        } else if(action.equalsIgnoreCase("delete")) {
+        } else if (action.equalsIgnoreCase("delete")) {
             foodService.deleteFoodEaten(foodEatenUUID);
         }
         return viewMainFoodPage(dateString, session, model);
@@ -134,39 +134,50 @@ public class FoodController {
 
     @RequestMapping(value = "/food/search/{searchString}")
     @Nonnull
-    public @ResponseBody List<FoodDTO> searchFoods(
-            @Nonnull @PathVariable String searchString,
-            @Nonnull HttpSession session
+    public
+    @ResponseBody
+    List<FoodDTO> searchFoods(
+            @Nonnull @PathVariable final String searchString,
+            @Nonnull final HttpSession session
     ) {
-        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
         return foodService.searchFoods(userDTO.getId(), searchString);
     }
 
     @RequestMapping(value = "/food/get/{foodId}")
     @Nullable
-    public @ResponseBody FoodDTO getFood(
-            @Nonnull @PathVariable String foodId,
-            @Nonnull HttpSession session
+    public
+    @ResponseBody
+    FoodDTO getFood(
+            @Nonnull @PathVariable final String foodId,
+            @Nonnull final HttpSession session
     ) {
-        UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
         FoodDTO foodDTO = foodService.getFoodById(UUID.fromString(foodId));
         // Only return foods that are visible to the requesting user
-        if(foodDTO.getOwnerId() == null || foodDTO.getOwnerId().equals(userDTO.getId())) {
-            return foodDTO;
-        } else {
-            return null;
+        if (foodDTO.getOwnerId() != null && !foodDTO.getOwnerId().equals(userDTO.getId())) {
+            foodDTO = null;
         }
+        return foodDTO;
     }
 
     @RequestMapping(value = "/food/update")
     @Nonnull
-    public @ResponseBody String createOrUpdateFood(
-            @Nonnull @ModelAttribute FoodDTO foodDTO,
-            @Nonnull HttpSession session,
-            @Nonnull Model model
+    public
+    @ResponseBody
+    String createOrUpdateFood(
+            @Nonnull @ModelAttribute final FoodDTO foodDTO,
+            @Nonnull final HttpSession session,
+            @Nonnull final Model model
     ) {
-        UserDTO userDTO = (UserDTO) session.getAttribute("user");
-        return (foodDTO.getId() != null) ? foodService.updateFood(foodDTO, userDTO) : foodService.createFood(foodDTO, userDTO);
+        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        String resultMessage;
+        if (foodDTO.getId() == null) {
+            resultMessage = foodService.createFood(foodDTO, userDTO);
+        } else {
+            resultMessage = foodService.updateFood(foodDTO, userDTO);
+        }
+        return resultMessage;
     }
-	
+
 }

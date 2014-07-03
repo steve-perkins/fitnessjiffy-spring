@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.service;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
@@ -9,11 +11,10 @@ import org.springframework.core.convert.converter.Converter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class UserService {
+public final class UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -22,22 +23,24 @@ public class UserService {
     private Converter<User, UserDTO> userDTOConverter;
 
     @Nullable
-    public UserDTO getUser(@Nonnull UUID userId) {
-        User user = userRepository.findOne(userId);
+    public UserDTO getUser(@Nonnull final UUID userId) {
+        final User user = userRepository.findOne(userId);
         return userToDTO(user);
     }
 
     @Nonnull
     public List<UserDTO> getAllUsers() {
-        List<UserDTO> users = new ArrayList<>();
-        for(User user : userRepository.findAll()) {
-            users.add(userToDTO(user));
-        }
-        return users;
+        return Lists.transform(Lists.newLinkedList(userRepository.findAll()), new Function<User, UserDTO>() {
+            @Nullable
+            @Override
+            public UserDTO apply(@Nullable final User user) {
+                return userToDTO(user);
+            }
+        });
     }
 
-    public void createUser(@Nonnull UserDTO userDTO) {
-        User user = new User(
+    public void createUser(@Nonnull final UserDTO userDTO) {
+        final User user = new User(
                 userDTO.getId(),
                 userDTO.getGender(),
                 userDTO.getBirthdate(),
@@ -56,7 +59,7 @@ public class UserService {
     }
 
     @Nullable
-    private UserDTO userToDTO(@Nullable User user) {
+    private UserDTO userToDTO(@Nullable final User user) {
         return userDTOConverter.convert(user);
     }
 

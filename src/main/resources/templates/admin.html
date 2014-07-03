@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
 <head>
-	<title>Admin</title>
+    <title>Admin</title>
 </head>
 <body>
 
 <form action="admin/import" enctype="multipart/form-data" method="post">
-<p>
-Please specify a JSON file to import into the database:<br/>
-<input type="file" name="file" size="40"/>
-</p>
-<div>
-<input type="submit" value="Send"/>
-</div>
-<div th:text="${result}"/>
+    <p>
+        Please specify a JSON file to import into the database:<br/>
+        <input type="file" name="file" size="40"/>
+    </p>
+
+    <div>
+        <input type="submit" value="Send"/>
+    </div>
+    <div th:text="${result}"/>
 </form>
 
 </body>

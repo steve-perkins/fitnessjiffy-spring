@@ -1,5 +1,9 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -10,10 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Entity
-public class Food {
+public final class Food {
 
     public enum ServingType {
 
@@ -21,31 +26,40 @@ public class Food {
 
         private double value;
 
-        private ServingType(double value) {
+        private ServingType(final double value) {
             this.value = value;
         }
 
         @Nullable
-        public static ServingType fromValue(double value) {
-            for(ServingType servingType : ServingType.values()) {
-                if(servingType.getValue() == value) {
-                    return servingType;
+        public static final ServingType fromValue(final double value) {
+            Iterables.filter(Arrays.asList(ServingType.values()), new Predicate<ServingType>() {
+                @Override
+                public boolean apply(@Nonnull final ServingType servingType) {
+                    return servingType.getValue() == value;
+                }
+            });
+
+            ServingType match = null;
+            for (final ServingType servingType : ServingType.values()) {
+                if (servingType.getValue() == value) {
+                    match = servingType;
                 }
             }
-            return null;
+            return match;
         }
 
         @Nullable
-        public static ServingType fromString(@Nonnull String s) {
-            for(ServingType servingType : ServingType.values()) {
-                if(servingType.toString().equalsIgnoreCase(s)) {
-                    return servingType;
+        public static final ServingType fromString(@Nonnull final String s) {
+            ServingType match = null;
+            for (final ServingType servingType : ServingType.values()) {
+                if (servingType.toString().equalsIgnoreCase(s)) {
+                    match = servingType;
                 }
             }
-            return null;
+            return match;
         }
 
-        public double getValue() {
+        public final double getValue() {
             return this.value;
         }
 
@@ -100,23 +114,23 @@ public class Food {
     private Timestamp lastUpdatedTime = new Timestamp(new java.util.Date().getTime());
 
     public Food(
-            @Nullable UUID id,
-            @Nullable User owner,
-            @Nonnull String name,
-            @Nonnull ServingType defaultServingType,
-            double servingTypeQty,
-            int calories,
-            double fat,
-            double saturatedFat,
-            double carbs,
-            double fiber,
-            double sugar,
-            double protein,
-            double sodium,
-            @Nonnull Timestamp createdTime,
-            @Nonnull Timestamp lastUpdatedTime
+            @Nullable final UUID id,
+            @Nullable final User owner,
+            @Nonnull final String name,
+            @Nonnull final ServingType defaultServingType,
+            final double servingTypeQty,
+            final int calories,
+            final double fat,
+            final double saturatedFat,
+            final double carbs,
+            final double fiber,
+            final double sugar,
+            final double protein,
+            final double sodium,
+            @Nonnull final Timestamp createdTime,
+            @Nonnull final Timestamp lastUpdatedTime
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.owner = owner;
         this.name = name;
         this.defaultServingType = defaultServingType;
@@ -141,7 +155,7 @@ public class Food {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -150,7 +164,7 @@ public class Food {
         return owner;
     }
 
-    public void setOwner(@Nullable User owner) {
+    public void setOwner(@Nullable final User owner) {
         this.owner = owner;
     }
 
@@ -159,7 +173,7 @@ public class Food {
         return name;
     }
 
-    public void setName(@Nonnull String name) {
+    public void setName(@Nonnull final String name) {
         this.name = name;
     }
 
@@ -168,7 +182,7 @@ public class Food {
         return defaultServingType;
     }
 
-    public void setDefaultServingType(@Nonnull ServingType defaultServingType) {
+    public void setDefaultServingType(@Nonnull final ServingType defaultServingType) {
         this.defaultServingType = defaultServingType;
     }
 
@@ -177,7 +191,7 @@ public class Food {
         return servingTypeQty;
     }
 
-    public void setServingTypeQty(@Nonnull Double servingTypeQty) {
+    public void setServingTypeQty(@Nonnull final Double servingTypeQty) {
         this.servingTypeQty = servingTypeQty;
     }
 
@@ -186,7 +200,7 @@ public class Food {
         return calories;
     }
 
-    public void setCalories(@Nonnull Integer calories) {
+    public void setCalories(@Nonnull final Integer calories) {
         this.calories = calories;
     }
 
@@ -195,7 +209,7 @@ public class Food {
         return fat;
     }
 
-    public void setFat(@Nonnull Double fat) {
+    public void setFat(@Nonnull final Double fat) {
         this.fat = fat;
     }
 
@@ -204,7 +218,7 @@ public class Food {
         return saturatedFat;
     }
 
-    public void setSaturatedFat(@Nonnull Double saturatedFat) {
+    public void setSaturatedFat(@Nonnull final Double saturatedFat) {
         this.saturatedFat = saturatedFat;
     }
 
@@ -213,7 +227,7 @@ public class Food {
         return carbs;
     }
 
-    public void setCarbs(@Nonnull Double carbs) {
+    public void setCarbs(@Nonnull final Double carbs) {
         this.carbs = carbs;
     }
 
@@ -222,7 +236,7 @@ public class Food {
         return fiber;
     }
 
-    public void setFiber(@Nonnull Double fiber) {
+    public void setFiber(@Nonnull final Double fiber) {
         this.fiber = fiber;
     }
 
@@ -231,7 +245,7 @@ public class Food {
         return sugar;
     }
 
-    public void setSugar(@Nonnull Double sugar) {
+    public void setSugar(@Nonnull final Double sugar) {
         this.sugar = sugar;
     }
 
@@ -240,7 +254,7 @@ public class Food {
         return protein;
     }
 
-    public void setProtein(@Nonnull Double protein) {
+    public void setProtein(@Nonnull final Double protein) {
         this.protein = protein;
     }
 
@@ -249,7 +263,7 @@ public class Food {
         return sodium;
     }
 
-    public void setSodium(@Nonnull Double sodium) {
+    public void setSodium(@Nonnull final Double sodium) {
         this.sodium = sodium;
     }
 
@@ -258,7 +272,7 @@ public class Food {
         return (Timestamp) createdTime.clone();
     }
 
-    public void setCreatedTime(@Nonnull Timestamp createdTime) {
+    public void setCreatedTime(@Nonnull final Timestamp createdTime) {
         this.createdTime = (Timestamp) createdTime.clone();
     }
 
@@ -267,14 +281,14 @@ public class Food {
         return (Timestamp) lastUpdatedTime.clone();
     }
 
-    public void setLastUpdatedTime(@Nonnull Timestamp lastUpdatedTime) {
+    public void setLastUpdatedTime(@Nonnull final Timestamp lastUpdatedTime) {
         this.lastUpdatedTime = (Timestamp) lastUpdatedTime.clone();
     }
 
     public double getPoints() {
-        double fiber = (this.fiber <= 4) ? this.fiber : 4;
-        double points = (calories / 50.0) + (fat / 12.0) - (fiber / 5.0);
+        final double fiber = (this.fiber <= 4) ? this.fiber : 4;
+        final double points = (calories / 50.0) + (fat / 12.0) - (fiber / 5.0);
         return (points > 0) ? points : 0;
     }
-	
+
 }

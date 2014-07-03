@@ -25,7 +25,7 @@ public abstract class AbstractTests {
      * object into an instance variable.  So we use this static "flag" variable here, to ensure that the @Before method
      * only populates the database once.
      */
-    protected static boolean databasePopulated = false;
+    protected static boolean databasePopulated;
 
     @Autowired
     DataSource dataSource;
@@ -34,9 +34,9 @@ public abstract class AbstractTests {
 
     @Before
     public void before() throws Exception {
-        if(!databasePopulated) {
-            Datastore datastore = Datastore.fromJSONFile( new File(CURRENT_WORKING_DIRECTORY + "testdata.json") );
-            try ( Connection connection = dataSource.getConnection() ) {
+        if (!databasePopulated) {
+            final Datastore datastore = Datastore.fromJSONFile(new File(CURRENT_WORKING_DIRECTORY + "testdata.json"));
+            try (Connection connection = dataSource.getConnection()) {
                 new H2Writer(connection, datastore).write();
                 databasePopulated = true;
             }

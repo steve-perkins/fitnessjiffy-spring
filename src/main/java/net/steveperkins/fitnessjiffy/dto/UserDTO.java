@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.UUID;
 
-public class UserDTO {
+public final class UserDTO {
 
     private UUID id;
     private User.Gender gender;
@@ -22,18 +22,18 @@ public class UserDTO {
     private int dailyPoints;
 
     public UserDTO(
-            @Nonnull UUID id,
-            @Nonnull User.Gender gender,
-            @Nonnull Date birthdate,
-            double heightInInches,
-            @Nonnull User.ActivityLevel activityLevel,
-            @Nonnull String email,
-            @Nonnull String firstName,
-            @Nonnull String lastName,
-            double currentWeight,
-            double bmi,
-            int maintenanceCalories,
-            int dailyPoints
+            @Nonnull final UUID id,
+            @Nonnull final User.Gender gender,
+            @Nonnull final Date birthdate,
+            final double heightInInches,
+            @Nonnull final User.ActivityLevel activityLevel,
+            @Nonnull final String email,
+            @Nonnull final String firstName,
+            @Nonnull final String lastName,
+            final double currentWeight,
+            final double bmi,
+            final int maintenanceCalories,
+            final int dailyPoints
     ) {
         this.id = id;
         this.gender = gender;
@@ -57,7 +57,7 @@ public class UserDTO {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -66,7 +66,7 @@ public class UserDTO {
         return gender;
     }
 
-    public void setGender(@Nonnull User.Gender gender) {
+    public void setGender(@Nonnull final User.Gender gender) {
         this.gender = gender;
     }
 
@@ -75,7 +75,7 @@ public class UserDTO {
         return (Date) birthdate.clone();
     }
 
-    public void setBirthdate(@Nonnull Date birthdate) {
+    public void setBirthdate(@Nonnull final Date birthdate) {
         this.birthdate = (Date) birthdate.clone();
     }
 
@@ -83,7 +83,7 @@ public class UserDTO {
         return heightInInches;
     }
 
-    public void setHeightInInches(double heightInInches) {
+    public void setHeightInInches(final double heightInInches) {
         this.heightInInches = heightInInches;
     }
 
@@ -92,7 +92,7 @@ public class UserDTO {
         return activityLevel;
     }
 
-    public void setActivityLevel(@Nonnull User.ActivityLevel activityLevel) {
+    public void setActivityLevel(@Nonnull final User.ActivityLevel activityLevel) {
         this.activityLevel = activityLevel;
     }
 
@@ -101,7 +101,7 @@ public class UserDTO {
         return email;
     }
 
-    public void setEmail(@Nonnull String email) {
+    public void setEmail(@Nonnull final String email) {
         this.email = email;
     }
 
@@ -110,7 +110,7 @@ public class UserDTO {
         return firstName;
     }
 
-    public void setFirstName(@Nonnull String firstName) {
+    public void setFirstName(@Nonnull final String firstName) {
         this.firstName = firstName;
     }
 
@@ -119,7 +119,7 @@ public class UserDTO {
         return lastName;
     }
 
-    public void setLastName(@Nonnull String lastName) {
+    public void setLastName(@Nonnull final String lastName) {
         this.lastName = lastName;
     }
 
@@ -127,7 +127,7 @@ public class UserDTO {
         return currentWeight;
     }
 
-    public void setCurrentWeight(double currentWeight) {
+    public void setCurrentWeight(final double currentWeight) {
         this.currentWeight = currentWeight;
     }
 
@@ -135,7 +135,7 @@ public class UserDTO {
         return bmi;
     }
 
-    public void setBmi(double bmi) {
+    public void setBmi(final double bmi) {
         this.bmi = bmi;
     }
 
@@ -143,7 +143,7 @@ public class UserDTO {
         return maintenanceCalories;
     }
 
-    public void setMaintenanceCalories(int maintenanceCalories) {
+    public void setMaintenanceCalories(final int maintenanceCalories) {
         this.maintenanceCalories = maintenanceCalories;
     }
 
@@ -151,28 +151,29 @@ public class UserDTO {
         return dailyPoints;
     }
 
-    public void setDailyPoints(int dailyPoints) {
+    public void setDailyPoints(final int dailyPoints) {
         this.dailyPoints = dailyPoints;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if(other == null || !(other instanceof UserDTO)) {
-            return false;
+    public boolean equals(final Object other) {
+        boolean equals = false;
+        if (other instanceof UserDTO) {
+            final UserDTO that = (UserDTO) other;
+            equals = this.getId().equals(that.getId())
+                    && this.getGender().equals(that.getGender())
+                    && this.getBirthdate() == that.getBirthdate()
+                    && this.getHeightInInches() == that.getHeightInInches()
+                    && this.getActivityLevel().equals(that.getActivityLevel())
+                    && this.getEmail().equals(that.getEmail())
+                    && this.getFirstName().equals(that.getFirstName())
+                    && this.getLastName().equals(that.getLastName())
+                    && this.getCurrentWeight() == that.getCurrentWeight()
+                    && this.getBmi() == that.getBmi()
+                    && this.getMaintenanceCalories() == that.getMaintenanceCalories()
+                    && this.getDailyPoints() == that.getDailyPoints();
         }
-        UserDTO that = (UserDTO) other;
-        return this.getId().equals(that.getId())
-                && this.getGender().equals(that.getGender())
-                && this.getBirthdate() == that.getBirthdate()
-                && this.getHeightInInches() == that.getHeightInInches()
-                && this.getActivityLevel().equals(that.getActivityLevel())
-                && this.getEmail().equals(that.getEmail())
-                && this.getFirstName().equals(that.getFirstName())
-                && this.getLastName().equals(that.getLastName())
-                && this.getCurrentWeight() == that.getCurrentWeight()
-                && this.getBmi() == that.getBmi()
-                && this.getMaintenanceCalories() == that.getMaintenanceCalories()
-                && this.getDailyPoints() == that.getDailyPoints();
+        return equals;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -10,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "EXERCISE")
-public class Exercise {
+public final class Exercise {
 
     @Id
     @Column(columnDefinition = "BYTEA", length = 16)
@@ -29,13 +31,13 @@ public class Exercise {
     private String description;
 
     public Exercise(
-            @Nullable UUID id,
-            @Nonnull String code,
-            double metabolicEquivalent,
-            @Nonnull String category,
-            @Nonnull String description
+            @Nullable final UUID id,
+            @Nonnull final String code,
+            final double metabolicEquivalent,
+            @Nonnull final String category,
+            @Nonnull final String description
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.code = code;
         this.metabolicEquivalent = metabolicEquivalent;
         this.category = category;
@@ -50,7 +52,7 @@ public class Exercise {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -59,7 +61,7 @@ public class Exercise {
         return code;
     }
 
-    public void setCode(@Nonnull String code) {
+    public void setCode(@Nonnull final String code) {
         this.code = code;
     }
 
@@ -68,7 +70,7 @@ public class Exercise {
         return metabolicEquivalent;
     }
 
-    public void setMetabolicEquivalent(@Nonnull Double metabolicEquivalent) {
+    public void setMetabolicEquivalent(@Nonnull final Double metabolicEquivalent) {
         this.metabolicEquivalent = metabolicEquivalent;
     }
 
@@ -77,7 +79,7 @@ public class Exercise {
         return category;
     }
 
-    public void setCategory(@Nonnull String category) {
+    public void setCategory(@Nonnull final String category) {
         this.category = category;
     }
 
@@ -86,9 +88,8 @@ public class Exercise {
         return description.trim();
     }
 
-    public void setDescription(@Nonnull String description) {
-        if(description != null) description = description.trim();
-        this.description = description;
+    public void setDescription(@Nonnull final String description) {
+        this.description = (description == null) ? "" : description.trim();
     }
 
 }

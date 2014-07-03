@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -23,13 +25,14 @@ public class User {
         MALE, FEMALE;
 
         @Nullable
-        public static Gender fromString(@Nonnull String s) {
-            for(Gender gender : Gender.values()) {
-                if(s != null && gender.toString().equalsIgnoreCase(s)) {
-                    return gender;
+        public static Gender fromString(@Nonnull final String s) {
+            Gender match = null;
+            for (final Gender gender : Gender.values()) {
+                if (gender.toString().equalsIgnoreCase(s)) {
+                    match = gender;
                 }
             }
-            return null;
+            return match;
         }
 
         @Override
@@ -45,28 +48,30 @@ public class User {
 
         private double value;
 
-        private ActivityLevel(double value) {
+        private ActivityLevel(final double value) {
             this.value = value;
         }
 
         @Nullable
-        public static ActivityLevel fromValue(double value) {
-            for(ActivityLevel activityLevel : ActivityLevel.values()) {
-                if(activityLevel.getValue() == value) {
-                    return activityLevel;
+        public static ActivityLevel fromValue(final double value) {
+            ActivityLevel match = null;
+            for (final ActivityLevel activityLevel : ActivityLevel.values()) {
+                if (activityLevel.getValue() == value) {
+                    match = activityLevel;
                 }
             }
-            return null;
+            return match;
         }
 
         @Nullable
-        public static ActivityLevel fromString(@Nonnull String s) {
-            for(ActivityLevel activityLevel : ActivityLevel.values()) {
-                if(activityLevel.toString().equalsIgnoreCase(s)) {
-                    return activityLevel;
+        public static ActivityLevel fromString(@Nonnull final String s) {
+            ActivityLevel match = null;
+            for (final ActivityLevel activityLevel : ActivityLevel.values()) {
+                if (activityLevel.toString().equalsIgnoreCase(s)) {
+                    match = activityLevel;
                 }
             }
-            return null;
+            return match;
         }
 
         public double getValue() {
@@ -75,10 +80,10 @@ public class User {
 
         @Override
         public String toString() {
-            StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
-            for(int index = 0; index < s.length(); index++) {
-                if(index == 0 || s.charAt(index - 1) == ' ') {
-                    String currentCharAsString = s.charAt(index) + "";
+            final StringBuilder s = new StringBuilder(super.toString().toLowerCase().replace('_', ' '));
+            for (int index = 0; index < s.length(); index++) {
+                if (index == 0 || s.charAt(index - 1) == ' ') {
+                    final String currentCharAsString = Character.toString(s.charAt(index));
                     s.replace(index, index + 1, currentCharAsString.toUpperCase());
                 }
             }
@@ -137,27 +142,27 @@ public class User {
     private Set<ExercisePerformed> exercisesPerformed = new HashSet<>();
 
     public User(
-            @Nullable UUID id,
-            @Nonnull Gender gender,
-            @Nonnull Date birthdate,
-            double heightInInches,
-            @Nonnull ActivityLevel activityLevel,
-            @Nonnull String email,
-            @Nullable byte[] passwordHash,
-            @Nullable byte[] passwordSalt,
-            @Nonnull String firstName,
-            @Nonnull String lastName,
-            @Nonnull Timestamp createdTime,
-            @Nonnull Timestamp lastUpdatedTime
+            @Nullable final UUID id,
+            @Nonnull final Gender gender,
+            @Nonnull final Date birthdate,
+            final double heightInInches,
+            @Nonnull final ActivityLevel activityLevel,
+            @Nonnull final String email,
+            @Nullable final byte[] passwordHash,
+            @Nullable final byte[] passwordSalt,
+            @Nonnull final String firstName,
+            @Nonnull final String lastName,
+            @Nonnull final Timestamp createdTime,
+            @Nonnull final Timestamp lastUpdatedTime
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.gender = gender.toString();
         this.birthdate = (Date) birthdate.clone();
         this.heightInInches = heightInInches;
         this.activityLevel = activityLevel.getValue();
         this.email = email;
-        this.passwordHash = (passwordHash != null) ? passwordHash.clone() : null;
-        this.passwordSalt = (passwordSalt != null) ? passwordSalt.clone() : null;
+        this.passwordHash = (passwordHash == null) ? null : passwordHash.clone();
+        this.passwordSalt = (passwordSalt == null) ? null : passwordSalt.clone();
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdTime = (Timestamp) createdTime.clone();
@@ -172,7 +177,7 @@ public class User {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -181,7 +186,7 @@ public class User {
         return Gender.fromString(gender);
     }
 
-    public void setGender(@Nonnull Gender gender) {
+    public void setGender(@Nonnull final Gender gender) {
         this.gender = gender.toString();
     }
 
@@ -190,7 +195,7 @@ public class User {
         return (Date) birthdate.clone();
     }
 
-    public void setBirthdate(@Nonnull Date birthdate) {
+    public void setBirthdate(@Nonnull final Date birthdate) {
         this.birthdate = (Date) birthdate.clone();
     }
 
@@ -198,7 +203,7 @@ public class User {
         return heightInInches;
     }
 
-    public void setHeightInInches(double heightInInches) {
+    public void setHeightInInches(final double heightInInches) {
         this.heightInInches = heightInInches;
     }
 
@@ -207,7 +212,7 @@ public class User {
         return ActivityLevel.fromValue(activityLevel);
     }
 
-    public void setActivityLevel(@Nonnull ActivityLevel activityLevel) {
+    public void setActivityLevel(@Nonnull final ActivityLevel activityLevel) {
         this.activityLevel = activityLevel.getValue();
     }
 
@@ -216,26 +221,26 @@ public class User {
         return email;
     }
 
-    public void setEmail(@Nonnull String email) {
+    public void setEmail(@Nonnull final String email) {
         this.email = email;
     }
 
     @Nullable
     public byte[] getPasswordHash() {
-        return (passwordHash != null) ? passwordHash.clone() : null;
+        return (passwordHash == null) ? null : Arrays.copyOf(passwordHash, passwordHash.length);
     }
 
-    public void setPasswordHash(@Nullable byte[] passwordHash) {
-        this.passwordHash = (passwordHash != null) ? passwordHash.clone() : null;
+    public void setPasswordHash(@Nullable final byte[] passwordHash) {
+        this.passwordHash = (passwordHash == null) ? null : Arrays.copyOf(passwordHash, passwordHash.length);
     }
 
     @Nullable
     public byte[] getPasswordSalt() {
-        return (passwordSalt != null) ? passwordSalt.clone() : null;
+        return (passwordSalt == null) ? null : Arrays.copyOf(passwordSalt, passwordSalt.length);
     }
 
-    public void setPasswordSalt(@Nullable byte[] passwordSalt) {
-        this.passwordSalt = (passwordSalt != null) ? passwordSalt.clone() : null;
+    public void setPasswordSalt(@Nullable final byte[] passwordSalt) {
+        this.passwordSalt = (passwordSalt == null) ? null : Arrays.copyOf(passwordSalt, passwordSalt.length);
     }
 
     @Nonnull
@@ -243,7 +248,7 @@ public class User {
         return firstName;
     }
 
-    public void setFirstName(@Nonnull String firstName) {
+    public void setFirstName(@Nonnull final String firstName) {
         this.firstName = firstName;
     }
 
@@ -252,7 +257,7 @@ public class User {
         return lastName;
     }
 
-    public void setLastName(@Nonnull String lastName) {
+    public void setLastName(@Nonnull final String lastName) {
         this.lastName = lastName;
     }
 
@@ -261,7 +266,7 @@ public class User {
         return (Timestamp) createdTime.clone();
     }
 
-    public void setCreatedTime(@Nonnull Timestamp createdTime) {
+    public void setCreatedTime(@Nonnull final Timestamp createdTime) {
         this.createdTime = (Timestamp) createdTime.clone();
     }
 
@@ -270,7 +275,7 @@ public class User {
         return (Timestamp) lastUpdatedTime.clone();
     }
 
-    public void setLastUpdatedTime(@Nonnull Timestamp lastUpdatedTime) {
+    public void setLastUpdatedTime(@Nonnull final Timestamp lastUpdatedTime) {
         this.lastUpdatedTime = (Timestamp) lastUpdatedTime.clone();
     }
 
@@ -279,7 +284,7 @@ public class User {
         return weights;
     }
 
-    public void setWeights(@Nonnull Set<Weight> weights) {
+    public void setWeights(@Nonnull final Set<Weight> weights) {
         this.weights = weights;
     }
 
@@ -288,7 +293,7 @@ public class User {
         return foods;
     }
 
-    public void setFoods(@Nonnull Set<Food> foods) {
+    public void setFoods(@Nonnull final Set<Food> foods) {
         this.foods = foods;
     }
 
@@ -297,7 +302,7 @@ public class User {
         return foodsEaten;
     }
 
-    public void setFoodsEaten(@Nonnull Set<FoodEaten> foodsEaten) {
+    public void setFoodsEaten(@Nonnull final Set<FoodEaten> foodsEaten) {
         this.foodsEaten = foodsEaten;
     }
 
@@ -306,28 +311,29 @@ public class User {
         return exercisesPerformed;
     }
 
-    public void setExercisesPerformed(@Nonnull Set<ExercisePerformed> exercisesPerformed) {
+    public void setExercisesPerformed(@Nonnull final Set<ExercisePerformed> exercisesPerformed) {
         this.exercisesPerformed = exercisesPerformed;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if(other == null || !(other instanceof User)) {
-            return false;
+    public boolean equals(final Object other) {
+        boolean equals = false;
+        if (other instanceof User) {
+            final User that = (User) other;
+            equals = this.getId().equals(that.getId())
+                    && this.getGender().equals(that.getGender())
+                    && this.getBirthdate().toString().equals(that.getBirthdate().toString())
+                    && this.getHeightInInches() == that.getHeightInInches()
+                    && this.getActivityLevel() == that.getActivityLevel()
+                    && this.getEmail().equals(that.getEmail())
+                    && ((this.getPasswordHash() == null && that.getPasswordHash() == null) || Arrays.equals(this.getPasswordHash(), that.getPasswordHash()))
+                    && ((this.getPasswordSalt() == null && that.getPasswordSalt() == null) || Arrays.equals(this.getPasswordSalt(), that.getPasswordSalt()))
+                    && this.getFirstName().equals(that.getFirstName())
+                    && this.getLastName().equals(that.getLastName())
+                    && this.getCreatedTime().equals(that.getCreatedTime())
+                    && this.getLastUpdatedTime().equals(that.getLastUpdatedTime());
         }
-        User that = (User) other;
-        return this.getId().equals(that.getId())
-                && this.getGender().equals(that.getGender())
-                && this.getBirthdate().toString().equals(that.getBirthdate().toString())
-                && this.getHeightInInches() == that.getHeightInInches()
-                && this.getActivityLevel() == that.getActivityLevel()
-                && this.getEmail().equals(that.getEmail())
-                && ((this.getPasswordHash() == null && that.getPasswordHash() == null) || Arrays.equals(this.getPasswordHash(), that.getPasswordHash()))
-                && ((this.getPasswordSalt() == null && that.getPasswordSalt() == null) || Arrays.equals(this.getPasswordSalt(), that.getPasswordSalt()))
-                && this.getFirstName().equals(that.getFirstName())
-                && this.getLastName().equals(that.getLastName())
-                && this.getCreatedTime().equals(that.getCreatedTime())
-                && this.getLastUpdatedTime().equals(that.getLastUpdatedTime());
+        return equals;
     }
 
     @Override
@@ -337,12 +343,12 @@ public class User {
                 + this.getBirthdate().hashCode()
                 + this.getActivityLevel().hashCode()
                 + this.getEmail().hashCode()
-                + (this.getPasswordHash() != null ? Arrays.hashCode(this.getPasswordHash()) : 0)
-                + (this.getPasswordSalt() != null ? Arrays.hashCode(this.getPasswordSalt()) : 0)
+                + (this.getPasswordHash() == null ? 0 : Arrays.hashCode(this.getPasswordHash()))
+                + (this.getPasswordSalt() == null ? 0 : Arrays.hashCode(this.getPasswordSalt()))
                 + this.getFirstName().hashCode()
                 + this.getLastName().hashCode()
                 + this.getCreatedTime().hashCode()
                 + this.getLastUpdatedTime().hashCode();
     }
-	
+
 }

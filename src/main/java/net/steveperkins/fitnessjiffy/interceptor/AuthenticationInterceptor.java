@@ -1,5 +1,6 @@
 package net.steveperkins.fitnessjiffy.interceptor;
 
+import com.google.common.base.Optional;
 import net.steveperkins.fitnessjiffy.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,22 +14,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Component
-public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
+public final class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
-    private static String AUTHENTICATION_COOKIE_NAME = "fitnessjiffy-session";
+    private static final String AUTHENTICATION_COOKIE_NAME = "fitnessjiffy-session";
 
     @Autowired
     private AuthenticationService authenticationService;
 
     @Override
     public boolean preHandle(
-            @Nonnull HttpServletRequest request,
-            @Nonnull HttpServletResponse response,
-            @Nonnull Object handler
+            @Nonnull final HttpServletRequest request,
+            @Nonnull final HttpServletResponse response,
+            @Nonnull final Object handler
     ) throws Exception {
-        String sessionToken = retrieveSessionToken(request);
-        UUID userId = authenticationService.validateSessionToken(sessionToken);
-        if(userId == null) {
+        final String sessionToken = retrieveSessionToken(request);
+        final UUID userId = (sessionToken == null) ? null : authenticationService.validateSessionToken(sessionToken);
+        if (userId == null) {
             response.sendRedirect("/login");
             return false;
         } else {
@@ -38,10 +39,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     }
 
     @Nullable
-    private String retrieveSessionToken(@Nonnull HttpServletRequest request) {
+    private String retrieveSessionToken(@Nonnull final HttpServletRequest request) {
         String token = null;
-        for(Cookie cookie : request.getCookies()) {
-            if(cookie.getName().equals(AUTHENTICATION_COOKIE_NAME)) {
+        final Cookie[] cookies = Optional.fromNullable(request.getCookies()).or(new Cookie[0]);
+        for (final Cookie cookie : cookies) {
+            if (cookie.getName().equals(AUTHENTICATION_COOKIE_NAME)) {
                 token = cookie.getValue();
                 break;
             }

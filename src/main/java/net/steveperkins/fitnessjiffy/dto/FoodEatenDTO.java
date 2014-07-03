@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.UUID;
 
-public class FoodEatenDTO {
+public final class FoodEatenDTO {
 
     private UUID id;
     private UUID userId;
@@ -28,21 +28,21 @@ public class FoodEatenDTO {
     private double points;
 
     public FoodEatenDTO(
-            @Nonnull UUID id,
-            @Nonnull UUID userId,
-            @Nonnull FoodDTO food,
-            @Nonnull Date date,
-            @Nonnull Food.ServingType servingType,
-            double servingQty,
-            int calories,
-            double fat,
-            double saturatedFat,
-            double sodium,
-            double carbs,
-            double fiber,
-            double sugar,
-            double protein,
-            double points
+            @Nonnull final UUID id,
+            @Nonnull final UUID userId,
+            @Nonnull final FoodDTO food,
+            @Nonnull final Date date,
+            @Nonnull final Food.ServingType servingType,
+            final double servingQty,
+            final int calories,
+            final double fat,
+            final double saturatedFat,
+            final double sodium,
+            final double carbs,
+            final double fiber,
+            final double sugar,
+            final double protein,
+            final double points
     ) {
         this.id = id;
         this.userId = userId;
@@ -69,7 +69,7 @@ public class FoodEatenDTO {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -78,7 +78,7 @@ public class FoodEatenDTO {
         return userId;
     }
 
-    public void setUserId(@Nonnull UUID userId) {
+    public void setUserId(@Nonnull final UUID userId) {
         this.userId = userId;
     }
 
@@ -87,7 +87,7 @@ public class FoodEatenDTO {
         return food;
     }
 
-    public void setFood(@Nonnull FoodDTO food) {
+    public void setFood(@Nonnull final FoodDTO food) {
         this.food = food;
     }
 
@@ -96,7 +96,7 @@ public class FoodEatenDTO {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull Date date) {
+    public void setDate(@Nonnull final Date date) {
         this.date = (Date) date.clone();
     }
 
@@ -105,7 +105,7 @@ public class FoodEatenDTO {
         return servingType;
     }
 
-    public void setServingType(@Nonnull Food.ServingType servingType) {
+    public void setServingType(@Nonnull final Food.ServingType servingType) {
         this.servingType = servingType;
     }
 
@@ -113,7 +113,7 @@ public class FoodEatenDTO {
         return servingQty;
     }
 
-    public void setServingQty(double servingQty) {
+    public void setServingQty(final double servingQty) {
         this.servingQty = servingQty;
     }
 
@@ -121,7 +121,7 @@ public class FoodEatenDTO {
         return calories;
     }
 
-    public void setCalories(int calories) {
+    public void setCalories(final int calories) {
         this.calories = calories;
     }
 
@@ -129,7 +129,7 @@ public class FoodEatenDTO {
         return fat;
     }
 
-    public void setFat(double fat) {
+    public void setFat(final double fat) {
         this.fat = fat;
     }
 
@@ -137,7 +137,7 @@ public class FoodEatenDTO {
         return saturatedFat;
     }
 
-    public void setSaturatedFat(double saturatedFat) {
+    public void setSaturatedFat(final double saturatedFat) {
         this.saturatedFat = saturatedFat;
     }
 
@@ -145,7 +145,7 @@ public class FoodEatenDTO {
         return sodium;
     }
 
-    public void setSodium(double sodium) {
+    public void setSodium(final double sodium) {
         this.sodium = sodium;
     }
 
@@ -153,7 +153,7 @@ public class FoodEatenDTO {
         return carbs;
     }
 
-    public void setCarbs(double carbs) {
+    public void setCarbs(final double carbs) {
         this.carbs = carbs;
     }
 
@@ -161,7 +161,7 @@ public class FoodEatenDTO {
         return fiber;
     }
 
-    public void setFiber(double fiber) {
+    public void setFiber(final double fiber) {
         this.fiber = fiber;
     }
 
@@ -169,7 +169,7 @@ public class FoodEatenDTO {
         return sugar;
     }
 
-    public void setSugar(double sugar) {
+    public void setSugar(final double sugar) {
         this.sugar = sugar;
     }
 
@@ -177,7 +177,7 @@ public class FoodEatenDTO {
         return protein;
     }
 
-    public void setProtein(double protein) {
+    public void setProtein(final double protein) {
         this.protein = protein;
     }
 
@@ -185,22 +185,23 @@ public class FoodEatenDTO {
         return points;
     }
 
-    public void setPoints(double points) {
+    public void setPoints(final double points) {
         this.points = points;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if(other == null || !(other instanceof FoodEatenDTO)) {
-            return false;
+    public boolean equals(final Object other) {
+        boolean equals = false;
+        if (other instanceof FoodEatenDTO) {
+            final FoodEatenDTO that = (FoodEatenDTO) other;
+            equals = this.getId().equals(that.getId())
+                    && this.getUserId().equals(that.getUserId())
+                    && this.getFood().equals(that.getFood())
+                    && this.getDate().equals(that.getDate())
+                    && this.getServingType().equals(that.getServingType())
+                    && this.getServingQty() == that.getServingQty();
         }
-        FoodEatenDTO that = (FoodEatenDTO) other;
-        return this.getId().equals(that.getId())
-                && this.getUserId().equals(that.getUserId())
-                && this.getFood().equals(that.getFood())
-                && this.getDate().equals(that.getDate())
-                && this.getServingType().equals(that.getServingType())
-                && this.getServingQty() == that.getServingQty();
+        return equals;
     }
 
     @Override

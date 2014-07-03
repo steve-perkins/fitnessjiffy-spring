@@ -15,35 +15,35 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 @Controller
-public class AdminController {
+public final class AdminController {
 
     @Autowired
     DataSource dataSource;
 
-    @RequestMapping(value={"/admin"}, method= RequestMethod.GET)
+    @RequestMapping(value = {"/admin"}, method = RequestMethod.GET)
     @Nonnull
     public String viewAdmin() {
         return Views.ADMIN_TEMPLATE;
     }
 
-    @RequestMapping(value="/admin/import", method=RequestMethod.POST)
+    @RequestMapping(value = "/admin/import", method = RequestMethod.POST)
     @Nonnull
     public String importDatabase(
-            @Nonnull @RequestParam("file") MultipartFile file,
-            @Nonnull Map<String, Object> model
+            @Nonnull @RequestParam("file") final MultipartFile file,
+            @Nonnull final Map<String, Object> model
     ) {
-        if (!file.isEmpty()) {
+        if (file.isEmpty()) {
+            model.put("result", "You failed to upload because the file was empty.");
+        } else {
             try {
-                String jsonString = new String(file.getBytes(), Charset.forName("UTF-8"));
-                Datastore datastore = Datastore.fromJSONString(jsonString);
-                PostgresWriter postgresWriter = new PostgresWriter(dataSource.getConnection(), datastore);
+                final String jsonString = new String(file.getBytes(), Charset.forName("UTF-8"));
+                final Datastore datastore = Datastore.fromJSONString(jsonString);
+                final PostgresWriter postgresWriter = new PostgresWriter(dataSource.getConnection(), datastore);
                 postgresWriter.write();
                 model.put("result", "Database import complete");
             } catch (Exception e) {
                 model.put("result", "You failed to upload a file => " + e.getMessage());
             }
-        } else {
-            model.put("result", "You failed to upload because the file was empty.");
         }
         return Views.ADMIN_TEMPLATE;
     }

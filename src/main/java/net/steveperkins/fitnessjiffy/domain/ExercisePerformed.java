@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -32,13 +34,13 @@ public class ExercisePerformed {
     private Integer minutes;
 
     public ExercisePerformed(
-            @Nullable UUID id,
-            @Nonnull User user,
-            @Nonnull Exercise exercise,
-            @Nonnull Date date,
-            int minutes
+            @Nullable final UUID id,
+            @Nonnull final User user,
+            @Nonnull final Exercise exercise,
+            @Nonnull final Date date,
+            final int minutes
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.user = user;
         this.exercise = exercise;
         this.date = (Date) date.clone();
@@ -53,7 +55,7 @@ public class ExercisePerformed {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -62,7 +64,7 @@ public class ExercisePerformed {
         return user;
     }
 
-    public void setUser(@Nonnull User user) {
+    public void setUser(@Nonnull final User user) {
         this.user = user;
     }
 
@@ -71,7 +73,7 @@ public class ExercisePerformed {
         return exercise;
     }
 
-    public void setExercise(@Nonnull Exercise exercise) {
+    public void setExercise(@Nonnull final Exercise exercise) {
         this.exercise = exercise;
     }
 
@@ -80,7 +82,7 @@ public class ExercisePerformed {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull Date date) {
+    public void setDate(@Nonnull final Date date) {
         this.date = (Date) date.clone();
     }
 
@@ -89,7 +91,7 @@ public class ExercisePerformed {
         return minutes;
     }
 
-    public void setMinutes(@Nonnull Integer minutes) {
+    public void setMinutes(@Nonnull final Integer minutes) {
         this.minutes = minutes;
     }
 

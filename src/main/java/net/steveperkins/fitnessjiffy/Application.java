@@ -80,20 +80,20 @@ public class Application extends WebMvcConfigurerAdapter {
     }
 
     @Override
-    public void addInterceptors(@Nonnull InterceptorRegistry registry) {
+    public void addInterceptors(@Nonnull final InterceptorRegistry registry) {
         registry.addInterceptor(new AuthenticationInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login");
     }
 
-    public static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(Application.class, args);
+    public static void main(final String[] args) {
+        final ApplicationContext ctx = SpringApplication.run(Application.class, args);
 
         System.out.println("Let's inspect the beans provided by Spring Boot:");
 
-        String[] beanNames = ctx.getBeanDefinitionNames();
+        final String[] beanNames = ctx.getBeanDefinitionNames();
         Arrays.sort(beanNames);
-        for (String beanName : beanNames) {
+        for (final String beanName : beanNames) {
             System.out.println(beanName);
         }
     }

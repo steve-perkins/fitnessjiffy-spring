@@ -1,6 +1,6 @@
 package net.steveperkins.fitnessjiffy.controller;
 
-public class Views {
+public final class Views {
 
     public static final String USER_TEMPLATE = "user";
 

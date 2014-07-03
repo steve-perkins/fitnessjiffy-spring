@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "WEIGHT")
-public class Weight {
+public final class Weight {
 
     @Id
     @Column(columnDefinition = "BYTEA", length = 16)
@@ -30,12 +32,12 @@ public class Weight {
     private Double pounds;
 
     public Weight(
-            @Nullable UUID id,
-            @Nonnull User user,
-            @Nonnull Date date,
-            double pounds
+            @Nullable final UUID id,
+            @Nonnull final User user,
+            @Nonnull final Date date,
+            final double pounds
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.user = user;
         this.date = (Date) date.clone();
         this.pounds = pounds;
@@ -49,7 +51,7 @@ public class Weight {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -58,7 +60,7 @@ public class Weight {
         return user;
     }
 
-    public void setUser(@Nonnull User user) {
+    public void setUser(@Nonnull final User user) {
         this.user = user;
     }
 
@@ -67,7 +69,7 @@ public class Weight {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull Date date) {
+    public void setDate(@Nonnull final Date date) {
         this.date = (Date) date.clone();
     }
 
@@ -76,8 +78,8 @@ public class Weight {
         return pounds;
     }
 
-    public void setPounds(@Nonnull Double pounds) {
+    public void setPounds(@Nonnull final Double pounds) {
         this.pounds = pounds;
     }
-	
+
 }

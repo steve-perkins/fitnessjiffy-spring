@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.domain;
 
+import com.google.common.base.Optional;
+
 import java.sql.Date;
 import java.util.UUID;
 
@@ -16,7 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "FOOD_EATEN")
-public class FoodEaten {
+public final class FoodEaten {
 
     @Id
     @Column(columnDefinition = "BYTEA", length = 16)
@@ -41,14 +43,14 @@ public class FoodEaten {
     private Double servingQty;
 
     public FoodEaten(
-            @Nullable UUID id,
-            @Nonnull User user,
-            @Nonnull Food food,
-            @Nonnull Date date,
-            @Nonnull Food.ServingType servingType,
-            double servingQty
+            @Nullable final UUID id,
+            @Nonnull final User user,
+            @Nonnull final Food food,
+            @Nonnull final Date date,
+            @Nonnull final Food.ServingType servingType,
+            final double servingQty
     ) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.user = user;
         this.food = food;
         this.date = (Date) date.clone();
@@ -64,7 +66,7 @@ public class FoodEaten {
         return id;
     }
 
-    public void setId(@Nonnull UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -73,7 +75,7 @@ public class FoodEaten {
         return user;
     }
 
-    public void setUser(@Nonnull User user) {
+    public void setUser(@Nonnull final User user) {
         this.user = user;
     }
 
@@ -82,7 +84,7 @@ public class FoodEaten {
         return food;
     }
 
-    public void setFood(@Nonnull Food food) {
+    public void setFood(@Nonnull final Food food) {
         this.food = food;
     }
 
@@ -91,7 +93,7 @@ public class FoodEaten {
         return (Date) date.clone();
     }
 
-    public void setDate(@Nonnull Date date) {
+    public void setDate(@Nonnull final Date date) {
         this.date = (Date) date.clone();
     }
 
@@ -100,7 +102,7 @@ public class FoodEaten {
         return servingType;
     }
 
-    public void setServingType(@Nonnull Food.ServingType servingType) {
+    public void setServingType(@Nonnull final Food.ServingType servingType) {
         this.servingType = servingType;
     }
 
@@ -109,7 +111,7 @@ public class FoodEaten {
         return servingQty;
     }
 
-    public void setServingQty(@Nonnull Double servingQty) {
+    public void setServingQty(@Nonnull final Double servingQty) {
         this.servingQty = servingQty;
     }
 
@@ -149,15 +151,17 @@ public class FoodEaten {
         return (int) (food.getPoints() * getRatio());
     }
 
-	private double getRatio() {
-        if(servingType.equals(food.getDefaultServingType())) {
+    private double getRatio() {
+        double ratio;
+        if (servingType.equals(food.getDefaultServingType())) {
             // Default serving type was used
-            return servingQty / food.getServingTypeQty();
+            ratio = servingQty / food.getServingTypeQty();
         } else {
             // Serving type needs conversion
-            double ouncesInThisServingType = servingType.getValue();
-            double ouncesInDefaultServingType = food.getDefaultServingType().getValue();
-            return (ouncesInDefaultServingType * food.getServingTypeQty() != 0) ? (ouncesInThisServingType * servingQty) / (ouncesInDefaultServingType * food.getServingTypeQty()) : 0;
+            final double ouncesInThisServingType = servingType.getValue();
+            final double ouncesInDefaultServingType = food.getDefaultServingType().getValue();
+            ratio = (ouncesInDefaultServingType * food.getServingTypeQty() == 0) ? 0 : (ouncesInThisServingType * servingQty) / (ouncesInDefaultServingType * food.getServingTypeQty());
         }
+        return ratio;
     }
 }

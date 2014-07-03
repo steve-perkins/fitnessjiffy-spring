@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class FoodDTO {
+public final class FoodDTO {
 
     private UUID id;
     private UUID ownerId;
@@ -23,19 +23,19 @@ public class FoodDTO {
     private double sodium;
 
     public FoodDTO(
-            @Nullable UUID id, // will be null if this represents a new Food which hasn't yet been persisted
-            @Nullable UUID ownerId, // will be null if this represents a "global" Food, usable by all users
-            @Nonnull String name,
-            @Nonnull Food.ServingType defaultServingType,
-            double servingTypeQty,
-            int calories,
-            double fat,
-            double saturatedFat,
-            double carbs,
-            double fiber,
-            double sugar,
-            double protein,
-            double sodium
+            @Nullable final UUID id, // will be null if this represents a new Food which hasn't yet been persisted
+            @Nullable final UUID ownerId, // will be null if this represents a "global" Food, usable by all users
+            @Nonnull final String name,
+            @Nonnull final Food.ServingType defaultServingType,
+            final double servingTypeQty,
+            final int calories,
+            final double fat,
+            final double saturatedFat,
+            final double carbs,
+            final double fiber,
+            final double sugar,
+            final double protein,
+            final double sodium
     ) {
         this.id = id;
         this.ownerId = ownerId;
@@ -60,7 +60,7 @@ public class FoodDTO {
         return id;
     }
 
-    public void setId(@Nullable UUID id) {
+    public void setId(@Nullable final UUID id) {
         this.id = id;
     }
 
@@ -69,7 +69,7 @@ public class FoodDTO {
         return ownerId;
     }
 
-    public void setOwnerId(@Nullable UUID ownerId) {
+    public void setOwnerId(@Nullable final UUID ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -78,7 +78,7 @@ public class FoodDTO {
         return name;
     }
 
-    public void setName(@Nonnull String name) {
+    public void setName(@Nonnull final String name) {
         this.name = name;
     }
 
@@ -87,7 +87,7 @@ public class FoodDTO {
         return defaultServingType;
     }
 
-    public void setDefaultServingType(@Nonnull Food.ServingType defaultServingType) {
+    public void setDefaultServingType(@Nonnull final Food.ServingType defaultServingType) {
         this.defaultServingType = defaultServingType;
     }
 
@@ -95,7 +95,7 @@ public class FoodDTO {
         return servingTypeQty;
     }
 
-    public void setServingTypeQty(double servingTypeQty) {
+    public void setServingTypeQty(final double servingTypeQty) {
         this.servingTypeQty = servingTypeQty;
     }
 
@@ -103,7 +103,7 @@ public class FoodDTO {
         return calories;
     }
 
-    public void setCalories(int calories) {
+    public void setCalories(final int calories) {
         this.calories = calories;
     }
 
@@ -111,7 +111,7 @@ public class FoodDTO {
         return fat;
     }
 
-    public void setFat(double fat) {
+    public void setFat(final double fat) {
         this.fat = fat;
     }
 
@@ -119,7 +119,7 @@ public class FoodDTO {
         return saturatedFat;
     }
 
-    public void setSaturatedFat(double saturatedFat) {
+    public void setSaturatedFat(final double saturatedFat) {
         this.saturatedFat = saturatedFat;
     }
 
@@ -127,7 +127,7 @@ public class FoodDTO {
         return carbs;
     }
 
-    public void setCarbs(double carbs) {
+    public void setCarbs(final double carbs) {
         this.carbs = carbs;
     }
 
@@ -135,7 +135,7 @@ public class FoodDTO {
         return fiber;
     }
 
-    public void setFiber(double fiber) {
+    public void setFiber(final double fiber) {
         this.fiber = fiber;
     }
 
@@ -143,7 +143,7 @@ public class FoodDTO {
         return sugar;
     }
 
-    public void setSugar(double sugar) {
+    public void setSugar(final double sugar) {
         this.sugar = sugar;
     }
 
@@ -151,7 +151,7 @@ public class FoodDTO {
         return protein;
     }
 
-    public void setProtein(double protein) {
+    public void setProtein(final double protein) {
         this.protein = protein;
     }
 
@@ -159,35 +159,36 @@ public class FoodDTO {
         return sodium;
     }
 
-    public void setSodium(double sodium) {
+    public void setSodium(final double sodium) {
         this.sodium = sodium;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if(other == null || !(other instanceof FoodDTO)) {
-            return false;
+    public boolean equals(final Object other) {
+        boolean equals = false;
+        if (other instanceof FoodDTO) {
+            final FoodDTO that = (FoodDTO) other;
+            equals = this.getId().equals(that.getId())
+                    && ((this.getOwnerId() == null && that.getOwnerId() == null) || (this.getOwnerId().equals(that.getOwnerId())))
+                    && this.getName().equals(that.getName())
+                    && this.getDefaultServingType().equals(that.getDefaultServingType())
+                    && this.getServingTypeQty() == that.getServingTypeQty()
+                    && this.getCalories() == that.getCalories()
+                    && this.getFat() == that.getFat()
+                    && this.getSaturatedFat() == that.getSaturatedFat()
+                    && this.getCarbs() == that.getCarbs()
+                    && this.getFiber() == that.getFiber()
+                    && this.getSugar() == that.getSugar()
+                    && this.getProtein() == that.getProtein()
+                    && this.getSodium() == that.getSodium();
         }
-        FoodDTO that = (FoodDTO) other;
-        return this.getId().equals(that.getId())
-                && ((this.getOwnerId() == null && that.getOwnerId() == null) || (this.getOwnerId().equals(that.getOwnerId())))
-                && this.getName().equals(that.getName())
-                && this.getDefaultServingType().equals(that.getDefaultServingType())
-                && this.getServingTypeQty() == that.getServingTypeQty()
-                && this.getCalories() == that.getCalories()
-                && this.getFat() == that.getFat()
-                && this.getSaturatedFat() == that.getSaturatedFat()
-                && this.getCarbs() == that.getCarbs()
-                && this.getFiber() == that.getFiber()
-                && this.getSugar() == that.getSugar()
-                && this.getProtein() == that.getProtein()
-                && this.getSodium() == that.getSodium();
+        return equals;
     }
 
     @Override
     public int hashCode() {
         return this.getId().hashCode()
-                + (this.getOwnerId() != null ? this.getOwnerId().hashCode() : 0)
+                + (this.getOwnerId() == null ? 0 : this.getOwnerId().hashCode())
                 + this.getName().hashCode()
                 + this.getDefaultServingType().hashCode()
                 + (int) this.getServingTypeQty()

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AuthenticationService {
+public final class AuthenticationService {
 
     private static class Session {
 
@@ -16,8 +16,8 @@ public class AuthenticationService {
         private Date expiration;
 
         public Session(
-                @Nonnull UUID userId,
-                @Nonnull Date expiration
+                @Nonnull final UUID userId,
+                @Nonnull final Date expiration
         ) {
             this.id = UUID.randomUUID();
             this.userId = userId;
@@ -28,21 +28,26 @@ public class AuthenticationService {
         public UUID getId() {
             return id;
         }
-        public void setId(@Nonnull UUID id) {
+
+        public void setId(@Nonnull final UUID id) {
             this.id = id;
         }
+
         @Nonnull
         public UUID getUserId() {
             return userId;
         }
-        public void setUserId(@Nonnull UUID userId) {
+
+        public void setUserId(@Nonnull final UUID userId) {
             this.userId = userId;
         }
+
         @Nonnull
         public Date getExpiration() {
             return expiration;
         }
-        public void setExpiration(@Nonnull Date expiration) {
+
+        public void setExpiration(@Nonnull final Date expiration) {
             this.expiration = expiration;
         }
 
@@ -51,18 +56,18 @@ public class AuthenticationService {
     private Map<UUID, Session> sessions = new ConcurrentHashMap<>();
 
     @Nullable
-    public UUID validateSessionToken(@Nullable String token) {
+    public UUID validateSessionToken(@Nullable final String token) {
         UUID userId = null;
         try {
-            UUID id = UUID.fromString(token);
-            Session session = sessions.get(id);
-            if(session != null && session.getExpiration().getTime() < new Date().getTime()) {
+            final UUID id = UUID.fromString(token);
+            final Session session = sessions.get(id);
+            if (session != null && session.getExpiration().getTime() < new Date().getTime()) {
                 // When a session exists but has expired, clean it up.
                 sessions.remove(id);
-            } else if(session != null) {
+            } else if (session != null) {
                 userId = session.getUserId();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // TODO: log warning or info level
         }
         return userId;
