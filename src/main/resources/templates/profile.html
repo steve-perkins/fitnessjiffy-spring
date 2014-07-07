@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <title>Profile</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+    <style>
+        <!--
+        body {
+            background: #5B211A repeat-x center top;
+            color: #000;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            font-size: medium !important;
+            line-height: normal !important;
+            text-align: center;
+        }
+
+        td.leftcolumn {
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        td.rightcolumn {
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        #border {
+            width: 1000px;
+            margin: 0 auto 0 auto;
+            background: #F2E2C1 repeat-y center top;
+            padding: 0 15px;
+            border: 10px solid #411213;
+        }
+
+        /* Tan IE5 box model fix  Hides from IE5-mac */
+        * html #rap {
+            width: 730px;
+            w\idth: 800px;
+        }
+
+        -->
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Parse (or initialize) the current-date variable, and the user ID
+    var dateString = /*[[${dateString}]]*/;
+    if (!dateString || dateString === "") {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var day = date.getDate();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        dateString = year + "-" + month + "-" + day;
+    }
+    var userIdString = /*[[${user.id.toString()}]]*/;
+
+    /** On document load... */
+    $(function () {
+        // Initialize date picker widget
+        $("#datepicker").datepicker({
+            dateFormat: "yy-mm-dd",
+            onSelect: function (dateText) {
+                window.location.href = "/profile?date=" + this.value;
+            }
+        });
+        $("#datepicker").datepicker("setDate", dateString);
+    });
+
+    /*]]>*/
+    </script>
+</head>
+
+<body>
+<div id="border"><br/>
+    <table style="width: 100%; border-top: 2px solid #000000; border-bottom: 2px solid #000000;">
+        <tr>
+            <td width="25%" align="center"><a href="/profile">Profile</a></td>
+            <td width="25%" align="center"><a href="/food">Diet</a></td>
+            <td width="25%" align="center"><a href="/exercise">Exercise</a></td>
+            <td width="25%" align="center"><a href="/weight">Weight</a></td>
+        </tr>
+    </table>
+    <br/>
+
+    <form>
+        <br/><b>Weight On:</b> <input type="text" id="datepicker"/>
+        <span style="font-size: 75%;">(click to change)</span><br/><br/>
+    </form>
+
+    <div style="font-weight: bold; text-decoration: underline;">User Information</div>
+    <br/>
+
+    <form th:object="${user}" action="/profile/save" method="post">
+        <input type="hidden" th:field="*{id}"/>
+        <table style="margin-left: auto; margin-right: auto;">
+            <tr>
+                <td class="leftcolumn">Email:</td>
+                <td class="rightcolumn"><input type="text" th:field="*{email}" maxlength="50" size="50"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">First Name:</td>
+                <td class="rightcolumn"><input type="text" th:field="*{firstName}" maxlength="50" size="50"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Last Name:</td>
+                <td class="rightcolumn"><input type="text" th:field="*{lastName}" maxlength="50" size="50"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn" valign="top">Gender:</td>
+                <td class="rightcolumn">
+                    <div th:each="gen : ${allGenders}">
+                        <input type="radio" th:field="*{gender}" th:value="${gen}"
+                               th:text="${#strings.toLowerCase(gen)}"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Birthdate:</td>
+                <td class="rightcolumn"><input type="text" th:field="*{birthdate}" maxlength="10" size="10"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Height in Inches:</td>
+                <td class="rightcolumn"><input type="text" th:field="*{heightInInches}" maxlength="5" size="5"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Activity Level:</td>
+                <td class="rightcolumn">
+                    <select th:field="*{activityLevel}">
+                        <option th:each="level : ${allActivityLevels}" th:value="${level}" th:text="${level}"></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Current weight:</td>
+                <td class="rightcolumn"><span th:text="${#numbers.formatDecimal(user.currentWeight, 0, 1)}"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">BMI:</td>
+                <td class="rightcolumn"><span th:text="${#numbers.formatDecimal(user.bmi, 0, 2)}"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Calories needed daily to maintain weight:</td>
+                <td class="rightcolumn"><span th:text="${#numbers.formatInteger(user.maintenanceCalories, 0, 'COMMA')}"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Daily Points:</td>
+                <td class="rightcolumn"><span th:text="${#numbers.formatDecimal(user.dailyPoints, 0, 2)}"/></td>
+            </tr>
+        </table>
+        <br/><input type="submit" value="Update Profile"/><br/><br/>
+    </form>
+</div>
+</body>
+</html>
