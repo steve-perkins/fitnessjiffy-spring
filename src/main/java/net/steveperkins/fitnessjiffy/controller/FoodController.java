@@ -2,7 +2,6 @@ package net.steveperkins.fitnessjiffy.controller;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpSession;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-public class FoodController {
+public class FoodController extends AbstractController {
 
     @Autowired
     FoodService foodService;
@@ -33,10 +32,9 @@ public class FoodController {
     @Nonnull
     public String viewMainFoodPage(
             @Nullable @RequestParam(value = "date", required = false) String dateString,
-            @Nonnull final HttpSession session,
             @Nonnull final Model model
     ) {
-        final UserDTO user = (UserDTO) session.getAttribute("user");
+        final UserDTO user = currentAuthenticatedUser();
         Date date = null;
         if (dateString == null) {
             date = new Date(new java.util.Date().getTime());
@@ -82,7 +80,7 @@ public class FoodController {
         model.addAttribute("netCalories", caloriesForDay);
         model.addAttribute("netPoints", pointsForDay);
 
-        return Views.FOOD_TEMPLATE;
+        return FOOD_TEMPLATE;
     }
 
     @RequestMapping(value = "/food/eaten/add")
@@ -90,10 +88,9 @@ public class FoodController {
     public String addFoodEaten(
             @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
             @Nonnull @RequestParam(value = "date", required = true) final String dateString,
-            @Nonnull final HttpSession session,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UserDTO userDTO = currentAuthenticatedUser();
         final UUID foodId = UUID.fromString(foodIdString);
         Date date = null;
         try {
@@ -103,7 +100,7 @@ public class FoodController {
         }
         foodService.addFoodEaten(userDTO.getId(), foodId, date);
 
-        return viewMainFoodPage(dateString, session, model);
+        return viewMainFoodPage(dateString, model);
     }
 
     @RequestMapping(value = "/food/eaten/update")
@@ -113,10 +110,9 @@ public class FoodController {
             @Nonnull @RequestParam(value = "foodEatenQty", required = true) final double foodEatenQty,
             @Nonnull @RequestParam(value = "foodEatenServing", required = true) final String foodEatenServing,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
-            @Nonnull final HttpSession session,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UserDTO userDTO = currentAuthenticatedUser();
         final UUID foodEatenUUID = UUID.fromString(foodEatenId);
         final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
         final String dateString = simpleDateFormat.format(foodEatenDTO.getDate());
@@ -129,18 +125,15 @@ public class FoodController {
         } else if (action.equalsIgnoreCase("delete")) {
             foodService.deleteFoodEaten(foodEatenUUID);
         }
-        return viewMainFoodPage(dateString, session, model);
+        return viewMainFoodPage(dateString, model);
     }
 
     @RequestMapping(value = "/food/search/{searchString}")
     @Nonnull
     public
     @ResponseBody
-    List<FoodDTO> searchFoods(
-            @Nonnull @PathVariable final String searchString,
-            @Nonnull final HttpSession session
-    ) {
-        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+    List<FoodDTO> searchFoods(@Nonnull @PathVariable final String searchString) {
+        final UserDTO userDTO = currentAuthenticatedUser();
         return foodService.searchFoods(userDTO.getId(), searchString);
     }
 
@@ -148,11 +141,8 @@ public class FoodController {
     @Nullable
     public
     @ResponseBody
-    FoodDTO getFood(
-            @Nonnull @PathVariable final String foodId,
-            @Nonnull final HttpSession session
-    ) {
-        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+    FoodDTO getFood(@Nonnull @PathVariable final String foodId) {
+        final UserDTO userDTO = currentAuthenticatedUser();
         FoodDTO foodDTO = foodService.getFoodById(UUID.fromString(foodId));
         // Only return foods that are visible to the requesting user
         if (foodDTO.getOwnerId() != null && !foodDTO.getOwnerId().equals(userDTO.getId())) {
@@ -167,10 +157,9 @@ public class FoodController {
     @ResponseBody
     String createOrUpdateFood(
             @Nonnull @ModelAttribute final FoodDTO foodDTO,
-            @Nonnull final HttpSession session,
             @Nonnull final Model model
     ) {
-        final UserDTO userDTO = (UserDTO) session.getAttribute("user");
+        final UserDTO userDTO = currentAuthenticatedUser();
         String resultMessage;
         if (foodDTO.getId() == null) {
             resultMessage = foodService.createFood(foodDTO, userDTO);

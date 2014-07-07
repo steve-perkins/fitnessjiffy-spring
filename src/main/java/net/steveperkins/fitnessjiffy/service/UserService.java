@@ -49,7 +49,6 @@ public final class UserService {
                 userDTO.getEmail(),
                 // TODO: How to set password, without necessarily making it part of the DTO?  Probably add an extra parameter to this service method for the plain-text password, and perform the hashing here...
                 null,
-                null,
                 userDTO.getFirstName(),
                 userDTO.getLastName(),
                 new Timestamp(new java.util.Date().getTime()),

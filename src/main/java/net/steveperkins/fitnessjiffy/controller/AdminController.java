@@ -15,7 +15,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 @Controller
-public final class AdminController {
+public final class AdminController extends AbstractController {
 
     @Autowired
     DataSource dataSource;
@@ -23,7 +23,7 @@ public final class AdminController {
     @RequestMapping(value = {"/admin"}, method = RequestMethod.GET)
     @Nonnull
     public String viewAdmin() {
-        return Views.ADMIN_TEMPLATE;
+        return ADMIN_TEMPLATE;
     }
 
     @RequestMapping(value = "/admin/import", method = RequestMethod.POST)
@@ -45,7 +45,7 @@ public final class AdminController {
                 model.put("result", "You failed to upload a file => " + e.getMessage());
             }
         }
-        return Views.ADMIN_TEMPLATE;
+        return ADMIN_TEMPLATE;
     }
 
 }

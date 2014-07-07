@@ -3,10 +3,12 @@ package net.steveperkins.fitnessjiffy.dto;
 import net.steveperkins.fitnessjiffy.domain.Food;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
 
-public final class FoodEatenDTO {
+public final class FoodEatenDTO implements Serializable {
 
     private UUID id;
     private UUID userId;
@@ -28,7 +30,7 @@ public final class FoodEatenDTO {
     private double points;
 
     public FoodEatenDTO(
-            @Nonnull final UUID id,
+            @Nullable final UUID id,
             @Nonnull final UUID userId,
             @Nonnull final FoodDTO food,
             @Nonnull final Date date,
@@ -64,7 +66,7 @@ public final class FoodEatenDTO {
     public FoodEatenDTO() {
     }
 
-    @Nonnull
+    @Nullable
     public UUID getId() {
         return id;
     }
@@ -206,12 +208,14 @@ public final class FoodEatenDTO {
 
     @Override
     public int hashCode() {
-        return this.getId().hashCode()
-                + this.getUserId().hashCode()
-                + this.getFood().hashCode()
-                + this.getDate().hashCode()
-                + (int) this.getServingQty()
-                + (int) this.getServingQty();
+        final int idHash = (id == null) ? 0 : id.hashCode();
+        final int userIdHash = (userId == null) ? 0 : userId.hashCode();
+        final int foodHash = (food == null) ? 0 : food.hashCode();
+        final int dateHash = (date == null) ? 0 : date.hashCode();
+        final int servingTypeHash = (servingType == null) ? 0 : servingType.hashCode();
+        final int servingQtyHash = (int) servingQty;
+
+        return idHash + userIdHash + foodHash + dateHash + servingTypeHash + servingQtyHash;
     }
 
 }

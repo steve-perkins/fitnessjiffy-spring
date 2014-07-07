@@ -3,10 +3,12 @@ package net.steveperkins.fitnessjiffy.dto;
 import net.steveperkins.fitnessjiffy.domain.User;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
 
-public final class UserDTO {
+public final class UserDTO implements Serializable {
 
     private UUID id;
     private User.Gender gender;
@@ -22,7 +24,7 @@ public final class UserDTO {
     private int dailyPoints;
 
     public UserDTO(
-            @Nonnull final UUID id,
+            @Nullable final UUID id,
             @Nonnull final User.Gender gender,
             @Nonnull final Date birthdate,
             final double heightInInches,
@@ -52,7 +54,7 @@ public final class UserDTO {
     public UserDTO() {
     }
 
-    @Nonnull
+    @Nullable
     public UUID getId() {
         return id;
     }
@@ -178,18 +180,20 @@ public final class UserDTO {
 
     @Override
     public int hashCode() {
-        return this.getId().hashCode()
-                + this.getGender().hashCode()
-                + this.getBirthdate().hashCode()
-                + (int) this.getHeightInInches()
-                + this.getActivityLevel().hashCode()
-                + this.getEmail().hashCode()
-                + this.getFirstName().hashCode()
-                + this.getLastName().hashCode()
-                + (int) this.getCurrentWeight()
-                + (int) this.getBmi()
-                + this.getMaintenanceCalories()
-                + this.getDailyPoints();
+        final int idHash = (id == null) ? 0 : id.hashCode();
+        final int genderHash = (gender == null) ? 0 : gender.hashCode();
+        final int birthdateHash = (birthdate == null) ? 0 : birthdate.hashCode();
+        final int heightInInchesHash = (int) heightInInches;
+        final int activityLevelHash = (activityLevel == null) ? 0 : activityLevel.hashCode();
+        final int emailHash = (email == null) ? 0 : email.hashCode();
+        final int firstNameHash = (firstName == null) ? 0 : firstName.hashCode();
+        final int lastNameHash = (lastName == null) ? 0 : lastName.hashCode();
+        final int currentWeightHash = (int) currentWeight;
+        final int maintenanceCaloriesHash = maintenanceCalories;
+        final int dailyPointsHash = dailyPoints;
+
+        return idHash + genderHash + birthdateHash + heightInInchesHash + activityLevelHash + emailHash
+                + firstNameHash + lastNameHash + currentWeightHash + maintenanceCaloriesHash + dailyPointsHash;
     }
 
 }

@@ -4,9 +4,10 @@ import net.steveperkins.fitnessjiffy.domain.Food;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.UUID;
 
-public final class FoodDTO {
+public final class FoodDTO implements Serializable {
 
     private UUID id;
     private UUID ownerId;
@@ -60,7 +61,7 @@ public final class FoodDTO {
         return id;
     }
 
-    public void setId(@Nullable final UUID id) {
+    public void setId(@Nonnull final UUID id) {
         this.id = id;
     }
 
@@ -69,7 +70,7 @@ public final class FoodDTO {
         return ownerId;
     }
 
-    public void setOwnerId(@Nullable final UUID ownerId) {
+    public void setOwnerId(@Nonnull final UUID ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -187,19 +188,23 @@ public final class FoodDTO {
 
     @Override
     public int hashCode() {
-        return this.getId().hashCode()
-                + (this.getOwnerId() == null ? 0 : this.getOwnerId().hashCode())
-                + this.getName().hashCode()
-                + this.getDefaultServingType().hashCode()
-                + (int) this.getServingTypeQty()
-                + this.getCalories()
-                + (int) this.getFat()
-                + (int) this.getSaturatedFat()
-                + (int) this.getCarbs()
-                + (int) this.getFiber()
-                + (int) this.getSugar()
-                + (int) this.getProtein()
-                + (int) this.getSodium();
+        final int idHash = (id == null) ? 0 : id.hashCode();
+        final int ownerIdHash = (ownerId == null) ? 0 : ownerId.hashCode();
+        final int nameHash = (name == null) ? 0 : name.hashCode();
+        final int defaultServingTypeHash = (defaultServingType == null) ? 0 : defaultServingType.hashCode();
+        final int servingTypeQtyHash = (int) servingTypeQty;
+        final int caloriesHash = calories;
+        final int fatHash = (int) fat;
+        final int saturatedFatHash = (int) saturatedFat;
+        final int carbsHash = (int) carbs;
+        final int fiberHash = (int) fiber;
+        final int sugarHash = (int) sugar;
+        final int proteinHash = (int) protein;
+        final int sodiumHash = (int) sodium;
+
+        return idHash + ownerIdHash + nameHash + defaultServingTypeHash + servingTypeQtyHash
+                + caloriesHash + fatHash + saturatedFatHash + carbsHash + fiberHash + sugarHash
+                + proteinHash + sodiumHash;
     }
 
 }

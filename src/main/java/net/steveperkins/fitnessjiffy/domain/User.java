@@ -11,7 +11,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -111,11 +110,8 @@ public class User {
     @Column(name = "EMAIL", length = 100, nullable = false)
     private String email;
 
-    @Column(name = "PASSWORD_HASH", length = 64, nullable = true)
-    private byte[] passwordHash;
-
-    @Column(name = "PASSWORD_SALT", length = 64, nullable = true)
-    private byte[] passwordSalt;
+    @Column(name = "PASSWORD_HASH", length = 50, nullable = true)
+    private String passwordHash;
 
     @Column(name = "FIRST_NAME", length = 20, nullable = false)
     private String firstName;
@@ -148,8 +144,7 @@ public class User {
             final double heightInInches,
             @Nonnull final ActivityLevel activityLevel,
             @Nonnull final String email,
-            @Nullable final byte[] passwordHash,
-            @Nullable final byte[] passwordSalt,
+            @Nullable final String passwordHash,
             @Nonnull final String firstName,
             @Nonnull final String lastName,
             @Nonnull final Timestamp createdTime,
@@ -161,8 +156,7 @@ public class User {
         this.heightInInches = heightInInches;
         this.activityLevel = activityLevel.getValue();
         this.email = email;
-        this.passwordHash = (passwordHash == null) ? null : passwordHash.clone();
-        this.passwordSalt = (passwordSalt == null) ? null : passwordSalt.clone();
+        this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
         this.createdTime = (Timestamp) createdTime.clone();
@@ -226,21 +220,12 @@ public class User {
     }
 
     @Nullable
-    public byte[] getPasswordHash() {
-        return (passwordHash == null) ? null : Arrays.copyOf(passwordHash, passwordHash.length);
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPasswordHash(@Nullable final byte[] passwordHash) {
-        this.passwordHash = (passwordHash == null) ? null : Arrays.copyOf(passwordHash, passwordHash.length);
-    }
-
-    @Nullable
-    public byte[] getPasswordSalt() {
-        return (passwordSalt == null) ? null : Arrays.copyOf(passwordSalt, passwordSalt.length);
-    }
-
-    public void setPasswordSalt(@Nullable final byte[] passwordSalt) {
-        this.passwordSalt = (passwordSalt == null) ? null : Arrays.copyOf(passwordSalt, passwordSalt.length);
+    public void setPasswordHash(@Nullable final String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     @Nonnull
@@ -326,8 +311,7 @@ public class User {
                     && this.getHeightInInches() == that.getHeightInInches()
                     && this.getActivityLevel() == that.getActivityLevel()
                     && this.getEmail().equals(that.getEmail())
-                    && ((this.getPasswordHash() == null && that.getPasswordHash() == null) || Arrays.equals(this.getPasswordHash(), that.getPasswordHash()))
-                    && ((this.getPasswordSalt() == null && that.getPasswordSalt() == null) || Arrays.equals(this.getPasswordSalt(), that.getPasswordSalt()))
+                    && this.getPasswordHash().equals(that.getPasswordHash())
                     && this.getFirstName().equals(that.getFirstName())
                     && this.getLastName().equals(that.getLastName())
                     && this.getCreatedTime().equals(that.getCreatedTime())
@@ -343,8 +327,7 @@ public class User {
                 + this.getBirthdate().hashCode()
                 + this.getActivityLevel().hashCode()
                 + this.getEmail().hashCode()
-                + (this.getPasswordHash() == null ? 0 : Arrays.hashCode(this.getPasswordHash()))
-                + (this.getPasswordSalt() == null ? 0 : Arrays.hashCode(this.getPasswordSalt()))
+                + (this.getPasswordHash() == null ? 0 : this.getPasswordHash().hashCode())
                 + this.getFirstName().hashCode()
                 + this.getLastName().hashCode()
                 + this.getCreatedTime().hashCode()

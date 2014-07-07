@@ -10,14 +10,14 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -30,7 +30,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: exercise; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: exercise; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE exercise (
@@ -45,7 +45,7 @@ CREATE TABLE exercise (
 ALTER TABLE public.exercise OWNER TO postgres;
 
 --
--- Name: exercise_performed; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: exercise_performed; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE exercise_performed (
@@ -60,7 +60,7 @@ CREATE TABLE exercise_performed (
 ALTER TABLE public.exercise_performed OWNER TO postgres;
 
 --
--- Name: fitnessjiffy_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fitnessjiffy_user; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE fitnessjiffy_user (
@@ -71,8 +71,7 @@ CREATE TABLE fitnessjiffy_user (
     gender character varying(6) NOT NULL,
     height_in_inches double precision NOT NULL,
     last_name character varying(20) NOT NULL,
-    password_hash bytea,
-    password_salt bytea,
+    password_hash character varying(100),
     email character varying(100) NOT NULL,
     created_time timestamp without time zone NOT NULL,
     last_updated_time timestamp without time zone NOT NULL
@@ -82,7 +81,7 @@ CREATE TABLE fitnessjiffy_user (
 ALTER TABLE public.fitnessjiffy_user OWNER TO postgres;
 
 --
--- Name: food; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: food; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE food (
@@ -107,7 +106,7 @@ CREATE TABLE food (
 ALTER TABLE public.food OWNER TO postgres;
 
 --
--- Name: food_eaten; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: food_eaten; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE food_eaten (
@@ -123,7 +122,7 @@ CREATE TABLE food_eaten (
 ALTER TABLE public.food_eaten OWNER TO postgres;
 
 --
--- Name: weight; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: weight; Type: TABLE; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE TABLE weight (
@@ -137,7 +136,7 @@ CREATE TABLE weight (
 ALTER TABLE public.weight OWNER TO postgres;
 
 --
--- Name: exercise_performed_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: exercise_performed_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY exercise_performed
@@ -145,7 +144,7 @@ ALTER TABLE ONLY exercise_performed
 
 
 --
--- Name: exercise_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: exercise_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY exercise
@@ -153,7 +152,7 @@ ALTER TABLE ONLY exercise
 
 
 --
--- Name: fitnessjiffy_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: fitnessjiffy_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY fitnessjiffy_user
@@ -161,7 +160,7 @@ ALTER TABLE ONLY fitnessjiffy_user
 
 
 --
--- Name: food_eaten_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: food_eaten_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY food_eaten
@@ -169,7 +168,7 @@ ALTER TABLE ONLY food_eaten
 
 
 --
--- Name: food_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: food_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY food
@@ -177,7 +176,7 @@ ALTER TABLE ONLY food
 
 
 --
--- Name: weight_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: weight_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace:
 --
 
 ALTER TABLE ONLY weight
@@ -246,3 +245,4 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO fitnessjiffy;
