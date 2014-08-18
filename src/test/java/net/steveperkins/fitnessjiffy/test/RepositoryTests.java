@@ -13,7 +13,6 @@ import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
 
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.*;
 
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;

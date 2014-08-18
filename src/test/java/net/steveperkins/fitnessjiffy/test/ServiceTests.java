@@ -37,18 +37,18 @@ public class ServiceTests extends AbstractTests {
     @Test
     public void testUserService() {
         // Test get all users
-        final List<UserDTO> allUsers = userService.getAllUsers();
+        final List<UserDTO> allUsers = userService.findAllUsers();
         assertEquals(1, allUsers.size());
 
         // Test get a single user by ID
-        final UserDTO user = userService.getUser(allUsers.get(0).getId());
+        final UserDTO user = userService.findUser(allUsers.get(0).getId());
         assertNotNull(user);
     }
 
     @Test
     public void testFoodService() {
         // Test get recently-eaten foods (NOTE: the most recent date in the test data set is 2013-12-12).
-        final UserDTO user = userService.getAllUsers().get(0);
+        final UserDTO user = userService.findAllUsers().get(0);
         final Calendar december11 = new GregorianCalendar(2013, Calendar.DECEMBER, 11);
         final Date currentDate = new Date(december11.getTimeInMillis());
         final List<FoodDTO> recentFoods = foodService.findEatenRecently(user.getId(), currentDate);

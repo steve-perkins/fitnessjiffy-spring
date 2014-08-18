@@ -2,6 +2,7 @@ package net.steveperkins.fitnessjiffy.controller;
 
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,8 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.UUID;
+import java.sql.Date;
 
 @Controller
 public final class ProfileController extends AbstractController {
@@ -22,22 +22,22 @@ public final class ProfileController extends AbstractController {
     @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
     @Nonnull
     public String viewMainProfilePage(
-            @Nullable
-            @RequestParam(value = "userId", required = false)
-            final UUID userId,
-
             @Nonnull
             @RequestParam(value = "date", defaultValue = TODAY)
             final String dateString,
 
             @Nonnull final Model model
     ) {
-//        final java.sql.Date date = stringToSqlDate(dateString);
+        final UserDTO user = currentAuthenticatedUser();
+        final Date date = stringToSqlDate(dateString);
+        final WeightDTO weight = userService.findWeightOnDate(user, date);
+        final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
 
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
-        model.addAttribute("user", currentAuthenticatedUser());
+        model.addAttribute("user", user);
         model.addAttribute("dateString", dateString);
+        model.addAttribute("weightEntry", weightEntry);
         return PROFILE_TEMPLATE;
     }
 
@@ -61,7 +61,27 @@ public final class ProfileController extends AbstractController {
 
         // TODO: implement
 
-        return viewMainProfilePage(user.getId(), dateString, model);
+        return viewMainProfilePage(dateString, model);
+    }
+
+    @RequestMapping(value = {"/profile/weight/save"}, method = RequestMethod.POST)
+    @Nonnull
+    public String createOrUpdateWeight(
+        @Nonnull
+        @RequestParam(value = "weightEntry", defaultValue = "0")
+        final double weightEntry,
+
+        @Nonnull
+        @RequestParam(value = "dateString", defaultValue = TODAY)
+        final String dateString,
+
+        @Nonnull final Model model
+    ) {
+        final UserDTO user = currentAuthenticatedUser();
+        final Date date = stringToSqlDate(dateString);
+        userService.updateWeight(user, date, weightEntry);
+
+        return viewMainProfilePage(dateString, model);
     }
 
 }

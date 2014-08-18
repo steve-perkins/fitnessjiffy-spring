@@ -64,7 +64,6 @@
         }
         dateString = year + "-" + month + "-" + day;
     }
-    var userIdString = /*[[${user.id.toString()}]]*/;
 
     /** On document load... */
     $(function () {
@@ -94,15 +93,27 @@
     </table>
     <br/>
 
-    <form>
-        <br/><b>Weight On:</b> <input type="text" id="datepicker"/>
-        <span style="font-size: 75%;">(click to change)</span><br/><br/>
+    <form action="/profile/weight/save" method="post">
+        <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
+        <div style="font-weight: bold; text-decoration: underline;">Weight</div><br/>
+        <table style="margin-left: auto; margin-right: auto;">
+            <tr>
+                <td class="leftcolumn">Date: </td>
+                <td class="rightcolumn"><input type="text" id="datepicker" name="dateString" size="10"/> <span style="font-size: 75%;">(click to change)</span></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Pounds: </td>
+                <td class="rightcolumn"><input type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/> lbs.</td>
+            </tr>
+        </table>
+        <br/><input type="submit" value="Update Weight"/>
     </form>
 
-    <div style="font-weight: bold; text-decoration: underline;">User Information</div>
-    <br/>
+    <hr style="width: 75%"/>
 
+    <div style="font-weight: bold; text-decoration: underline;">User Information</div><br/>
     <form th:object="${user}" action="/profile/save" method="post">
+        <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
         <input type="hidden" th:field="*{id}"/>
         <table style="margin-left: auto; margin-right: auto;">
             <tr>

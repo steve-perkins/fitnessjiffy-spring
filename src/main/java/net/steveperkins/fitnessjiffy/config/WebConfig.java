@@ -4,12 +4,15 @@ import net.steveperkins.fitnessjiffy.controller.AbstractController;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
+import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.FoodEatenToFoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.FoodToFoodDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +43,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Nonnull
     Converter<User, UserDTO> userDTOConverter() {
         return new UserToUserDTO();
+    }
+
+    @Bean
+    @Nonnull
+    Converter<Weight, WeightDTO> weightDTOConverter() {
+        return new WeightToWeightDTO();
     }
 
     @Bean
