@@ -1,10 +1,14 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import net.steveperkins.fitnessjiffy.config.SecurityConfig;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,14 +47,26 @@ public final class ProfileController extends AbstractController {
 
     @RequestMapping(value = {"/profile/save"}, method = RequestMethod.POST)
     @Nonnull
-    public String createOrUpdateProfile(
-            @Nonnull
-            @ModelAttribute("user")
-            final UserDTO user,
-
+    public String updateProfile(
             @Nonnull
             @RequestParam(value = "date", defaultValue = TODAY)
             final String dateString,
+
+            @Nonnull
+            @RequestParam(value = "currentPassword")
+            final String currentPassword,
+
+            @Nonnull
+            @RequestParam(value = "newPassword")
+            final String newPassword,
+
+            @Nonnull
+            @RequestParam(value = "reenterNewPassword")
+            final String reenterNewPassword,
+
+            @Nonnull
+            @ModelAttribute("user")
+            final UserDTO user,
 
             @Nonnull
             final BindingResult result,
@@ -59,8 +75,23 @@ public final class ProfileController extends AbstractController {
             final Model model
     ) {
 
-        // TODO: implement
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            model.addAttribute("profileSaveError", "You must verify the current password in order to make any changes to this profile.");
+        } else if (!userService.verifyPassword(user, currentPassword)) {
+            model.addAttribute("profileSaveError", "The password entered does not match the current password.");
+        } else if (newPassword != null && !newPassword.isEmpty() && reenterNewPassword != null && !reenterNewPassword.equals(newPassword)) {
+            model.addAttribute("profileSaveError", "The 'New Password' and 'Re-enter New Password' fields did not match.");
+        } else {
+            // Update user in the database
+            userService.updateUser(user, newPassword);
 
+            // Update the user in the active Spring Security session
+            final UserDTO updatedUser = userService.findUser(user.getId());  // re-calc BMI, daily calorie needs, etc
+            final String passwordHash = userService.getPasswordHash(user);
+            final SecurityConfig.SpringUserDetails newUserDetails = new SecurityConfig.SpringUserDetails(updatedUser, passwordHash);
+            final UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(newUserDetails, passwordHash, null);
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+        }
         return viewMainProfilePage(dateString, model);
     }
 

@@ -97,6 +97,11 @@
         $("#searchFoodsButton").click(function () {
             searchFoods();
         });
+        $("#searchFoodName").keypress(function(e) {
+            if (e.which == 13) {
+                searchFoods();
+            }
+        });
 
         // Add event handling to the "Add/Edit Food" button
         $("#editFoodSubmitButton").click(function () {
@@ -290,7 +295,7 @@
     <br/>
 
     <form>
-        <br/><b>Foods Eaten On:</b> <input type="text" id="datepicker"/> <span
+        <br/><b>Foods Eaten On:</b> <input type="text" id="datepicker" size="10"/> <span
             style="font-size: 75%;">(click to change)</span><br/><br/>
     </form>
 

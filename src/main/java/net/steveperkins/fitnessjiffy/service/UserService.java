@@ -6,13 +6,16 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
+import net.steveperkins.fitnessjiffy.etl.crypto.BCrypt;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.security.SecureRandom;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
@@ -49,7 +52,10 @@ public final class UserService {
         });
     }
 
-    public void createUser(@Nonnull final UserDTO userDTO) {
+    public void createUser(
+            @Nonnull final UserDTO userDTO,
+            @Nonnull final String password
+    ) {
         final User user = new User(
                 userDTO.getId(),
                 userDTO.getGender(),
@@ -57,13 +63,31 @@ public final class UserService {
                 userDTO.getHeightInInches(),
                 userDTO.getActivityLevel(),
                 userDTO.getEmail(),
-                // TODO: How to set password, without necessarily making it part of the DTO?  Probably add an extra parameter to this service method for the plain-text password, and perform the hashing here...
-                null,
+                encryptPassword(password),
                 userDTO.getFirstName(),
                 userDTO.getLastName(),
                 new Timestamp(new java.util.Date().getTime()),
                 new Timestamp(new java.util.Date().getTime())
         );
+        userRepository.save(user);
+    }
+
+    public void updateUser(
+            @Nonnull final UserDTO userDTO,
+            @Nullable final String newPassword
+    ) {
+        final User user = userRepository.findOne(userDTO.getId());
+        user.setGender(userDTO.getGender());
+        user.setBirthdate(userDTO.getBirthdate());
+        user.setHeightInInches(userDTO.getHeightInInches());
+        user.setActivityLevel(userDTO.getActivityLevel());
+        user.setEmail(userDTO.getEmail());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setLastUpdatedTime(new Timestamp(new java.util.Date().getTime()));
+        if (newPassword != null && !newPassword.isEmpty()) {
+            user.setPasswordHash(encryptPassword(newPassword));
+        }
         userRepository.save(user);
     }
 
@@ -95,6 +119,27 @@ public final class UserService {
             weight.setPounds(pounds);
         }
         weightRepository.save(weight);
+    }
+
+    public boolean verifyPassword(
+            @Nonnull final UserDTO userDTO,
+            @Nonnull final String password
+    ) {
+        final User user = userRepository.findOne(userDTO.getId());
+        final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.matches(password, user.getPasswordHash());
+    }
+
+    @Nonnull
+    public String encryptPassword(@Nonnull final String rawPassword) {
+        final String salt = BCrypt.gensalt(10, new SecureRandom());
+        return BCrypt.hashpw(rawPassword, salt);
+    }
+
+    @Nonnull
+    public String getPasswordHash(@Nonnull final UserDTO userDTO) {
+        final User user = userRepository.findOne(userDTO.getId());
+        return user.getPasswordHash();
     }
 
     @Nullable

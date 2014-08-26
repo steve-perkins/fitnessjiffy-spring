@@ -112,6 +112,7 @@
     <hr style="width: 75%"/>
 
     <div style="font-weight: bold; text-decoration: underline;">User Information</div><br/>
+    <div th:if="${profileSaveError}" style="color: red;" th:text="${profileSaveError}"/>
     <form th:object="${user}" action="/profile/save" method="post">
         <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
         <input type="hidden" th:field="*{id}"/>
@@ -119,6 +120,26 @@
             <tr>
                 <td class="leftcolumn">Email:</td>
                 <td class="rightcolumn"><input type="text" th:field="*{email}" maxlength="50" size="50"/></td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Current Password:</td>
+                <td class="rightcolumn">
+                    <input type="password" id="currentPassword" name="currentPassword" maxlength="20" size="20"/>
+                    <span style="font-size: 75%">(Must match in order to update profile)</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">New Password:</td>
+                <td class="rightcolumn">
+                    <input type="password" id="newPassword" name="newPassword" maxlength="20" size="20"/>
+                    <span style="font-size: 75%">(Leave blank unless you want to change you password)</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="leftcolumn">Re-enter New Password:</td>
+                <td class="rightcolumn">
+                    <input type="password" id="reenterNewPassword" name="reenterNewPassword" maxlength="20" size="20"/>
+                </td>
             </tr>
             <tr>
                 <td class="leftcolumn">First Name:</td>
@@ -149,7 +170,7 @@
                 <td class="leftcolumn">Activity Level:</td>
                 <td class="rightcolumn">
                     <select th:field="*{activityLevel}">
-                        <option th:each="level : ${allActivityLevels}" th:value="${level}" th:text="${level}"></option>
+                        <option th:each="level : ${allActivityLevels}" th:value="${#strings.toUpperCase(level)}" th:text="${level}"></option>
                     </select>
                 </td>
             </tr>

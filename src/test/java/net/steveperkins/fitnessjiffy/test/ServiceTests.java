@@ -9,6 +9,7 @@ import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.junit.Test;
+import org.omg.PortableInterceptor.ACTIVE;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +19,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.*;
 
 public class ServiceTests extends AbstractTests {
@@ -43,6 +46,28 @@ public class ServiceTests extends AbstractTests {
         // Test get a single user by ID
         final UserDTO user = userService.findUser(allUsers.get(0).getId());
         assertNotNull(user);
+
+        // Test create user
+        final UserDTO newUser = new UserDTO(
+                UUID.randomUUID(),
+                User.Gender.MALE,
+                new java.sql.Date(new java.util.Date().getTime()),
+                70.0,
+                User.ActivityLevel.MODERATELY_ACTIVE,
+                "john.doe@fake.com",
+                "John",
+                "Doe",
+                200,
+                30,
+                2000,
+                30
+        );
+        userService.createUser(newUser, "password");
+        assertEquals(2, userService.findAllUsers().size());
+
+        // Test password verification
+        assertTrue(userService.verifyPassword(newUser, "password"));
+        assertFalse(userService.verifyPassword(newUser, "wrongPassword"));
     }
 
     @Test
@@ -113,7 +138,7 @@ public class ServiceTests extends AbstractTests {
         BeanUtils.copyProperties(user, additionalUser);
         additionalUser.setId(UUID.randomUUID());
         additionalUser.setEmail("fake@address.com");
-        userService.createUser(additionalUser);
+        userService.createUser(additionalUser, "password");
         result = foodService.updateFood(userOwnedFood, additionalUser);
         assertEquals("Error:  You are attempting to modify another user's customized food.", result);
         final User additionalUserEntity = userRepository.findOne(additionalUser.getId());
