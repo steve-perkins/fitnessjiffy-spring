@@ -1,19 +1,18 @@
 package net.steveperkins.fitnessjiffy.test;
 
 import net.steveperkins.fitnessjiffy.domain.User;
-import net.steveperkins.fitnessjiffy.dto.FoodDTO;
-import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
-import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.*;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
+import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.junit.Test;
-import org.omg.PortableInterceptor.ACTIVE;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Date;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -30,6 +29,9 @@ public class ServiceTests extends AbstractTests {
 
     @Autowired
     FoodService foodService;
+
+    @Autowired
+    ExerciseService exerciseService;
 
     @Autowired
     UserRepository userRepository;
@@ -160,6 +162,19 @@ public class ServiceTests extends AbstractTests {
         final int userOwnedFoodsAfter = foodRepository.findByOwner(userEntity).size();
         assertEquals(globalFoodsBefore, globalFoodsAfter);
         assertEquals(userOwnedFoodsBefore + 1, userOwnedFoodsAfter);
+    }
+
+    @Test
+    public void testExerciseService() throws ParseException {
+        // Test retrieving exercises performed on a specific date
+        final UserDTO user = userService.findAllUsers().get(0);
+        final Date exercisePerformedDate = new Date(simpleDateFormat.parse("2012-06-30").getTime());
+        final List<ExercisePerformedDTO> exercisePerformedDTOs = exerciseService.findPerformedOnDate(user.getId(), exercisePerformedDate);
+        assertEquals(1, exercisePerformedDTOs.size());
+
+        // Test retrieving exercises performed during a date range
+        final List<ExerciseDTO> exerciseRangeList = exerciseService.findPerformedRecently(user.getId(), exercisePerformedDate);
+        assertEquals(4, exerciseRangeList.size());
     }
 
 }

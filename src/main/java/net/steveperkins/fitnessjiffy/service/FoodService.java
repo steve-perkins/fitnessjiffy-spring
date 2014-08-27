@@ -45,7 +45,13 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
-        return foodsEatenToDTO(foodEatens);
+        return Lists.transform(foodEatens, new Function<FoodEaten, FoodEatenDTO>() {
+            @Nullable
+            @Override
+            public FoodEatenDTO apply(@Nullable final FoodEaten foodEaten) {
+                return foodEatenDTOConverter.convert(foodEaten);
+            }
+        });
     }
 
     @Nonnull
@@ -63,13 +69,19 @@ public final class FoodService {
                 new Date(twoWeeksAgo.getTime()),
                 new Date(currentDate.getTime())
         );
-        return foodsToDTO(recentFoods);
+        return Lists.transform(recentFoods, new Function<Food, FoodDTO>() {
+            @Nullable
+            @Override
+            public FoodDTO apply(@Nullable final Food food) {
+                return foodDTOConverter.convert(food);
+            }
+        });
     }
 
     @Nullable
     public FoodEatenDTO findFoodEatenById(@Nonnull final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
-        return foodEatenToDTO(foodEaten);
+        return foodEatenDTOConverter.convert(foodEaten);
     }
 
     public void addFoodEaten(
@@ -121,13 +133,19 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
-        return foodsToDTO(foods);
+        return Lists.transform(foods, new Function<Food, FoodDTO>() {
+            @Nullable
+            @Override
+            public FoodDTO apply(@Nullable final Food food) {
+                return foodDTOConverter.convert(food);
+            }
+        });
     }
 
     @Nullable
     public FoodDTO getFoodById(@Nonnull final UUID foodId) {
         final Food food = foodRepository.findOne(foodId);
-        return foodToDTO(food);
+        return foodDTOConverter.convert(food);
     }
 
     @Nonnull
@@ -226,38 +244,6 @@ public final class FoodService {
             resultMessage = "Error:  You already have another customized food with this name.";
         }
         return resultMessage;
-    }
-
-    @Nullable
-    private FoodDTO foodToDTO(@Nullable final Food food) {
-        return foodDTOConverter.convert(food);
-    }
-
-    @Nonnull
-    private List<FoodDTO> foodsToDTO(@Nonnull final List<Food> foods) {
-        return Lists.transform(foods, new Function<Food, FoodDTO>() {
-            @Nullable
-            @Override
-            public FoodDTO apply(@Nullable final Food food) {
-                return foodDTOConverter.convert(food);
-            }
-        });
-    }
-
-    @Nullable
-    private FoodEatenDTO foodEatenToDTO(@Nullable final FoodEaten foodEaten) {
-        return foodEatenDTOConverter.convert(foodEaten);
-    }
-
-    @Nonnull
-    private List<FoodEatenDTO> foodsEatenToDTO(@Nonnull final List<FoodEaten> foodsEaten) {
-        return Lists.transform(foodsEaten, new Function<FoodEaten, FoodEatenDTO>() {
-            @Nullable
-            @Override
-            public FoodEatenDTO apply(@Nullable final FoodEaten foodEaten) {
-                return foodEatenDTOConverter.convert(foodEaten);
-            }
-        });
     }
 
 }

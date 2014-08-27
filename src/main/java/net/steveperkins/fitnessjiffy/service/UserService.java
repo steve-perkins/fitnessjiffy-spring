@@ -38,7 +38,7 @@ public final class UserService {
     @Nullable
     public UserDTO findUser(@Nonnull final UUID userId) {
         final User user = userRepository.findOne(userId);
-        return userToDTO(user);
+        return userDTOConverter.convert(user);
     }
 
     @Nonnull
@@ -47,7 +47,7 @@ public final class UserService {
             @Nullable
             @Override
             public UserDTO apply(@Nullable final User user) {
-                return userToDTO(user);
+                return userDTOConverter.convert(user);
             }
         });
     }
@@ -140,11 +140,6 @@ public final class UserService {
     public String getPasswordHash(@Nonnull final UserDTO userDTO) {
         final User user = userRepository.findOne(userDTO.getId());
         return user.getPasswordHash();
-    }
-
-    @Nullable
-    private UserDTO userToDTO(@Nullable final User user) {
-        return userDTOConverter.convert(user);
     }
 
 }

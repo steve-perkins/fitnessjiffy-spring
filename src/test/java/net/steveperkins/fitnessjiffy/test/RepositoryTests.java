@@ -3,18 +3,15 @@ package net.steveperkins.fitnessjiffy.test;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-import net.steveperkins.fitnessjiffy.domain.Food;
-import net.steveperkins.fitnessjiffy.domain.FoodEaten;
-import net.steveperkins.fitnessjiffy.domain.User;
+import junit.framework.TestCase;
+import net.steveperkins.fitnessjiffy.domain.*;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
+import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
@@ -31,6 +28,9 @@ public class RepositoryTests extends AbstractTests {
 
     @Autowired
     private FoodEatenRepository foodEatenRepository;
+
+    @Autowired
+    private ExercisePerformedRepository exercisePerformedRepository;
 
     @Test
     public void testUserRepository() {
@@ -167,12 +167,17 @@ public class RepositoryTests extends AbstractTests {
     @Test
     public void testFoodEatenRepository() throws ParseException {
         // Grab the first test user, and confirm that they have foods eaten
-        final User existingUser = userRepository.findAll().iterator().next();
+        final List<User> userList = new LinkedList<>();
+        final Iterator<User> usersIterator = userRepository.findAll().iterator();
+        while (usersIterator.hasNext()) {
+            userList.add(usersIterator.next());
+        }
+        assertEquals(1, userList.size());
+        final User existingUser = userList.get(0);
         assertNotNull(existingUser);
         assertEquals(19307, foodEatenRepository.count());
 
         // Test "recently eaten foods" query
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         final Date currentDate = new Date(simpleDateFormat.parse("2013-12-01").getTime());
         final Calendar calendar = new GregorianCalendar();
         calendar.setTime(currentDate);
@@ -201,6 +206,42 @@ public class RepositoryTests extends AbstractTests {
         // Test delete
         foodEatenRepository.delete(copyFoodEaten);
         assertEquals(19307, foodEatenRepository.count());
+    }
+
+    @Test
+    public void testExercisePerformedRepository() throws ParseException {
+        // Grab the first test user, and confirm that they have exercises performed
+        final List<User> userList = new LinkedList<>();
+        final Iterator<User> usersIterator = userRepository.findAll().iterator();
+        while (usersIterator.hasNext()) {
+            userList.add(usersIterator.next());
+        }
+        assertEquals(1, userList.size());
+        final User existingUser = userList.get(0);
+        assertNotNull(existingUser);
+        assertEquals(518, exercisePerformedRepository.count());
+
+        // Test "exercises performed on a date" query
+        final Date exercisePerformedDate = new Date(simpleDateFormat.parse("2012-06-30").getTime());
+        final List<ExercisePerformed> exercisePerformedList = exercisePerformedRepository.findByUserEqualsAndDateEquals(existingUser, exercisePerformedDate);
+        assertEquals(1, exercisePerformedList.size());
+
+        // Text "exercises performed within a date range" query
+        final Date exercisePerformedStartDate = new Date(simpleDateFormat.parse("2012-06-15").getTime());
+        final Date exercisePerformedEndDate = new Date(simpleDateFormat.parse("2012-06-30").getTime());
+        final List<Exercise> exerciseRangeList = exercisePerformedRepository.findByUserPerformedWithinRange(existingUser, exercisePerformedStartDate, exercisePerformedEndDate);
+        TestCase.assertEquals(4, exerciseRangeList.size());
+
+        // Test a save
+        final ExercisePerformed newExercisePerformed = exercisePerformedList.get(0);
+        newExercisePerformed.setId(UUID.randomUUID());
+        newExercisePerformed.setDate(new Date(simpleDateFormat.parse("2014-06-30").getTime()));
+        exercisePerformedRepository.save(newExercisePerformed);
+        TestCase.assertEquals(519, exercisePerformedRepository.count());
+
+        // Test a delete
+        exercisePerformedRepository.delete(newExercisePerformed);
+        TestCase.assertEquals(518, exercisePerformedRepository.count());
     }
 
 }
