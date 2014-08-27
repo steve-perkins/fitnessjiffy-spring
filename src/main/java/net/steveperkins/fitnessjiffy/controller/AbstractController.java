@@ -6,16 +6,87 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import sun.beans.editors.StringEditor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public abstract class AbstractController {
+
+    private class StringEditor implements PropertyEditor {
+
+        private String text;
+
+        @Override
+        public void setValue(final Object value) {
+            this.text = String.valueOf(value);
+        }
+
+        @Override
+        public Object getValue() {
+            return this.text;
+        }
+
+        @Override
+        public boolean isPaintable() {
+            return false;
+        }
+
+        @Override
+        public void paintValue(final Graphics gfx, final Rectangle box) {
+
+        }
+
+        @Override
+        public String getJavaInitializationString() {
+            return null;
+        }
+
+        @Override
+        public String getAsText() {
+            return this.text;
+        }
+
+        @Override
+        public void setAsText(final String text) throws IllegalArgumentException {
+            if (TODAY.equals(text)) {
+                setValue(dateFormat.format(new Date()));
+            } else {
+                setValue(text);
+            }
+        }
+
+        @Override
+        public String[] getTags() {
+            return new String[0];
+        }
+
+        @Override
+        public Component getCustomEditor() {
+            return null;
+        }
+
+        @Override
+        public boolean supportsCustomEditor() {
+            return false;
+        }
+
+        @Override
+        public void addPropertyChangeListener(final PropertyChangeListener listener) {
+
+        }
+
+        @Override
+        public void removePropertyChangeListener(final PropertyChangeListener listener) {
+
+        }
+    }
 
     public static final String LOGIN_TEMPLATE = "login";
     public static final String PROFILE_TEMPLATE = "profile";
@@ -32,17 +103,7 @@ public abstract class AbstractController {
      */
     @InitBinder
     public void initBinder(@Nonnull final WebDataBinder binder) throws Exception {
-        final StringEditor stringEditor = new StringEditor() {
-            @Override
-            public void setAsText(final String text) {
-                if (TODAY.equals(text)) {
-                    setValue(dateFormat.format(new Date()));
-                } else {
-                    super.setAsText(text);
-                }
-            }
-        };
-        binder.registerCustomEditor(String.class, stringEditor);
+        binder.registerCustomEditor(String.class, new StringEditor());
     }
 
     /**
