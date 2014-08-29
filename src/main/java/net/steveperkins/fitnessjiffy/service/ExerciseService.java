@@ -7,8 +7,11 @@ import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
+import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 
@@ -23,10 +26,19 @@ import java.util.UUID;
 public final class ExerciseService {
 
     @Autowired
+    UserService userService;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
+    WeightRepository weightRepository;
+
+    @Autowired
     ExercisePerformedRepository exercisePerformedRepository;
+
+    @Autowired
+    Converter<User, UserDTO> userDTOConverter;
 
     @Autowired
     Converter<Exercise, ExerciseDTO> exerciseDTOConverter;
@@ -40,13 +52,23 @@ public final class ExerciseService {
             @Nonnull final Date date
     ) {
         final User user = userRepository.findOne(userId);
-        final List<ExercisePerformed> exercisesPerformed =
-                exercisePerformedRepository.findByUserEqualsAndDateEquals(user, date);
+        final WeightDTO weight = userService.findWeightOnDate(userDTOConverter.convert(user), date);
+
+        final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, date);
         return Lists.transform(exercisesPerformed, new Function<ExercisePerformed, ExercisePerformedDTO>() {
             @Nullable
             @Override
             public ExercisePerformedDTO apply(@Nullable final ExercisePerformed exercisePerformed) {
-                return exercisePerformedDTOConverter.convert(exercisePerformed);
+                final ExercisePerformedDTO dto = exercisePerformedDTOConverter.convert(exercisePerformed);
+                if (dto != null) {
+                    final int caloriesBurned = calculateCaloriesBurned(
+                            exercisePerformed.getExercise().getMetabolicEquivalent(),
+                            exercisePerformed.getMinutes(),
+                            weight.getPounds()
+                    );
+                    dto.setCaloriesBurned(caloriesBurned);
+                }
+                return dto;
             }
         });
     }
@@ -73,5 +95,14 @@ public final class ExerciseService {
                 return exerciseDTOConverter.convert(exercise);
             }
         });
+    }
+
+    private int calculateCaloriesBurned(
+            final double metabolicEquivalent,
+            final int minutes,
+            final double weightInPounds
+    ) {
+        final double weightInKilograms = weightInPounds * 2.2;
+        return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
 }

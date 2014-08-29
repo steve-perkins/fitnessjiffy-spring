@@ -10,20 +10,21 @@ public final class ExercisePerformedDTO implements Serializable {
 
     private UUID id;
     private UUID userId;
-    private UUID exerciseId;
+    private ExerciseDTO exercise;
     private Date date;
     private int minutes;
+    private int caloriesBurned;
 
     public ExercisePerformedDTO(
             @Nullable final UUID id,
             @Nonnull final UUID userId,
-            @Nonnull final UUID exerciseId,
+            @Nonnull final ExerciseDTO exercise,
             @Nonnull final Date date,
             final int minutes
     ) {
         this.id = id;
         this.userId = userId;
-        this.exerciseId = exerciseId;
+        this.exercise = exercise;
         this.date = (Date) date.clone();
         this.minutes = minutes;
     }
@@ -50,12 +51,12 @@ public final class ExercisePerformedDTO implements Serializable {
     }
 
     @Nonnull
-    public UUID getExerciseId() {
-        return exerciseId;
+    public ExerciseDTO getExercise() {
+        return exercise;
     }
 
-    public void setExerciseId(@Nonnull final UUID exerciseId) {
-        this.exerciseId = exerciseId;
+    public void setExercise(@Nonnull final ExerciseDTO exercise) {
+        this.exercise = exercise;
     }
 
     @Nonnull
@@ -75,16 +76,29 @@ public final class ExercisePerformedDTO implements Serializable {
         this.minutes = minutes;
     }
 
+    public int getCaloriesBurned() {
+        return caloriesBurned;
+    }
+
+    public void setCaloriesBurned(final int caloriesBurned) {
+        this.caloriesBurned = caloriesBurned;
+    }
+
     @Override
     public boolean equals(final Object other) {
         boolean equals = false;
         if (other instanceof ExercisePerformedDTO) {
             final ExercisePerformedDTO that = (ExercisePerformedDTO) other;
-            equals = this.getId().equals(that.getId())
-                    && this.getUserId().equals(that.getUserId())
-                    && this.getExerciseId().equals(that.getExerciseId())
-                    && this.getDate().equals(that.getDate())
-                    && this.getMinutes() == that.getMinutes();
+            if ((this.getId() == null && that.getId() != null) || (that.getId() == null && this.getId() != null)) {
+                equals = false;
+            } else {
+                equals = this.getId().equals(that.getId())
+                        && this.getUserId().equals(that.getUserId())
+                        && this.getExercise().equals(that.getExercise())
+                        && this.getDate().equals(that.getDate())
+                        && this.getMinutes() == that.getMinutes()
+                        && this.getCaloriesBurned() == that.getCaloriesBurned();
+            }
         }
         return equals;
    }
@@ -93,9 +107,9 @@ public final class ExercisePerformedDTO implements Serializable {
     public int hashCode() {
         final int idHash = (id == null) ? 0 : id.hashCode();
         final int userIdHash = (userId == null) ? 0 : userId.hashCode();
-        final int exerciseIdHash = (exerciseId == null) ? 0 : exerciseId.hashCode();
+        final int exerciseHash = (exercise == null) ? 0 : exercise.hashCode();
         final int dateHash = (date == null) ? 0 : date.hashCode();
 
-        return idHash + userIdHash + exerciseIdHash + dateHash + minutes;
+        return idHash + userIdHash + exerciseHash + dateHash + minutes + caloriesBurned;
    }
 }

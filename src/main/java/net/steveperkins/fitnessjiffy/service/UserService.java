@@ -96,6 +96,9 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nonnull final Date date
     ) {
+
+        // TODO:  This logic should account for days on which no weight entry exists in the database, search backwards for the weight entry most recent to that date instead.
+
         final User user = userRepository.findOne(userDTO.getId());
         final Weight weight = weightRepository.findByUserAndDate(user, date);
         return weightDTOConverter.convert(weight);
@@ -104,7 +107,7 @@ public final class UserService {
     public void updateWeight(
             @Nonnull final UserDTO userDTO,
             @Nonnull final Date date,
-            @Nonnull final double pounds
+            final double pounds
     ) {
         final User user = userRepository.findOne(userDTO.getId());
         Weight weight = weightRepository.findByUserAndDate(user, date);
@@ -136,7 +139,7 @@ public final class UserService {
         return BCrypt.hashpw(rawPassword, salt);
     }
 
-    @Nonnull
+    @Nullable
     public String getPasswordHash(@Nonnull final UserDTO userDTO) {
         final User user = userRepository.findOne(userDTO.getId());
         return user.getPasswordHash();

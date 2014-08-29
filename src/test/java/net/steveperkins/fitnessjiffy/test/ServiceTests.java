@@ -18,8 +18,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.*;
 
 public class ServiceTests extends AbstractTests {

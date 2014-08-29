@@ -8,7 +8,6 @@ import java.util.*;
 import junit.framework.TestCase;
 import net.steveperkins.fitnessjiffy.domain.*;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.*;
 
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
@@ -168,9 +167,9 @@ public class RepositoryTests extends AbstractTests {
     public void testFoodEatenRepository() throws ParseException {
         // Grab the first test user, and confirm that they have foods eaten
         final List<User> userList = new LinkedList<>();
-        final Iterator<User> usersIterator = userRepository.findAll().iterator();
-        while (usersIterator.hasNext()) {
-            userList.add(usersIterator.next());
+        final Iterable<User> usersIterator = userRepository.findAll();
+        for (final User user : usersIterator) {
+            userList.add(user);
         }
         assertEquals(1, userList.size());
         final User existingUser = userList.get(0);
@@ -212,9 +211,9 @@ public class RepositoryTests extends AbstractTests {
     public void testExercisePerformedRepository() throws ParseException {
         // Grab the first test user, and confirm that they have exercises performed
         final List<User> userList = new LinkedList<>();
-        final Iterator<User> usersIterator = userRepository.findAll().iterator();
-        while (usersIterator.hasNext()) {
-            userList.add(usersIterator.next());
+        final Iterable<User> usersIterator = userRepository.findAll();
+        for (final User user : usersIterator) {
+            userList.add(user);
         }
         assertEquals(1, userList.size());
         final User existingUser = userList.get(0);

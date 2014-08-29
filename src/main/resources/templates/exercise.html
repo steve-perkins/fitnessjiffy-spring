@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <title>Exercise</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+    <style>
+        <!--
+        body {
+            background: #5B211A repeat-x center top;
+            color: #000;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            font-size: medium !important;
+            line-height: normal !important;
+            text-align: center;
+        }
+
+        #border {
+            width: 1000px;
+            margin: 0 auto 0 auto;
+            background: #F2E2C1 repeat-y center top;
+            padding: 0 15px;
+            border: 10px solid #411213;
+        }
+
+        /* Tan IE5 box model fix  Hides from IE5-mac */
+        * html #rap {
+            width: 730px;
+            w\idth: 800px;
+        }
+
+        table.exercisesPerformedOnDate {
+            width: 100%;
+        }
+
+        table.exercisesPerformedOnDate th {
+            border-bottom: 2px solid black;
+            text-align: center;
+            padding: 2px;
+        }
+
+        table.exercisesPerformedOnDate td {
+            border-bottom: 1px solid black;
+            text-align: center;
+            padding: 2px;
+        }
+
+        .ui-widget {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.8em;
+        }
+
+        -->
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Parse (or initialize) the current-date variable, and the user ID
+    var dateString = /*[[${dateString}]]*/;
+    if (!dateString || dateString === "") {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var day = date.getDate();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        dateString = year + "-" + month + "-" + day;
+    }
+
+    /** On document load... */
+    $(function () {
+        // Initialize date picker widget
+        $("#datepicker").datepicker({
+            dateFormat: "yy-mm-dd",
+            onSelect: function (dateText) {
+                window.location.href = "/exercise?date=" + this.value;
+            }
+        });
+        $("#datepicker").datepicker("setDate", dateString);
+    });
+
+    /*]]>*/
+    </script>
+</head>
+
+<body>
+<div id="border"><br/>
+    <table style="width: 100%; border-top: 2px solid #000000; border-bottom: 2px solid #000000;">
+        <tr>
+            <td width="25%" align="center"><a href="/profile">Profile</a></td>
+            <td width="25%" align="center"><a href="/food">Diet</a></td>
+            <td width="25%" align="center"><a href="/exercise">Exercise</a></td>
+            <td width="25%" align="center"><a href="/report">Reports</a></td>
+        </tr>
+    </table>
+    <br/>
+
+    <form>
+        <br/><b>Exercises Performed On:</b> <input type="text" id="datepicker" size="10"/> <span
+            style="font-size: 75%;">(click to change)</span><br/><br/>
+    </form>
+
+    <table class="exercisesPerformedOnDate" cellspacing="0" cellpadding="2">
+        <tr>
+            <th width="30%">Exercise</th>
+            <th>Minutes</th>
+            <th>Calories Burned</th>
+            <th>&nbsp;</th>
+        </tr>
+        <tr th:each="exercisePerformed : ${exercisesPerformedThisDate}">
+            <form action="/exercise/update">
+                <input type="hidden" name="exercisePerformedId" th:value="${exercisePerformed.id}"/>
+                <td width="30%" th:text="${exercisePerformed.exercise.description}"></td>
+                <td><input type="text" size="2" name="exercisePerformedMinutes" th:value="${exercisePerformed.minutes}"/></td>
+                <td><input type="submit" name="action" value="Update"/></td>
+                <td><input type="submit" name="action" value="Delete"
+                           onclick="javascript:return confirm('Are you SURE you want to delete this exercise entry?');"/>
+                </td>
+            </form>
+        </tr>
+        <tr>
+            <td width="30%"><br/>TOTAL:</td>
+            <td><br/>&nbsp;</td>
+            <td><br/>&nbsp;</td>
+            <td><br/>&nbsp;</td>
+        </tr>
+    </table>
+    <br/>
+
+</div>
+</body>
+</html>
