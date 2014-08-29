@@ -86,7 +86,18 @@
             }
         });
         $("#datepicker").datepicker("setDate", dateString);
+
+        // Add event handling to the "Recent Exercises" add button
+        $("#recentExercisesButton").click(function () {
+            addExercisePerformedFromRecent();
+        });
     });
+
+    /** Called when the "Add Exercise" button is clicked beside the "Recently Performed Exercises" pull-down. */
+    function addExercisePerformedFromRecent() {
+        var exerciseId = $("#recentExercisesSelect").val();
+        window.location.href = "/exercise/performed/add?date=" + dateString + "&exerciseId=" + exerciseId;
+    }
 
     /*]]>*/
     </script>
@@ -109,18 +120,44 @@
             style="font-size: 75%;">(click to change)</span><br/><br/>
     </form>
 
+    <table width="100%">
+        <tr>
+            <td align="center" valign="top">
+                <b>Recently Performed Exercises</b><br/>
+                <select id="recentExercisesSelect" name="recentExercises">
+                    <option th:each="recentExercise : ${exercisesPerformedRecently}" th:value="${recentExercise.id}">
+                        <span th:text="${recentExercise.description}"/>
+                    </option>
+                </select><br/>
+                <input type="button" id="recentExercisesButton" value="Add Exercise"/>
+            </td>
+            <td align="center" valign="top">
+                <b>Browse Exercises by Category</b><br/>
+                <br/>
+                <input type="button" id="browseExercisesButton" value="Add Exercise"/>
+            </td>
+            <td align="center" valign="top">
+                <b>Search Exercises by Name</b><br/>
+                <br/>
+                <input type="button" id="searchExercisesButton" value="Search Exercises"/>
+            </td>
+        </tr>
+    </table>
+    <br/>
     <table class="exercisesPerformedOnDate" cellspacing="0" cellpadding="2">
         <tr>
-            <th width="30%">Exercise</th>
+            <th width="50%">Exercise</th>
             <th>Minutes</th>
             <th>Calories Burned</th>
-            <th>&nbsp;</th>
+            <th width="10%">&nbsp;</th>
+            <th width="10%">&nbsp;</th>
         </tr>
         <tr th:each="exercisePerformed : ${exercisesPerformedThisDate}">
-            <form action="/exercise/update">
+            <form action="/exercise/performed/update">
                 <input type="hidden" name="exercisePerformedId" th:value="${exercisePerformed.id}"/>
-                <td width="30%" th:text="${exercisePerformed.exercise.description}"></td>
-                <td><input type="text" size="2" name="exercisePerformedMinutes" th:value="${exercisePerformed.minutes}"/></td>
+                <td th:text="${exercisePerformed.exercise.description}"></td>
+                <td><input type="text" size="2" name="minutes" th:value="${exercisePerformed.minutes}"/></td>
+                <td><span th:text="${exercisePerformed.caloriesBurned}"/></td>
                 <td><input type="submit" name="action" value="Update"/></td>
                 <td><input type="submit" name="action" value="Delete"
                            onclick="javascript:return confirm('Are you SURE you want to delete this exercise entry?');"/>
@@ -128,8 +165,9 @@
             </form>
         </tr>
         <tr>
-            <td width="30%"><br/>TOTAL:</td>
-            <td><br/>&nbsp;</td>
+            <td width="30%">TOTAL:</td>
+            <td th:text="${totalMinutes}"/>
+            <td th:text="${totalCaloriesBurned}"/>
             <td><br/>&nbsp;</td>
             <td><br/>&nbsp;</td>
         </tr>

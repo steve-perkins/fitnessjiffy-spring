@@ -1,6 +1,8 @@
 package net.steveperkins.fitnessjiffy.service;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.Exercise;
 import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
@@ -10,6 +12,7 @@ import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
+import net.steveperkins.fitnessjiffy.repository.ExerciseRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,9 @@ public final class ExerciseService {
 
     @Autowired
     WeightRepository weightRepository;
+
+    @Autowired
+    ExerciseRepository exerciseRepository;
 
     @Autowired
     ExercisePerformedRepository exercisePerformedRepository;
@@ -97,12 +103,57 @@ public final class ExerciseService {
         });
     }
 
+    public void addExercisePerformed(
+            @Nonnull final UUID userId,
+            @Nonnull final UUID exerciseId,
+            @Nonnull final Date date
+    ) {
+        final boolean duplicate = Iterables.any(findPerformedOnDate(userId, date), new Predicate<ExercisePerformedDTO>() {
+            @Override
+            public boolean apply(@Nonnull final ExercisePerformedDTO exerciseAlreadyPerformed) {
+                return exerciseAlreadyPerformed.getExercise().getId().equals(exerciseId);
+            }
+        });
+        if (!duplicate) {
+            final User user = userRepository.findOne(userId);
+            final Exercise exercise = exerciseRepository.findOne(exerciseId);
+            final ExercisePerformed exercisePerformed = new ExercisePerformed(
+                    UUID.randomUUID(),
+                    user,
+                    exercise,
+                    date,
+                    1
+            );
+            exercisePerformedRepository.save(exercisePerformed);
+        }
+    }
+
+    public void updateExercisePerformed(
+            @Nonnull final UUID exercisePerformedId,
+            @Nonnull final int minutes
+    ) {
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        exercisePerformed.setMinutes(minutes);
+        exercisePerformedRepository.save(exercisePerformed);
+    }
+
+    public void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        exercisePerformedRepository.delete(exercisePerformed);
+    }
+
+    @Nullable
+    public ExercisePerformedDTO findExercisePerformedById(@Nonnull final UUID exercisePerformedId) {
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        return exercisePerformedDTOConverter.convert(exercisePerformed);
+    }
+
     private int calculateCaloriesBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds
     ) {
-        final double weightInKilograms = weightInPounds * 2.2;
+        final double weightInKilograms = weightInPounds / 2.2;
         return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
 }

@@ -100,7 +100,7 @@ public final class UserService {
         // TODO:  This logic should account for days on which no weight entry exists in the database, search backwards for the weight entry most recent to that date instead.
 
         final User user = userRepository.findOne(userDTO.getId());
-        final Weight weight = weightRepository.findByUserAndDate(user, date);
+        final Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
         return weightDTOConverter.convert(weight);
     }
 
@@ -110,7 +110,7 @@ public final class UserService {
             final double pounds
     ) {
         final User user = userRepository.findOne(userDTO.getId());
-        Weight weight = weightRepository.findByUserAndDate(user, date);
+        Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
         if (weight == null) {
             weight = new Weight(
                     UUID.randomUUID(),
