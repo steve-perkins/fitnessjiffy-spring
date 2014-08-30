@@ -38,6 +38,24 @@ public final class FoodService {
     @Autowired
     Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
 
+    private final Function<Food, FoodDTO> foodToDTOConversionFunction =
+            new Function<Food, FoodDTO>() {
+                @Nullable
+                @Override
+                public FoodDTO apply(@Nullable final Food food) {
+                    return foodDTOConverter.convert(food);
+                }
+            };
+
+    private final Function<FoodEaten, FoodEatenDTO> foodEatenToDTOConversionFunction =
+            new Function<FoodEaten, FoodEatenDTO>() {
+                @Nullable
+                @Override
+                public FoodEatenDTO apply(@Nullable final FoodEaten foodEaten) {
+                    return foodEatenDTOConverter.convert(foodEaten);
+                }
+            };
+
     @Nonnull
     public List<FoodEatenDTO> findEatenOnDate(
             @Nonnull final UUID userId,
@@ -45,13 +63,7 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
-        return Lists.transform(foodEatens, new Function<FoodEaten, FoodEatenDTO>() {
-            @Nullable
-            @Override
-            public FoodEatenDTO apply(@Nullable final FoodEaten foodEaten) {
-                return foodEatenDTOConverter.convert(foodEaten);
-            }
-        });
+        return Lists.transform(foodEatens, foodEatenToDTOConversionFunction);
     }
 
     @Nonnull
@@ -69,13 +81,7 @@ public final class FoodService {
                 new Date(twoWeeksAgo.getTime()),
                 new Date(currentDate.getTime())
         );
-        return Lists.transform(recentFoods, new Function<Food, FoodDTO>() {
-            @Nullable
-            @Override
-            public FoodDTO apply(@Nullable final Food food) {
-                return foodDTOConverter.convert(food);
-            }
-        });
+        return Lists.transform(recentFoods, foodToDTOConversionFunction);
     }
 
     @Nullable
@@ -133,13 +139,7 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
-        return Lists.transform(foods, new Function<Food, FoodDTO>() {
-            @Nullable
-            @Override
-            public FoodDTO apply(@Nullable final Food food) {
-                return foodDTOConverter.convert(food);
-            }
-        });
+        return Lists.transform(foods, foodToDTOConversionFunction);
     }
 
     @Nullable

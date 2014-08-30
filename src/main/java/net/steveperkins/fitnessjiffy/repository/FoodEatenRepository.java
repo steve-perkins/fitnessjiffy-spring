@@ -21,7 +21,7 @@ public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
                     + "AND foodEaten.date = :date "
                     + "ORDER BY food.name ASC")
     @Nonnull
-    List<FoodEaten> findByUserEqualsAndDateEquals(
+    public List<FoodEaten> findByUserEqualsAndDateEquals(
             @Nonnull @Param("user") User user,
             @Nonnull @Param("date") Date date
     );
@@ -33,7 +33,7 @@ public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
                     + "AND foodEaten.date BETWEEN :startDate AND :endDate "
                     + "ORDER BY food.name ASC")
     @Nonnull
-    List<Food> findByUserEatenWithinRange(
+    public List<Food> findByUserEatenWithinRange(
             @Nonnull @Param("user") User user,
             @Nonnull @Param("startDate") Date startDate,
             @Nonnull @Param("endDate") Date endDate

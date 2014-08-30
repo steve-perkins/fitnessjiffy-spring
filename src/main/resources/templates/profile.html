@@ -95,20 +95,13 @@
 
     <form action="/profile/weight/save" method="post">
         <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
-        <div style="font-weight: bold; text-decoration: underline;">Weight</div><br/>
-        <table style="margin-left: auto; margin-right: auto;">
-            <tr>
-                <td class="leftcolumn">Date: </td>
-                <td class="rightcolumn"><input type="text" id="datepicker" name="dateString" size="10"/> <span style="font-size: 75%;">(click to change)</span></td>
-            </tr>
-            <tr>
-                <td class="leftcolumn">Pounds: </td>
-                <td class="rightcolumn"><input type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/> lbs.</td>
-            </tr>
-        </table>
-        <br/><input type="submit" value="Update Weight"/>
+        <div style="font-weight: bold;">Weight On:</div>
+        <div><input type="text" id="datepicker" name="dateString" size="10"/></div>
+        <div style="font-size: 75%;">(click to change)<br/><br/></div>
+        <div><input type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/> lbs.</div>
+        <input type="submit" value="Update Weight"/>
     </form>
-
+    <br/>
     <hr style="width: 75%"/>
 
     <div style="font-weight: bold; text-decoration: underline;">User Information</div><br/>

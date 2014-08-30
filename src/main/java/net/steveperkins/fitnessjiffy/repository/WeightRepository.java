@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface WeightRepository extends CrudRepository<Weight, UUID> {
 
     @Nullable
-    List<Weight> findByUserOrderByDateDesc(@Nonnull User user);
+    public List<Weight> findByUserOrderByDateDesc(@Nonnull User user);
 
     /**
      * Unfortunately, this method is using a native query because JPQL does
@@ -33,7 +33,7 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
             nativeQuery = true
     )
     @Nullable
-    Weight findByUserMostRecentOnDate(
+    public Weight findByUserMostRecentOnDate(
             @Nonnull User user,
             @Nonnull Date date
     );

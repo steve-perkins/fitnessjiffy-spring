@@ -16,13 +16,13 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
      * Returns all "global" foods (i.e. where ownerId is null).
      */
     @Nonnull
-    List<Food> findByOwnerIsNull();
+    public List<Food> findByOwnerIsNull();
 
     /**
      * Returns all foods owned by a particular user.
      */
     @Nonnull
-    List<Food> findByOwner(@Nonnull User owner);
+    public List<Food> findByOwner(@Nonnull User owner);
 
     /**
      * Returns all foods visible to a particular user.  This includes the foods that they own, as well as all global
@@ -38,7 +38,7 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
                     + ") ORDER BY food.name ASC"
     )
     @Nonnull
-    List<Food> findVisibleByOwner(@Nonnull @Param("owner") User owner);
+    public List<Food> findVisibleByOwner(@Nonnull @Param("owner") User owner);
 
     @Query(
             "SELECT food FROM Food food "
@@ -51,13 +51,13 @@ public interface FoodRepository extends CrudRepository<Food, UUID> {
                     + ") AND LOWER(food.name) LIKE LOWER(CONCAT('%', :name, '%')) "
                     + "ORDER BY food.name ASC")
     @Nonnull
-    List<Food> findByNameLike(
+    public List<Food> findByNameLike(
             @Nonnull @Param("owner") User owner,
             @Nonnull @Param("name") String name
     );
 
     @Nonnull
-    List<Food> findByOwnerEqualsAndNameEquals(
+    public List<Food> findByOwnerEqualsAndNameEquals(
             @Nonnull User owner,
             @Nonnull String name
     );

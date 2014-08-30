@@ -49,6 +49,15 @@ public final class ExerciseService {
     @Autowired
     Converter<ExercisePerformed, ExercisePerformedDTO> exercisePerformedDTOConverter;
 
+    private final Function<Exercise, ExerciseDTO> exerciseToDTOConversionFunction =
+            new Function<Exercise, ExerciseDTO>() {
+                @Nullable
+                @Override
+                public ExerciseDTO apply(final @Nullable Exercise exercise) {
+                    return exerciseDTOConverter.convert(exercise);
+                }
+            };
+
     @Nonnull
     public List<ExercisePerformedDTO> findPerformedOnDate(
             @Nonnull final UUID userId,
@@ -91,13 +100,7 @@ public final class ExerciseService {
                 new Date(twoWeeksAgo.getTime()),
                 new Date(currentDate.getTime())
         );
-        return Lists.transform(recentExercises, new Function<Exercise, ExerciseDTO>() {
-            @Nullable
-            @Override
-            public ExerciseDTO apply(@Nullable final Exercise exercise) {
-                return exerciseDTOConverter.convert(exercise);
-            }
-        });
+        return Lists.transform(recentExercises, exerciseToDTOConversionFunction);
     }
 
     public void addExercisePerformed(
@@ -153,13 +156,13 @@ public final class ExerciseService {
     @Nonnull
     public List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
         final List<Exercise> exercises = exerciseRepository.findByCategoryOrderByDescriptionAsc(category);
-        return Lists.transform(exercises, new Function<Exercise, ExerciseDTO>() {
-            @Nullable
-            @Override
-            public ExerciseDTO apply(final @Nullable Exercise exercise) {
-                return exerciseDTOConverter.convert(exercise);
-            }
-        });
+        return Lists.transform(exercises, exerciseToDTOConversionFunction);
+    }
+
+    @Nonnull
+    public List<ExerciseDTO> searchExercises(@Nonnull final String searchString) {
+        final List<Exercise> exercises = exerciseRepository.findByDescriptionLike(searchString);
+        return Lists.transform(exercises, exerciseToDTOConversionFunction);
     }
 
     private int calculateCaloriesBurned(

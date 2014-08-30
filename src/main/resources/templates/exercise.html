@@ -101,6 +101,16 @@
         $("#browseExercisesButton").click(function() {
             addExercisePerformedFromBrowsing();
         });
+
+        // Add event handling to the "Search Exercises" button
+        $("#searchExercisesButton").click(function() {
+            searchExercises();
+        });
+        $("#searchExercisesName").keypress(function(e) {
+            if (e.which == 13) {
+                searchExercises();
+            }
+        });
     });
 
     /** Called when the "Add Exercise" button is clicked underneath the "Recently Performed Exercises" pull-down. */
@@ -128,6 +138,40 @@
         window.location.href = "/exercise/performed/add?date=" + dateString + "&exerciseId=" + exerciseId;
     }
 
+    function searchExercises() {
+        var searchString = $("#searchExercisesName").val();
+        $.ajax({
+            url: "/exercise/search/" + encodeURIComponent(searchString),
+            dataType: "json",
+
+            success: function(response) {
+                $("#searchExercisesTable").html("");
+                $("#searchExercisesTable").append("<tr><th>Name</th><th></th></tr>");
+                for (var index = 0; index < response.length; index++) {
+                    var exercise = response[index];
+                    var description = (exercise.description.length <= 50) ? exercise.description : exercise.description.substring(0, 47) + "...";
+                    var exerciseRow = "<tr><td>" + description + "</td>";
+                    exerciseRow += "<td><input type='button' value='Add' onclick='addExercisePerformedFromSearch(\"" + exercise.id + "\")'/></td></tr>";
+                    $("#searchExercisesTable").append(exerciseRow);
+                }
+                $("#searchExercisesModal").dialog({
+                    width: 900,
+                    height: 400,
+                    modal: true
+                });
+            },
+
+            fail: function (jqXHR, textStatus) {
+                alert("Request failed: " + textStatus);
+            }
+        });
+    }
+
+    /** Called when the "Add Exercise" button is clicked underneath the "Browse Exercises by Category" pull-down. */
+    function addExercisePerformedFromSearch(exerciseId) {
+        window.location.href = "/exercise/performed/add?date=" + dateString + "&exerciseId=" + exerciseId;
+    }
+
     /*]]>*/
     </script>
 </head>
@@ -145,9 +189,11 @@
     <br/>
 
     <form>
-        <br/><b>Exercises Performed On:</b> <input type="text" id="datepicker" size="10"/> <span
-            style="font-size: 75%;">(click to change)</span><br/><br/>
+        <div><b>Exercises Performed On:</b></div>
+        <div><input type="text" id="datepicker" size="10"/></div>
+        <div style="font-size: 75%;">(click to change)</div>
     </form>
+    <br/>
 
     <table width="100%">
         <tr>
@@ -170,7 +216,7 @@
             </td>
             <td align="center" valign="top">
                 <b>Search Exercises by Name</b><br/>
-                <br/>
+                <input type="text" id="searchExercisesName" name="searchExercisesName"/><br/>
                 <input type="button" id="searchExercisesButton" value="Search Exercises"/>
             </td>
         </tr>
@@ -205,6 +251,18 @@
         </tr>
     </table>
     <br/>
+
+    <!-- "SEARCH EXERCISES" POP-UP -->
+    <div style="font-family: 'Open Sans', sans-serif; font-size:10px; display:none;">
+        <div id="searchExercisesModal" title="Search Exercises" style="text-align: center;">
+            <div style="margin: 0 auto; width: 75%">
+                <p>Click the "Add" button to add an exercise to the list of exercises performed on this day.</p>
+            </div>
+            <table id="searchExercisesTable" style="margin: 0 auto;">
+
+            </table>
+        </div>
+    </div>
 
 </div>
 </body>

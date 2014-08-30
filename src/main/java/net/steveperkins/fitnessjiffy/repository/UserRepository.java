@@ -12,6 +12,6 @@ public interface UserRepository extends CrudRepository<User, UUID> {
     // TODO: Add unit tests
 
     @Nullable
-    User findByEmailEquals(@Nonnull String email);
+    public User findByEmailEquals(@Nonnull String email);
 
 }

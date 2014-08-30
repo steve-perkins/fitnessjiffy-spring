@@ -12,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +21,18 @@ public class ExerciseController extends AbstractController {
 
     @Autowired
     ExerciseService exerciseService;
+
+    private final Function<ExerciseDTO, ExerciseDTO> truncateExerciseDescriptionFunction = new Function<ExerciseDTO, ExerciseDTO>() {
+        @Nonnull
+        @Override
+        public ExerciseDTO apply(@Nonnull final ExerciseDTO exerciseDTO) {
+            if (exerciseDTO.getDescription().length() > 50) {
+                final String description = exerciseDTO.getDescription().substring(0, 47) + "...";
+                exerciseDTO.setDescription(description);
+            }
+            return exerciseDTO;
+        }
+    };
 
     @RequestMapping(value = "/exercise", method = RequestMethod.GET)
     @Nonnull
@@ -35,7 +46,18 @@ public class ExerciseController extends AbstractController {
         final UserDTO user = currentAuthenticatedUser();
         final Date date = stringToSqlDate(dateString);
 
-        final List<ExerciseDTO> exercisesPerformedRecently = exerciseService.findPerformedRecently(user.getId(), date);
+        final List<ExerciseDTO> exercisesPerformedRecently = Lists.transform(
+                exerciseService.findPerformedRecently(user.getId(), date),
+                truncateExerciseDescriptionFunction
+        );
+
+        final List<String> categories = exerciseService.findAllCategories();
+        final String firstCategory = (categories.size() > 0) ? categories.get(0) : "";
+        final List<ExerciseDTO> exercisesInCategory = Lists.transform(
+                exerciseService.findExercisesInCategory(firstCategory),
+                truncateExerciseDescriptionFunction
+        );
+
         final List<ExercisePerformedDTO> exercisePerformedThisDate = exerciseService.findPerformedOnDate(user.getId(), date);
         int totalMinutes = 0;
         int totalCaloriesBurned = 0;
@@ -43,23 +65,6 @@ public class ExerciseController extends AbstractController {
             totalMinutes += exercisePerformed.getMinutes();
             totalCaloriesBurned += exercisePerformed.getCaloriesBurned();
         }
-
-        final List<String> categories = exerciseService.findAllCategories();
-        final String firstCategory = (categories.size() > 0) ? categories.get(0) : "";
-        final List<ExerciseDTO> exercisesInCategory = Lists.transform(
-                exerciseService.findExercisesInCategory(firstCategory),
-                new Function<ExerciseDTO, ExerciseDTO>() {
-                    @Nullable
-                    @Override
-                    public ExerciseDTO apply(final @Nonnull ExerciseDTO exerciseDTO) {
-                        if (exerciseDTO.getDescription().length() > 50) {
-                            String description = exerciseDTO.getDescription().substring(0, 47) + "...";
-                            exerciseDTO.setDescription(description);
-                        }
-                        return exerciseDTO;
-                    }
-                }
-        );
 
         model.addAttribute("dateString", dateString);
         model.addAttribute("exercisesPerformedRecently", exercisesPerformedRecently);
@@ -114,6 +119,14 @@ public class ExerciseController extends AbstractController {
     @ResponseBody
     List<ExerciseDTO> findExercisesInCategory(@Nonnull @PathVariable final String category) {
         return exerciseService.findExercisesInCategory(category);
+    }
+
+    @RequestMapping(value = "/exercise/search/{searchString}")
+    @Nonnull
+    public
+    @ResponseBody
+    List<ExerciseDTO> searchExercises(@Nonnull @PathVariable final String searchString) {
+        return exerciseService.searchExercises(searchString);
     }
 
 }
