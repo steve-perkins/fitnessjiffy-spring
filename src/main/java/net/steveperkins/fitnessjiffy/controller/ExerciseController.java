@@ -1,5 +1,7 @@
 package net.steveperkins.fitnessjiffy.controller;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
@@ -7,11 +9,10 @@ import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -43,9 +44,28 @@ public class ExerciseController extends AbstractController {
             totalCaloriesBurned += exercisePerformed.getCaloriesBurned();
         }
 
+        final List<String> categories = exerciseService.findAllCategories();
+        final String firstCategory = (categories.size() > 0) ? categories.get(0) : "";
+        final List<ExerciseDTO> exercisesInCategory = Lists.transform(
+                exerciseService.findExercisesInCategory(firstCategory),
+                new Function<ExerciseDTO, ExerciseDTO>() {
+                    @Nullable
+                    @Override
+                    public ExerciseDTO apply(final @Nonnull ExerciseDTO exerciseDTO) {
+                        if (exerciseDTO.getDescription().length() > 50) {
+                            String description = exerciseDTO.getDescription().substring(0, 47) + "...";
+                            exerciseDTO.setDescription(description);
+                        }
+                        return exerciseDTO;
+                    }
+                }
+        );
+
         model.addAttribute("dateString", dateString);
-        model.addAttribute("exercisesPerformedThisDate", exercisePerformedThisDate);
         model.addAttribute("exercisesPerformedRecently", exercisesPerformedRecently);
+        model.addAttribute("categories", categories);
+        model.addAttribute("exercisesInCategory", exercisesInCategory);
+        model.addAttribute("exercisesPerformedThisDate", exercisePerformedThisDate);
         model.addAttribute("totalMinutes", totalMinutes);
         model.addAttribute("totalCaloriesBurned", totalCaloriesBurned);
         return EXERCISE_TEMPLATE;
@@ -67,7 +87,7 @@ public class ExerciseController extends AbstractController {
 
     @RequestMapping(value = "/exercise/performed/update")
     @Nonnull
-    public String updateFoodEaten(
+    public String updateExercisePerformed(
             @Nonnull @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
             @Nonnull @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
@@ -87,4 +107,13 @@ public class ExerciseController extends AbstractController {
         }
         return viewMainExercisePage(dateString, model);
     }
+
+    @RequestMapping(value = "/exercise/bycategory/{category}")
+    @Nonnull
+    public
+    @ResponseBody
+    List<ExerciseDTO> findExercisesInCategory(@Nonnull @PathVariable final String category) {
+        return exerciseService.findExercisesInCategory(category);
+    }
+
 }

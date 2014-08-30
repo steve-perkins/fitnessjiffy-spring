@@ -21,10 +21,7 @@ import org.springframework.core.convert.converter.Converter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public final class ExerciseService {
 
@@ -146,6 +143,23 @@ public final class ExerciseService {
     public ExercisePerformedDTO findExercisePerformedById(@Nonnull final UUID exercisePerformedId) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         return exercisePerformedDTOConverter.convert(exercisePerformed);
+    }
+
+    @Nonnull
+    public List<String> findAllCategories() {
+        return exerciseRepository.findAllCategories();
+    }
+
+    @Nonnull
+    public List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
+        final List<Exercise> exercises = exerciseRepository.findByCategoryOrderByDescriptionAsc(category);
+        return Lists.transform(exercises, new Function<Exercise, ExerciseDTO>() {
+            @Nullable
+            @Override
+            public ExerciseDTO apply(final @Nullable Exercise exercise) {
+                return exerciseDTOConverter.convert(exercise);
+            }
+        });
     }
 
     private int calculateCaloriesBurned(

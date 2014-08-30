@@ -91,11 +91,40 @@
         $("#recentExercisesButton").click(function () {
             addExercisePerformedFromRecent();
         });
+
+        // Add event handling to the "Browse by Category" category selection
+        $("#categorySelect").change(function () {
+            updateExerciseCategory();
+        });
+
+        // Add event handling to the "Browse by Category" add button
+        $("#browseExercisesButton").click(function() {
+            addExercisePerformedFromBrowsing();
+        });
     });
 
-    /** Called when the "Add Exercise" button is clicked beside the "Recently Performed Exercises" pull-down. */
+    /** Called when the "Add Exercise" button is clicked underneath the "Recently Performed Exercises" pull-down. */
     function addExercisePerformedFromRecent() {
         var exerciseId = $("#recentExercisesSelect").val();
+        window.location.href = "/exercise/performed/add?date=" + dateString + "&exerciseId=" + exerciseId;
+    }
+
+    /** Called when the category selection is updated underneath "Browse Exerciss by Category". */
+    function updateExerciseCategory() {
+        var category = $("#categorySelect").val();
+        $.getJSON("/exercise/bycategory/" + category, function(data) {
+            $("#exerciseSelect").empty();
+            $.each(data, function(index, exercise) {
+                var description = (exercise.description.length < 50) ? exercise.description : (exercise.description.substring(0, 47) + "...");
+                var option = $("<option></option>").attr("value", exercise.id).text(description);
+                $("#exerciseSelect").append(option);
+            });
+        });
+    }
+
+    /** Called when the "Add Exercise" button is clicked underneath the "Browse Exercises by Category" pull-down. */
+    function addExercisePerformedFromBrowsing() {
+        var exerciseId = $("#exerciseSelect").find(":selected").val();
         window.location.href = "/exercise/performed/add?date=" + dateString + "&exerciseId=" + exerciseId;
     }
 
@@ -125,15 +154,18 @@
             <td align="center" valign="top">
                 <b>Recently Performed Exercises</b><br/>
                 <select id="recentExercisesSelect" name="recentExercises">
-                    <option th:each="recentExercise : ${exercisesPerformedRecently}" th:value="${recentExercise.id}">
-                        <span th:text="${recentExercise.description}"/>
-                    </option>
+                    <option th:each="recentExercise : ${exercisesPerformedRecently}" th:value="${recentExercise.id}" th:text="${recentExercise.description}"/>
                 </select><br/>
                 <input type="button" id="recentExercisesButton" value="Add Exercise"/>
             </td>
             <td align="center" valign="top">
                 <b>Browse Exercises by Category</b><br/>
-                <br/>
+                <select id="categorySelect" name="category">
+                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"/>
+                </select><br/>
+                <select id="exerciseSelect" name="exercise">
+                    <option th:each="exercise : ${exercisesInCategory}" th:value="${exercise.id}" th:text="${exercise.description}"/>
+                </select><br/>
                 <input type="button" id="browseExercisesButton" value="Add Exercise"/>
             </td>
             <td align="center" valign="top">
