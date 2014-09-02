@@ -8,12 +8,11 @@ import java.util.*;
 import junit.framework.TestCase;
 import net.steveperkins.fitnessjiffy.domain.*;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.*;
 
-import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
-import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
-import net.steveperkins.fitnessjiffy.repository.FoodRepository;
-import net.steveperkins.fitnessjiffy.repository.UserRepository;
+import net.steveperkins.fitnessjiffy.repository.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,6 +20,9 @@ public class RepositoryTests extends AbstractTests {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private WeightRepository weightRepository;
 
     @Autowired
     private FoodRepository foodRepository;
@@ -66,6 +68,19 @@ public class RepositoryTests extends AbstractTests {
         userRepository.delete(newUser);
         assertNull(userRepository.findOne(userId));
         assertEquals(1, userRepository.count());
+    }
+
+    @Test
+    public void testWeightRepository() {
+        final User user = userRepository.findAll().iterator().next();
+        assertNotNull(user);
+
+        final Date today = new Date(new java.util.Date().getTime());
+        final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, today);
+        assertNotNull(mostRecentWeight);
+
+        final Weight todaysWeight = weightRepository.findByUserAndDate(user, today);
+        assertNull(todaysWeight);
     }
 
     @Test

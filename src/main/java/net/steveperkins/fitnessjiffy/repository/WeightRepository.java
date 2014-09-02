@@ -38,4 +38,15 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
             @Nonnull Date date
     );
 
+    /**
+     * "findByUserMostRecentOnDate" is used for purposes of display, and for report generation, to account for days
+     * on which weight entry might have been skipped.  "findByUserAndDate", however, looks only on the specified
+     * date with no adjustment... for purposes of updating a particular weight entry correctly.
+     */
+    @Nullable
+    public Weight findByUserAndDate(
+            @Nonnull User user,
+            @Nonnull Date date
+    );
+
 }

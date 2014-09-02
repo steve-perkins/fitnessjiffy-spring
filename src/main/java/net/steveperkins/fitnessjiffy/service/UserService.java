@@ -110,7 +110,7 @@ public final class UserService {
             final double pounds
     ) {
         final User user = userRepository.findOne(userDTO.getId());
-        Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
+        Weight weight = weightRepository.findByUserAndDate(user, date);
         if (weight == null) {
             weight = new Weight(
                     UUID.randomUUID(),
