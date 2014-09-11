@@ -2,8 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-    <title>Spring Security Example </title>
+<title>Login</title>
+<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 </head>
+
 <body>
 <div th:if="${param.error}">
     Invalid username and password.
@@ -16,5 +18,8 @@
     <div><label> Password: <input type="password" name="password"/> </label></div>
     <div><input type="submit" value="Sign In"/></div>
 </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 </body>
+
 </html>

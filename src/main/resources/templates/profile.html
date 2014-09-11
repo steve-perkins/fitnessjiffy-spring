@@ -4,42 +4,57 @@
     <title>Profile</title>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
     <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"/>
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
     <style>
         <!--
-        body {
-            background: #5B211A repeat-x center top;
-            color: #000;
-            font-family: 'Open Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            font-size: medium !important;
-            line-height: normal !important;
-            text-align: center;
-        }
+        /*body {*/
+            /*background: #5B211A repeat-x center top;*/
+            /*color: #000;*/
+            /*font-family: 'Open Sans', sans-serif;*/
+            /*margin: 0;*/
+            /*padding: 0;*/
+            /*text-align: center;*/
+            /*font-size: medium !important;*/
+            /*line-height: normal !important;*/
+            /*text-align: center;*/
+        /*}*/
 
-        td.leftcolumn {
-            text-align: right;
-            padding-right: 10px;
-        }
+        /*td.leftcolumn {*/
+            /*text-align: right;*/
+            /*padding-right: 10px;*/
+        /*}*/
 
-        td.rightcolumn {
-            text-align: left;
-            padding-left: 10px;
-        }
+        /*td.rightcolumn {*/
+            /*text-align: left;*/
+            /*padding-left: 10px;*/
+        /*}*/
 
-        #border {
-            width: 1000px;
-            margin: 0 auto 0 auto;
-            background: #F2E2C1 repeat-y center top;
-            padding: 0 15px;
-            border: 10px solid #411213;
-        }
+        /*#border {*/
+            /*width: 1000px;*/
+            /*margin: 0 auto 0 auto;*/
+            /*background: #F2E2C1 repeat-y center top;*/
+            /*padding: 0 15px;*/
+            /*border: 10px solid #411213;*/
+        /*}*/
 
         /* Tan IE5 box model fix  Hides from IE5-mac */
-        * html #rap {
-            width: 730px;
-            w\idth: 800px;
+        /** html #rap {*/
+            /*width: 730px;*/
+            /*w\idth: 800px;*/
+        /*}*/
+
+        div.leftcolumn {
+            text-align: right;
+            /*padding-right: 10px;*/
+        }
+
+        div.rightcolumn {
+            text-align: left;
+            /*padding-left: 10px;*/
+        }
+
+        div.centered {
+            text-align: center;
         }
 
         -->
@@ -83,33 +98,90 @@
 
 <body>
 <div id="border"><br/>
-    <table style="width: 100%; border-top: 2px solid #000000; border-bottom: 2px solid #000000;">
-        <tr>
-            <td width="25%" align="center"><a href="/profile">Profile</a></td>
-            <td width="25%" align="center"><a href="/food">Diet</a></td>
-            <td width="25%" align="center"><a href="/exercise">Exercise</a></td>
-            <td width="25%" align="center"><a href="/report">Reports</a></td>
-        </tr>
-    </table>
-    <br/>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand">FitnessJiffy</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="profile">Profile</a></li>
+                    <li><a href="food">Food</a></li>
+                    <li><a href="exercise">Exercise</a></li>
+                    <li><a href="report">Report</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <form action="/profile/weight/save" method="post">
-        <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
-        <div style="font-weight: bold;">Weight On:</div>
-        <div><input type="text" id="datepicker" name="dateString" size="10"/></div>
-        <div style="font-size: 75%;">(click to change)<br/><br/></div>
-        <div><input type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/> lbs.</div>
-        <input type="submit" value="Update Weight"/>
-    </form>
-    <br/>
-    <hr style="width: 75%"/>
+    <div class="container-fluid">
+        <form action="/profile/weight/save" method="post">
+            <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
+            <div class="row">
+                <div class="col-xs-12" style="font-weight: bold;">
+                    Weight On:
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" id="datepicker" name="dateString" size="10"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12" style="font-size: 75%;">
+                    (click to change)<br/><br/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="text" id="weightEntry" name="weightEntry" th:value="${weightEntry}" size="5"/> lbs.<br/><br/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <input type="submit" value="Update Weight"/><br/><br/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br/><br/>
 
-    <div style="font-weight: bold; text-decoration: underline;">User Information</div><br/>
-    <div th:if="${profileSaveError}" style="color: red;" th:text="${profileSaveError}"/>
+    <div class="container">
+        <form th:object="${user}" action="/profile/save" method="post">
+            <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
+            <input type="hidden" th:field="*{id}"/>
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-5 centered" style="font-weight: bold; text-decoration: underline;">
+                    User Information<br/><br/>
+                </div>
+            </div>
+            <div class="row" th:if="${profileSaveError}">
+                <div class="col-xs-4 col-xs-offset-4" style="color: red;" th:text="${profileSaveError}"/>
+            </div>
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-4 leftcolumn">
+                    Email:
+                </div>
+                <div class="col-xs-6 rightcolumn">
+                    <input type="text" th:field="*{email}" maxlength="50" size="50"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-4 leftcolumn">
+                    Current Password:
+                </div>
+                <div class="col-xs-6 rightcolumn">
+                    <input type="password" id="currentPassword" name="currentPassword" maxlength="20" size="20"/>
+                    <span style="font-size: 75%">(Must match in order to update profile)</span>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+
     <form th:object="${user}" action="/profile/save" method="post">
-        <input th:name="${_csrf.parameterName}" type="hidden" th:value="${_csrf.token}" />
-        <input type="hidden" th:field="*{id}"/>
-        <table style="margin-left: auto; margin-right: auto;">
+        <table class="table" style="margin-left: auto; margin-right: auto;">
             <tr>
                 <td class="leftcolumn">Email:</td>
                 <td class="rightcolumn"><input type="text" th:field="*{email}" maxlength="50" size="50"/></td>
@@ -187,5 +259,8 @@
         <br/><input type="submit" value="Update Profile"/><br/><br/>
     </form>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
 </body>
+
 </html>

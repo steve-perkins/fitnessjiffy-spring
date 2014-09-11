@@ -5,7 +5,6 @@
     <groupId>net.steveperkins</groupId>
     <artifactId>fitnessjiffy-spring</artifactId>
     <version>1.0.1-bootstrap-SNAPSHOT</version>
-    <!--<packaging>war</packaging>-->
 
     <parent>
         <groupId>org.springframework.boot</groupId>
