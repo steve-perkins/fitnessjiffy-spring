@@ -61,6 +61,12 @@
                 <li><a href="exercise">Exercise</a></li>
                 <li><a href="report">Reports</a></li>
             </ul>
+            <form id="logoutForm" action="/logout" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();">Logout</a></li>
+                </ul>
+            </form>
         </div>
     </div>
 </div>

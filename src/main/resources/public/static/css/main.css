@@ -1,13 +1,21 @@
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
+    max-resolution: 0 auto;
     padding-top: 50px;
 }
 
 div.page-container {
+    min-height: 100%;
     background-color: burlywood;
 }
 
 div.main-container {
     padding-top: 20px;
+    padding-bottom: 50px;
     background-color: beige;
 }
 
