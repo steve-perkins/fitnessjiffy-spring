@@ -4,8 +4,11 @@ html {
 
 body {
     height: 100%;
-    max-resolution: 0 auto;
     padding-top: 50px;
+}
+
+label {
+    font-weight: normal;
 }
 
 div.page-container {
@@ -23,8 +26,8 @@ div.padded-bottom {
     padding-bottom: 10px;
 }
 
-div.center-content {
-    text-align: center;
+div.middle-content {
+    vertical-align: middle;
 }
 
 div.leftcolumn {
@@ -35,6 +38,48 @@ div.rightcolumn {
     text-align: left;
 }
 
+.center-content {
+    text-align: center;
+}
+
+.vcenter-content {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.bottom-content {
+    display: inline-block;
+    vertical-align: bottom;
+    float: none;
+}
+
+.strong {
+    font-weight: bold;
+}
+
 .fine-print {
     font-size: 75%;
+}
+
+/* Bootstrap overrides */
+.table-striped > tbody > tr:nth-child(odd) > td,
+.table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #dcdcdc;
+}
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
+    background-color: #dcdcdc;
+}
+
+.form-control {
+    display: inline;
+    width: auto;
+    height: 35px;
+    line-height: 1;
+    padding: 0px 10px 0px 10px;
+}
+
+.btn {
+    line-height: 1;
 }
