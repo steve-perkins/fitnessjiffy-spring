@@ -1,0 +1,32 @@
+body {
+    padding-top: 50px;
+}
+
+div.page-container {
+    background-color: burlywood;
+}
+
+div.main-container {
+    padding-top: 20px;
+    background-color: beige;
+}
+
+div.padded-bottom {
+    padding-bottom: 10px;
+}
+
+div.center-content {
+    text-align: center;
+}
+
+div.leftcolumn {
+    text-align: right;
+}
+
+div.rightcolumn {
+    text-align: left;
+}
+
+.fine-print {
+    font-size: 75%;
+}
