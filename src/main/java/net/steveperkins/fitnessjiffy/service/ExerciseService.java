@@ -79,6 +79,12 @@ public final class ExerciseService {
                             weight.getPounds()
                     );
                     dto.setCaloriesBurned(caloriesBurned);
+                    final int pointsBurned = calculatePointsBurned(
+                            exercisePerformed.getExercise().getMetabolicEquivalent(),
+                            exercisePerformed.getMinutes(),
+                            weight.getPounds()
+                    );
+                    dto.setPointsBurned(pointsBurned);
                 }
                 return dto;
             }
@@ -173,4 +179,22 @@ public final class ExerciseService {
         final double weightInKilograms = weightInPounds / 2.2;
         return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
+
+    private int calculatePointsBurned(
+            final double metabolicEquivalent,
+            final int minutes,
+            final double weightInPounds
+    ) {
+        final double caloriesBurnedPerHour = calculateCaloriesBurned(metabolicEquivalent, 60, weightInPounds);
+        int pointsBurned;
+        if (caloriesBurnedPerHour < 400) {
+            pointsBurned = (int) (weightInPounds * minutes * 0.000232);
+        } else if (caloriesBurnedPerHour < 900) {
+            pointsBurned = (int) (weightInPounds * minutes * 0.000327);
+        } else {
+            pointsBurned = (int) (weightInPounds * minutes * 0.0008077);
+        }
+        return pointsBurned;
+    }
+
 }

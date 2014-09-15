@@ -163,13 +163,13 @@ public final class FoodService {
             // Halt if this update would create two foods with duplicate names owned by the same user.
             final User user = userRepository.findOne(userDTO.getId());
             final List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
-            final boolean foundFoodWithSameNameOwnedByThisUser = Iterables.any(foodsWithSameNameOwnedByThisUser, new Predicate<Food>() {
+            final boolean noConflictsFound = Iterables.all(foodsWithSameNameOwnedByThisUser, new Predicate<Food>() {
                 @Override
                 public boolean apply(@Nonnull final Food food) {
                     return foodDTO.getId().equals(food.getId());
                 }
             });
-            if (foundFoodWithSameNameOwnedByThisUser) {
+            if (!noConflictsFound) {
                 resultMessage = "Error:  You already have another customized food with this name.";
 
             } else {

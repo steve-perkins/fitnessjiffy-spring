@@ -63,13 +63,22 @@ div.rightcolumn {
 }
 
 /* Bootstrap overrides */
+
+a {
+    color: black;
+}
+a:hover,
+a:focus {
+    color: grey;
+}
+
 .table-striped > tbody > tr:nth-child(odd) > td,
 .table-striped > tbody > tr:nth-child(odd) > th {
     background-color: #dcdcdc;
 }
 .table-hover > tbody > tr:hover > td,
 .table-hover > tbody > tr:hover > th {
-    background-color: #dcdcdc;
+    background-color: silver;
 }
 
 .form-control {

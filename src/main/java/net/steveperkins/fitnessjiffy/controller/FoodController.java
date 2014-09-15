@@ -5,9 +5,8 @@ import javax.annotation.Nullable;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
-import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
-import net.steveperkins.fitnessjiffy.dto.UserDTO;
-import net.steveperkins.fitnessjiffy.dto.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.*;
+import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +22,9 @@ public class FoodController extends AbstractController {
 
     @Autowired
     FoodService foodService;
+
+    @Autowired
+    ExerciseService exerciseService;
 
     @RequestMapping(value = {"/food"}, method = RequestMethod.GET)
     @Nonnull
@@ -52,6 +54,12 @@ public class FoodController extends AbstractController {
             proteinForDay += foodEaten.getProtein();
             pointsForDay += foodEaten.getPoints();
         }
+        int netCaloriesForDay = caloriesForDay;
+        int netPointsForDay = pointsForDay;
+        for (final ExercisePerformedDTO exercisePerformed : exerciseService.findPerformedOnDate(user.getId(), date)) {
+            netCaloriesForDay -= exercisePerformed.getCaloriesBurned();
+            netPointsForDay -= exercisePerformed.getPointsBurned();
+        }
 
         model.addAttribute("user", user);
         model.addAttribute("dateString", dateString);
@@ -66,9 +74,8 @@ public class FoodController extends AbstractController {
         model.addAttribute("sugarForDay", sugarForDay);
         model.addAttribute("proteinForDay", proteinForDay);
         model.addAttribute("pointsForDay", pointsForDay);
-        // TODO: Adjust the two values below to account for calories burned through exercise
-        model.addAttribute("netCalories", caloriesForDay);
-        model.addAttribute("netPoints", pointsForDay);
+        model.addAttribute("netCalories", netCaloriesForDay);
+        model.addAttribute("netPoints", netPointsForDay);
 
         return FOOD_TEMPLATE;
     }
