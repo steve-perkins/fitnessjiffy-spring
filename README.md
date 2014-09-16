@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/steve-perkins/fitnessjiffy-spring/status.png)](https://drone.io/github.com/steve-perkins/fitnessjiffy-spring/latest)
+
 fitnessjiffy-spring
 ===================
 
