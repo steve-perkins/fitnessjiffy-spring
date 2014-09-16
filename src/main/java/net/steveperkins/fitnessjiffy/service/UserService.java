@@ -6,11 +6,11 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
-import net.steveperkins.fitnessjiffy.etl.crypto.BCrypt;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.Nonnull;
