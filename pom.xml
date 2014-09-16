@@ -102,6 +102,9 @@
             <id>central</id>
             <name>bintray</name>
             <url>http://dl.bintray.com/steve-perkins/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -112,6 +115,9 @@
             <id>central</id>
             <name>bintray-plugins</name>
             <url>http://dl.bintray.com/steve-perkins/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
