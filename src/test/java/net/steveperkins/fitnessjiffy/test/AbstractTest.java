@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {Application.class})
-public abstract class AbstractTests {
+public abstract class AbstractTest {
 
     @Autowired
     DataSource dataSource;

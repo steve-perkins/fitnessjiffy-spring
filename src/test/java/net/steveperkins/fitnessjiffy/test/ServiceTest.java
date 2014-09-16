@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.*;
 
-public class ServiceTests extends AbstractTests {
+public class ServiceTest extends AbstractTest {
 
     @Autowired
     UserService userService;

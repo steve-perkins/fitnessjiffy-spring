@@ -16,7 +16,7 @@ import net.steveperkins.fitnessjiffy.repository.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RepositoryTests extends AbstractTests {
+public class RepositoryTest extends AbstractTest {
 
     @Autowired
     private UserRepository userRepository;
