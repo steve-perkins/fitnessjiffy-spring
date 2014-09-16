@@ -99,7 +99,7 @@
 
     <repositories>
         <repository>
-            <id>central</id>
+            <id>bintray</id>
             <name>bintray</name>
             <url>http://dl.bintray.com/steve-perkins/maven</url>
             <releases>
@@ -116,7 +116,7 @@
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>central</id>
+            <id>bintray-plugins</id>
             <name>bintray-plugins</name>
             <url>http://dl.bintray.com/steve-perkins/maven</url>
             <releases>
