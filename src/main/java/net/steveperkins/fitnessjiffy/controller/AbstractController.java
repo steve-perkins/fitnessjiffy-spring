@@ -92,6 +92,7 @@ public abstract class AbstractController {
     public static final String PROFILE_TEMPLATE = "profile";
     public static final String FOOD_TEMPLATE = "food";
     public static final String EXERCISE_TEMPLATE = "exercise";
+    public static final String REPORT_TEMPLATE = "report";
 
     public static final String TODAY = "today";
 
