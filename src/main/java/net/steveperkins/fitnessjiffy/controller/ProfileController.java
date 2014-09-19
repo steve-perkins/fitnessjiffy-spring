@@ -7,7 +7,6 @@ import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +31,9 @@ public final class ProfileController extends AbstractController {
 
             @Nonnull final Model model
     ) {
+
+        // TODO: Add Datepicker widget to "Birthdate" field in template, and also change "Height in Inches" to more user-friendly pulldown selectors for feet and inches.
+
         final UserDTO user = currentAuthenticatedUser();
         final Date date = stringToSqlDate(dateString);
         final WeightDTO weight = userService.findWeightOnDate(user, date);
