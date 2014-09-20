@@ -1,7 +1,11 @@
 package net.steveperkins.fitnessjiffy.test;
 
 import net.steveperkins.fitnessjiffy.domain.User;
-import net.steveperkins.fitnessjiffy.dto.*;
+import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
+import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.service.ExerciseService;

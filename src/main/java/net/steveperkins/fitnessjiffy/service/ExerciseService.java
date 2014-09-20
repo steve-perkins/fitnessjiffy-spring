@@ -21,7 +21,10 @@ import org.springframework.core.convert.converter.Converter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.UUID;
 
 public final class ExerciseService {
 

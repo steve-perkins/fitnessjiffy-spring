@@ -1,9 +1,27 @@
 package net.steveperkins.fitnessjiffy.config;
 
 import net.steveperkins.fitnessjiffy.controller.AbstractController;
-import net.steveperkins.fitnessjiffy.domain.*;
-import net.steveperkins.fitnessjiffy.dto.*;
-import net.steveperkins.fitnessjiffy.dto.converter.*;
+import net.steveperkins.fitnessjiffy.domain.Exercise;
+import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
+import net.steveperkins.fitnessjiffy.domain.Food;
+import net.steveperkins.fitnessjiffy.domain.FoodEaten;
+import net.steveperkins.fitnessjiffy.domain.ReportData;
+import net.steveperkins.fitnessjiffy.domain.User;
+import net.steveperkins.fitnessjiffy.domain.Weight;
+import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
+import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.ReportDataDTO;
+import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.WeightDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ExercisePerformedToExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ExerciseToExerciseDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodEatenToFoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodToFoodDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ReportDataToReportDataDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import net.steveperkins.fitnessjiffy.service.UserService;
@@ -65,6 +83,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Nonnull
     Converter<Exercise, ExerciseDTO> exerciseDTOConverter() {
         return new ExerciseToExerciseDTO();
+    }
+
+    @Bean
+    @Nonnull
+    Converter<ReportData, ReportDataDTO> reportDataDTOConverter() {
+        return new ReportDataToReportDataDTO();
     }
 
     @Bean

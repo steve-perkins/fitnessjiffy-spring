@@ -15,7 +15,7 @@ import java.util.UUID;
 public final class Exercise {
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @Column(name = "CODE", length = 5, nullable = false)

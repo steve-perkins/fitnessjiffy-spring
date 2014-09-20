@@ -4,7 +4,8 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.Years;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 

@@ -13,11 +13,17 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.UUID;
 
 @Entity
+@Table(
+        name = "FOOD",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ID", "OWNER_ID"})
+)
 public final class Food {
 
     public enum ServingType {
@@ -66,7 +72,7 @@ public final class Food {
     }
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @ManyToOne

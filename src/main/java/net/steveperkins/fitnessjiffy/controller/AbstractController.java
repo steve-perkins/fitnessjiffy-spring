@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.text.DateFormat;

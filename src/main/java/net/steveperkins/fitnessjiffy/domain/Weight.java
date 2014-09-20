@@ -10,15 +10,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.sql.Date;
 import java.util.UUID;
 
 @Entity
-@Table(name = "WEIGHT")
+@Table(
+        name = "WEIGHT",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "DATE"})
+)
 public final class Weight {
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @ManyToOne

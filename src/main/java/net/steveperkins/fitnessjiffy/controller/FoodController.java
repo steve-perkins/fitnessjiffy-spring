@@ -5,13 +5,21 @@ import javax.annotation.Nullable;
 
 import net.steveperkins.fitnessjiffy.domain.Food;
 
-import net.steveperkins.fitnessjiffy.dto.*;
+import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodDTO;
+import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.sql.Date;
 import java.util.List;

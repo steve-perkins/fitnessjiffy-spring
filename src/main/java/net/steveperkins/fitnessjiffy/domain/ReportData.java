@@ -16,44 +16,43 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "EXERCISE_PERFORMED",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "EXERCISE_ID", "DATE"})
+        name = "REPORT_DATA",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "DATE"})
 )
-public class ExercisePerformed {
+public final class ReportData {
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "EXERCISE_ID", nullable = false)
-    private Exercise exercise;
-
     @Column(name = "DATE", nullable = false)
     private Date date;
 
-    @Column(name = "MINUTES", nullable = false)
-    private Integer minutes;
+    @Column(name = "POUNDS", nullable = false)
+    private Double pounds = 0.0;
 
-    public ExercisePerformed(
+    @Column(name = "NET_CALORIES", nullable = false)
+    private Integer netCalories = 0;
+
+    @Column(name = "NET_POINTS", nullable = false)
+    private Double netPoints = 0.0;
+
+    public ReportData(
             @Nullable final UUID id,
             @Nonnull final User user,
-            @Nonnull final Exercise exercise,
             @Nonnull final Date date,
-            final int minutes
+            final double pounds,
+            final int netCalories,
+            final double netPoints
     ) {
         this.id = Optional.fromNullable(id).or(UUID.randomUUID());
         this.user = user;
-        this.exercise = exercise;
         this.date = (Date) date.clone();
-        this.minutes = minutes;
-    }
-
-    public ExercisePerformed() {
+        this.pounds = pounds;
     }
 
     @Nonnull
@@ -75,15 +74,6 @@ public class ExercisePerformed {
     }
 
     @Nonnull
-    public Exercise getExercise() {
-        return exercise;
-    }
-
-    public void setExercise(@Nonnull final Exercise exercise) {
-        this.exercise = exercise;
-    }
-
-    @Nonnull
     public Date getDate() {
         return (Date) date.clone();
     }
@@ -93,12 +83,30 @@ public class ExercisePerformed {
     }
 
     @Nonnull
-    public Integer getMinutes() {
-        return minutes;
+    public Double getPounds() {
+        return pounds;
     }
 
-    public void setMinutes(@Nonnull final Integer minutes) {
-        this.minutes = minutes;
+    public void setPounds(@Nonnull final Double pounds) {
+        this.pounds = pounds;
+    }
+
+    @Nonnull
+    public Integer getNetCalories() {
+        return netCalories;
+    }
+
+    public void setNetCalories(@Nonnull final Integer netCalories) {
+        this.netCalories = netCalories;
+    }
+
+    @Nonnull
+    public Double getNetPoints() {
+        return netPoints;
+    }
+
+    public void setNetPoints(@Nonnull final Double netPoints) {
+        this.netPoints = netPoints;
     }
 
 }

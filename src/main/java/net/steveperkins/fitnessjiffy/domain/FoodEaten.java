@@ -15,13 +15,17 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "FOOD_EATEN")
+@Table(
+        name = "FOOD_EATEN",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "FOOD_ID", "DATE"})
+)
 public final class FoodEaten {
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @ManyToOne

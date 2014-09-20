@@ -3,16 +3,29 @@ package net.steveperkins.fitnessjiffy.test;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 import junit.framework.TestCase;
-import net.steveperkins.fitnessjiffy.domain.*;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.*;
 
-import net.steveperkins.fitnessjiffy.repository.*;
+import net.steveperkins.fitnessjiffy.domain.Exercise;
+import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
+import net.steveperkins.fitnessjiffy.domain.Food;
+import net.steveperkins.fitnessjiffy.domain.FoodEaten;
+import net.steveperkins.fitnessjiffy.domain.User;
+import net.steveperkins.fitnessjiffy.domain.Weight;
+import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
+import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
+import net.steveperkins.fitnessjiffy.repository.FoodRepository;
+import net.steveperkins.fitnessjiffy.repository.UserRepository;
+import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

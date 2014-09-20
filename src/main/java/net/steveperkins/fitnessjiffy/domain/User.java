@@ -92,7 +92,7 @@ public class User {
     }
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
     private UUID id;
 
     @Column(name = "GENDER", length = 6, nullable = false)
@@ -110,7 +110,7 @@ public class User {
     @Column(name = "EMAIL", length = 100, nullable = false)
     private String email;
 
-    @Column(name = "PASSWORD_HASH", length = 50, nullable = true)
+    @Column(name = "PASSWORD_HASH", length = 100, nullable = true)
     private String passwordHash;
 
     @Column(name = "FIRST_NAME", length = 20, nullable = false)
