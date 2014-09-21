@@ -84,11 +84,11 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
         return maintenanceCalories;
     }
 
-    public int getDailyPoints(
+    public double getDailyPoints(
             @Nonnull final User user,
             final double currentWeight
     ) {
-        int dailyPoints = 0;
+        double dailyPoints = 0;
         final int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
         if (user.getGender() != null
                 && age != 0
@@ -97,35 +97,35 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
                 && user.getActivityLevel() != null
                 ) {
             // Factor in gender
-            dailyPoints = user.getGender().equals(User.Gender.FEMALE) ? 2 : 8;
+            dailyPoints = user.getGender().equals(User.Gender.FEMALE) ? 2.0 : 8.0;
             // Factor in age
             if (age <= 26) {
-                dailyPoints += 4;
+                dailyPoints += 4.0;
             } else if (age <= 37) {
-                dailyPoints += 3;
+                dailyPoints += 3.0;
             } else if (age <= 47) {
-                dailyPoints += 2;
+                dailyPoints += 2.0;
             } else if (age <= 58) {
-                dailyPoints += 1;
+                dailyPoints += 1.0;
             }
             // Factor in weight
-            dailyPoints += (currentWeight / 10f);
+            dailyPoints += currentWeight / 10.0;
             // Factor in height
             if (user.getHeightInInches() >= 61 && user.getHeightInInches() <= 70) {
-                dailyPoints += 1;
+                dailyPoints += 1.0;
             } else if (user.getHeightInInches() > 70) {
-                dailyPoints += 2;
+                dailyPoints += 2.0;
             }
             // Factor in activity level
             if (user.getActivityLevel().equals(User.ActivityLevel.EXTREMELY_ACTIVE) || user.getActivityLevel().equals(User.ActivityLevel.VERY_ACTIVE)) {
-                dailyPoints += 6;
+                dailyPoints += 6.0;
             } else if (user.getActivityLevel().equals(User.ActivityLevel.MODERATELY_ACTIVE)) {
-                dailyPoints += 4;
+                dailyPoints += 4.0;
             } else if (user.getActivityLevel().equals(User.ActivityLevel.LIGHTLY_ACTIVE)) {
-                dailyPoints += 2;
+                dailyPoints += 2.0;
             }
             // Factor in daily "flex" points quota
-            dailyPoints += 5;
+            dailyPoints += 5.0;
         }
         return dailyPoints;
     }

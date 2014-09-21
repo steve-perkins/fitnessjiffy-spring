@@ -437,7 +437,10 @@
                         <br/></td>
                     <td th:text="${pointsForDay} % 1 == 0 ? ${pointsForDay} : ${#numbers.formatDecimal(pointsForDay, 0, 2)}">
                         <br/></td>
-                    <td colspan="2"><span th:text="${netCalories}"/> net cal.<br/><span th:text="${netPoints}"/> net points</td>
+                    <td colspan="2">
+                        <span th:text="${netCalories}"/> net cal.<br/>
+                        <span th:text="${netPoints} % 1 == 0 ? ${netPoints} : ${#numbers.formatDecimal(netPoints, 0, 2)}"/> net points
+                    </td>
                 </tr>
             </tfoot>
         </table>

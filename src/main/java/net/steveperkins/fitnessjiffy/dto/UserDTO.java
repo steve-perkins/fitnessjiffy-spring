@@ -21,7 +21,7 @@ public final class UserDTO implements Serializable {
     private double currentWeight;
     private double bmi;
     private int maintenanceCalories;
-    private int dailyPoints;
+    private double dailyPoints;
 
     public UserDTO(
             @Nullable final UUID id,
@@ -35,7 +35,7 @@ public final class UserDTO implements Serializable {
             final double currentWeight,
             final double bmi,
             final int maintenanceCalories,
-            final int dailyPoints
+            final double dailyPoints
     ) {
         this.id = id;
         this.gender = gender;
@@ -149,11 +149,11 @@ public final class UserDTO implements Serializable {
         this.maintenanceCalories = maintenanceCalories;
     }
 
-    public int getDailyPoints() {
+    public double getDailyPoints() {
         return dailyPoints;
     }
 
-    public void setDailyPoints(final int dailyPoints) {
+    public void setDailyPoints(final double dailyPoints) {
         this.dailyPoints = dailyPoints;
     }
 
@@ -183,14 +183,14 @@ public final class UserDTO implements Serializable {
         final int idHash = (id == null) ? 0 : id.hashCode();
         final int genderHash = (gender == null) ? 0 : gender.hashCode();
         final int birthdateHash = (birthdate == null) ? 0 : birthdate.hashCode();
-        final int heightInInchesHash = (int) heightInInches;
+        final int heightInInchesHash = Double.valueOf(heightInInches).hashCode();
         final int activityLevelHash = (activityLevel == null) ? 0 : activityLevel.hashCode();
         final int emailHash = (email == null) ? 0 : email.hashCode();
         final int firstNameHash = (firstName == null) ? 0 : firstName.hashCode();
         final int lastNameHash = (lastName == null) ? 0 : lastName.hashCode();
-        final int currentWeightHash = (int) currentWeight;
-        final int maintenanceCaloriesHash = maintenanceCalories;
-        final int dailyPointsHash = dailyPoints;
+        final int currentWeightHash = Double.valueOf(currentWeight).hashCode();
+        final int maintenanceCaloriesHash = Integer.valueOf(maintenanceCalories).hashCode();
+        final int dailyPointsHash = Double.valueOf(dailyPoints).hashCode();
 
         return idHash + genderHash + birthdateHash + heightInInchesHash + activityLevelHash + emailHash
                 + firstNameHash + lastNameHash + currentWeightHash + maintenanceCaloriesHash + dailyPointsHash;

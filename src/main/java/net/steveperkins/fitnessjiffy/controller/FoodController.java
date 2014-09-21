@@ -49,8 +49,9 @@ public class FoodController extends AbstractController {
 
         final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
         final List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
-        int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay, pointsForDay;
-        caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = pointsForDay = 0;
+        int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay;
+        caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = 0;
+        double pointsForDay = 0.0;
         for (final FoodEatenDTO foodEaten : foodsEatenThisDate) {
             caloriesForDay += foodEaten.getCalories();
             fatForDay += foodEaten.getFat();
@@ -63,7 +64,7 @@ public class FoodController extends AbstractController {
             pointsForDay += foodEaten.getPoints();
         }
         int netCaloriesForDay = caloriesForDay;
-        int netPointsForDay = pointsForDay;
+        double netPointsForDay = pointsForDay;
         for (final ExercisePerformedDTO exercisePerformed : exerciseService.findPerformedOnDate(user.getId(), date)) {
             netCaloriesForDay -= exercisePerformed.getCaloriesBurned();
             netPointsForDay -= exercisePerformed.getPointsBurned();

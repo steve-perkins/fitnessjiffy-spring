@@ -151,8 +151,8 @@ public final class FoodEaten {
         return food.getProtein() * getRatio();
     }
 
-    public int getPoints() {
-        return (int) (food.getPoints() * getRatio());
+    public double getPoints() {
+        return food.getPoints() * getRatio();
     }
 
     private double getRatio() {

@@ -14,7 +14,7 @@ public final class ExercisePerformedDTO implements Serializable {
     private Date date;
     private int minutes;
     private int caloriesBurned;
-    private int pointsBurned;
+    private double pointsBurned;
 
     public ExercisePerformedDTO(
             @Nullable final UUID id,
@@ -85,11 +85,11 @@ public final class ExercisePerformedDTO implements Serializable {
         this.caloriesBurned = caloriesBurned;
     }
 
-    public int getPointsBurned() {
+    public double getPointsBurned() {
         return pointsBurned;
     }
 
-    public void setPointsBurned(final int pointsBurned) {
+    public void setPointsBurned(final double pointsBurned) {
         this.pointsBurned = pointsBurned;
     }
 
@@ -119,7 +119,9 @@ public final class ExercisePerformedDTO implements Serializable {
         final int userIdHash = (userId == null) ? 0 : userId.hashCode();
         final int exerciseHash = (exercise == null) ? 0 : exercise.hashCode();
         final int dateHash = (date == null) ? 0 : date.hashCode();
+        final int caloriesBurnedHash = Integer.valueOf(caloriesBurned).hashCode();
+        final int pointsBurnedHash = Double.valueOf(pointsBurned).hashCode();
 
-        return idHash + userIdHash + exerciseHash + dateHash + minutes + caloriesBurned + pointsBurned;
+        return idHash + userIdHash + exerciseHash + dateHash + minutes + caloriesBurnedHash + pointsBurnedHash;
    }
 }
