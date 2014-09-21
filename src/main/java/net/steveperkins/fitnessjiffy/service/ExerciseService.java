@@ -188,7 +188,7 @@ public final class ExerciseService {
             final int minutes,
             final double weightInPounds
     ) {
-        final double caloriesBurnedPerHour = calculateCaloriesBurned(metabolicEquivalent, 60, weightInPounds);
+        final int caloriesBurnedPerHour = calculateCaloriesBurned(metabolicEquivalent, 60, weightInPounds);
         double pointsBurned;
         if (caloriesBurnedPerHour < 400) {
             pointsBurned = weightInPounds * minutes * 0.000232;
