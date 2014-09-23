@@ -27,19 +27,19 @@ import java.util.UUID;
 public final class FoodService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    FoodRepository foodRepository;
+    private FoodRepository foodRepository;
 
     @Autowired
-    FoodEatenRepository foodEatenRepository;
+    private FoodEatenRepository foodEatenRepository;
 
     @Autowired
-    Converter<Food, FoodDTO> foodDTOConverter;
+    private Converter<Food, FoodDTO> foodDTOConverter;
 
     @Autowired
-    Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
+    private Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
 
     private final Function<Food, FoodDTO> foodToDTOConversionFunction =
             new Function<Food, FoodDTO>() {

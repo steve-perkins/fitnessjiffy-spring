@@ -29,28 +29,28 @@ import java.util.UUID;
 public final class ExerciseService {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    WeightRepository weightRepository;
+    private WeightRepository weightRepository;
 
     @Autowired
-    ExerciseRepository exerciseRepository;
+    private ExerciseRepository exerciseRepository;
 
     @Autowired
-    ExercisePerformedRepository exercisePerformedRepository;
+    private ExercisePerformedRepository exercisePerformedRepository;
 
     @Autowired
-    Converter<User, UserDTO> userDTOConverter;
+    private Converter<User, UserDTO> userDTOConverter;
 
     @Autowired
-    Converter<Exercise, ExerciseDTO> exerciseDTOConverter;
+    private Converter<Exercise, ExerciseDTO> exerciseDTOConverter;
 
     @Autowired
-    Converter<ExercisePerformed, ExercisePerformedDTO> exercisePerformedDTOConverter;
+    private Converter<ExercisePerformed, ExercisePerformedDTO> exercisePerformedDTOConverter;
 
     private final Function<Exercise, ExerciseDTO> exerciseToDTOConversionFunction =
             new Function<Exercise, ExerciseDTO>() {
@@ -174,7 +174,7 @@ public final class ExerciseService {
         return Lists.transform(exercises, exerciseToDTOConversionFunction);
     }
 
-    private int calculateCaloriesBurned(
+    public static int calculateCaloriesBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds
@@ -183,7 +183,7 @@ public final class ExerciseService {
         return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
 
-    private double calculatePointsBurned(
+    public static double calculatePointsBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds

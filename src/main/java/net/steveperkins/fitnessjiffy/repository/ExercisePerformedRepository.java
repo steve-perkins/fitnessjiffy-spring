@@ -21,6 +21,7 @@ public interface ExercisePerformedRepository extends CrudRepository<ExercisePerf
                 + "AND exercisePerformed.date = :date "
                 + "ORDER BY exercise.description ASC"
     )
+    @Nonnull
     public List<ExercisePerformed> findByUserEqualsAndDateEquals(
             @Nonnull @Param("user") User user,
             @Nonnull @Param("date") Date date
@@ -33,6 +34,7 @@ public interface ExercisePerformedRepository extends CrudRepository<ExercisePerf
                 + "AND exercisePerformed.date BETWEEN :startDate AND :endDate "
                 + "ORDER BY exercise.description ASC"
     )
+    @Nonnull
     public List<Exercise> findByUserPerformedWithinRange(
             @Nonnull @Param("user") User user,
             @Nonnull @Param("startDate") Date startDate,

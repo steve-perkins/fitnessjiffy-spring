@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface WeightRepository extends CrudRepository<Weight, UUID> {
 
-    @Nullable
+    @Nonnull
     public List<Weight> findByUserOrderByDateDesc(@Nonnull User user);
 
     /**

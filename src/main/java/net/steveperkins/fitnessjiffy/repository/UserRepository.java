@@ -9,8 +9,6 @@ import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
 
-    // TODO: Add unit tests
-
     @Nullable
     public User findByEmailEquals(@Nonnull String email);
 
