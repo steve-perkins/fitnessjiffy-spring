@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nonnull;
 import java.sql.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -39,57 +41,66 @@ public class ReportDataService {
     @Autowired
     private ReportDataRepository reportDataRepository;
 
-    private ScheduledThreadPoolExecutor reportDataUpdateThreadPool = new ScheduledThreadPoolExecutor(1);
+    private final ScheduledThreadPoolExecutor reportDataUpdateThreadPool = new ScheduledThreadPoolExecutor(1);
+    private final Map<UUID, ReportDataUpdateEntry> scheduledUserUpdates = new ConcurrentHashMap<>();
 
     /**
      * Update the ReportData records for a given user, starting on a given date and ending after today's date (in the
      * most common use case, it will be a one-day range consisting of today anyway).
      */
-    public void updateUserFromDate(
+    public synchronized final void updateUserFromDate(
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
-        final User user = userRepository.findOne(userId);
-        final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
-
-        // Start by determining whether or not there is already a task scheduled for this user.  The "BlockingQueue.contains()"
-        // method uses a hash to check for matches, and is very fast.  If this approach finds no match, then we can schedule
-        // this task to run in five minutes...
-        if (!reportDataUpdateThreadPool.getQueue().contains(task)) {
-            reportDataUpdateThreadPool.schedule(task, 5, TimeUnit.MINUTES);
-        } else {
-
-            // ... but if there IS already a task scheduled for this user, then we have to examine its starting date.
-            // If this date range of this new task is no wider than that of the task already scheduled, then we can
-            // return and let the already-scheduled task handle it.  However, if this new task covers a wider date range,
-            // then it must be scheduled instead.
-            //
-            // Unfortunately, checking the date of the already-scheduled task requires a reference to that object, which
-            // is more expensive to obtain than the "contains()" method uses in the first screen.  To get an object
-            // reference, we have to iterate over (a copy of) the contents of the queue.
-            final Iterator queueIterator = reportDataUpdateThreadPool.getQueue().iterator();
-            while (queueIterator.hasNext()) {
-                final Object objectInQueue = queueIterator.next();
-                if (objectInQueue instanceof ReportDataUpdateTask) {
-                    final ReportDataUpdateTask taskInQueue = (ReportDataUpdateTask) objectInQueue;
-                    if (date.compareTo(taskInQueue.startDate) < 0) {
-
-                        // The new task covers a wider date range than the already-scheduled task!
-
-                        // Try to remove the previously scheduled task from the queue.  There is a slim chance that
-                        // in the few microseconds we spent making a copy of the queue's contents and iterating over
-                        // it, that task has already been removed from the queue and executed anyway.  That's not
-                        // ideal, but it isn't a huge problem... it just means that a bit of work will be duplicated
-                        // for that user.
-                        reportDataUpdateThreadPool.getQueue().remove(taskInQueue);
-
-                        reportDataUpdateThreadPool.schedule(task, 5, TimeUnit.MINUTES);
-                    }
-                }
+        final ReportDataUpdateEntry updateEntry = scheduledUserUpdates.get(userId);
+        if (updateEntry != null) {
+            if (updateEntry.getFuture().isCancelled() || updateEntry.getFuture().isDone()) {
+                // There was an update recently scheduled for this user, but it has completed and its entry can be cleaned up.
+                scheduledUserUpdates.remove(userId);
+            } else if (updateEntry.getStartDate().before(date)) {
+                // There is an update still pending for this user, but its date range is superseded by that of the new
+                // update and therefore can be cancelled and cleaned up.
+                updateEntry.getFuture().cancel(false);
+                scheduledUserUpdates.remove(userId);
+            } else {
+                // There is an update still pending for this user, and it supersedes the new one here.  Do nothing, and
+                // let the pending schedule stand.
+                return;
             }
         }
+
+        // Schedule an update for this user, and add an entry in the conflicts list.
+        final User user = userRepository.findOne(userId);
+        final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
+        final Future future = reportDataUpdateThreadPool.schedule(task, 5, TimeUnit.MINUTES);
+        final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(date, future);
+        scheduledUserUpdates.put(userId, newUpdateEntry);
     }
 
+    /**
+     * A container holding the date range and Future reference for a scheduled user update task.  Used to detect
+     * whether or not subsequent tasks supersede those previously scheduled for a user, and to cancel them if so.
+     */
+    static class ReportDataUpdateEntry {
+
+        private final Date startDate;
+        private final Future future;
+
+        public ReportDataUpdateEntry(@Nonnull final Date startDate, @Nonnull final Future future) {
+            this.startDate = startDate;
+            this.future = future;
+        }
+
+        @Nonnull
+        public final Date getStartDate() {
+            return startDate;
+        }
+
+        @Nonnull
+        public final Future getFuture() {
+            return future;
+        }
+    }
 
     /**
      * A task that can be scheduled in a background thread, to create or update rows in the ReportData table for a
@@ -107,7 +118,7 @@ public class ReportDataService {
      * and so it would be a date range ending on today anyway.  Users making edits to older historical records on
      * arbitrary dates should be an edge case, and probably isn't worth adding further complexity to this design.  A
      * main benefit of this design is that it makes it easier to filter out and discard multiple redundant update
-     * requests that come through in a short period of time.  Any re-design would need to accound for and provide the
+     * requests that come through in a short period of time.  Any re-design would need to account for and provide the
      * same benefit.
      */
     class ReportDataUpdateTask implements Runnable {
@@ -184,36 +195,6 @@ public class ReportDataService {
                 );
             }
         }
-
-        /**
-         * The overridden "equals()" method deliberately ignores everything except the "user" field.  That's because
-         * this class is meant to be placed in the "BlockingQueue" component of a "ScheduledThreadPoolExecutor" thread
-         * pool, and we only want the thread pool to contain one task for any given user at any one time.  We rely
-         * on "equals()" to detect user-collisions, so that we can then examine the "startDate" fields and determine
-         * which task should supersede the other.
-         */
-        @Override
-        public boolean equals(final Object other) {
-            if (this == other) return true;
-            if (other == null || getClass() != other.getClass()) return false;
-
-            final ReportDataUpdateTask that = (ReportDataUpdateTask) other;
-
-            if (!user.equals(that.user)) return false;
-
-            return true;
-        }
-
-        /**
-         * The overridden "hashCode()" method deliberately ignores everything except the "user" field.  That's because
-         * this class is meant to be placed in the "BlockingQueue" component of a "ScheduledThreadPoolExecutor" thread
-         * pool, and we only want the thread pool to contain one task for any given user at any one time.  We rely
-         * on "hashCode()" to detect user-collisions, so that we can then examine the "startDate" fields and determine
-         * which task should supersede the other.
-         */
-        @Override
-        public int hashCode() {
-            return user.hashCode();
-        }
     }
+
 }
