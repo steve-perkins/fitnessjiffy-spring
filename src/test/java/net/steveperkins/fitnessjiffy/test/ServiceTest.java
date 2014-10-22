@@ -1,5 +1,6 @@
 package net.steveperkins.fitnessjiffy.test;
 
+import net.steveperkins.fitnessjiffy.domain.ReportData;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
@@ -7,9 +8,11 @@ import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
+import net.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
+import net.steveperkins.fitnessjiffy.service.ReportDataService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +24,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static junit.framework.TestCase.*;
 
@@ -36,10 +41,16 @@ public class ServiceTest extends AbstractTest {
     ExerciseService exerciseService;
 
     @Autowired
+    ReportDataService reportDataService;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
     FoodRepository foodRepository;
+
+    @Autowired
+    ReportDataRepository reportDataRepository;
 
     @Test
     public void testUserService() {
@@ -177,6 +188,51 @@ public class ServiceTest extends AbstractTest {
         // Test retrieving exercises performed during a date range
         final List<ExerciseDTO> exerciseRangeList = exerciseService.findPerformedRecently(user.getId(), exercisePerformedDate);
         assertEquals(4, exerciseRangeList.size());
+    }
+
+    @Test
+    public void testReportDataService() throws ParseException, ExecutionException, InterruptedException {
+        // NOTE:  In the test dataset, the earliest date on which the test user has raw data is '2007-11-21', and
+        //        the most recent date is '2013-12-11'.
+
+        // Test generating report data for the past week.
+        final User user = userRepository.findAll().iterator().next();
+        final Calendar oneWeekAgo = new GregorianCalendar();
+        oneWeekAgo.add(Calendar.DATE, -7);
+        final Future lastWeekUpdate = reportDataService.updateUserFromDate(user.getId(), new Date(oneWeekAgo.getTime().getTime()));
+        lastWeekUpdate.get();
+
+        // Test retrieving all data for this user.
+        final List<ReportData> lastWeekReportData = reportDataRepository.findByUser(user);
+        assertEquals(7, lastWeekReportData.size());
+
+        // Test retrieving a single date's data.
+        final List<ReportData> firstDayOfLastWeekReportData = reportDataRepository.findByUserAndDate(user, new Date(oneWeekAgo.getTime().getTime()));
+        assertEquals(1, firstDayOfLastWeekReportData.size());
+
+        // Test retrieving report data between a specified date range
+        final Calendar thirdDayOfLastWeek = (Calendar) oneWeekAgo.clone();
+        thirdDayOfLastWeek.add(Calendar.DATE, 2);
+        final List<ReportData> firstThreeDaysOfLastWeekReportData = reportDataRepository.findByUserAndDateBetween(
+                user,
+                new Date(oneWeekAgo.getTime().getTime()),
+                new Date(thirdDayOfLastWeek.getTime().getTime())
+        );
+        assertEquals(3, firstThreeDaysOfLastWeekReportData.size());
+
+        // Generate report data across all good dates for the test user.  This tests the actual number-crunching (because
+        // the data entries generated above were for dates that didn't actually have any data), and well as the update
+        // operation (because the "last week" entries that were just created will now be re-written).
+        final Date firstDateWithGoodData = new Date(simpleDateFormat.parse("2007-11-21").getTime());
+        final Date lastDateWithGoodData = new Date(simpleDateFormat.parse("2013-12-11").getTime());
+        final Future allTimeUpdate = reportDataService.updateUserFromDate(user.getId(), firstDateWithGoodData);
+        allTimeUpdate.get();
+
+        final List<ReportData> allGoodReportData = reportDataRepository.findByUserAndDateBetween(user, firstDateWithGoodData, lastDateWithGoodData);
+        assertEquals(2213, allGoodReportData.size());
+
+        final List<ReportData> allReportData = reportDataRepository.findByUser(user);
+        assertTrue(allReportData.size() > 2213);
     }
 
 }

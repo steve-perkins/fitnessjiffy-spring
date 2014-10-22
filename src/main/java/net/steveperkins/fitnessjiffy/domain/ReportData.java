@@ -55,6 +55,9 @@ public final class ReportData {
         this.pounds = pounds;
     }
 
+    public ReportData() {
+    }
+
     @Nonnull
     public UUID getId() {
         return id;

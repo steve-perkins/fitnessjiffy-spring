@@ -13,6 +13,8 @@ import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import java.sql.Date;
@@ -24,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class ReportDataService {
 
     @Autowired
@@ -41,6 +44,14 @@ public class ReportDataService {
     @Autowired
     private ReportDataRepository reportDataRepository;
 
+    /**
+     * By default, update tasks should be scheduled for 5 minutes in the future (i.e. 300000 milliseconds).  However,
+     * this can be overwritten in the "application.properties" config file... primarily so that unit tests can use
+     * a much shorter value.
+     */
+    @Value("${reportdata.update-delay-in-millis:300000}")
+    private long scheduleDelayInMillis;
+
     private final ScheduledThreadPoolExecutor reportDataUpdateThreadPool = new ScheduledThreadPoolExecutor(1);
     private final Map<UUID, ReportDataUpdateEntry> scheduledUserUpdates = new ConcurrentHashMap<>();
 
@@ -48,7 +59,7 @@ public class ReportDataService {
      * Update the ReportData records for a given user, starting on a given date and ending after today's date (in the
      * most common use case, it will be a one-day range consisting of today anyway).
      */
-    public synchronized final void updateUserFromDate(
+    public synchronized final Future updateUserFromDate(
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
@@ -65,16 +76,18 @@ public class ReportDataService {
             } else {
                 // There is an update still pending for this user, and it supersedes the new one here.  Do nothing, and
                 // let the pending schedule stand.
-                return;
+                return null;
             }
         }
 
         // Schedule an update for this user, and add an entry in the conflicts list.
         final User user = userRepository.findOne(userId);
+        System.out.println("Scheduling a ReportData update for user [" + user.getEmail() + "] in " + scheduleDelayInMillis + " milliseconds");
         final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
-        final Future future = reportDataUpdateThreadPool.schedule(task, 5, TimeUnit.MINUTES);
+        final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInMillis, TimeUnit.MILLISECONDS);
         final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(date, future);
         scheduledUserUpdates.put(userId, newUpdateEntry);
+        return future;
     }
 
     /**

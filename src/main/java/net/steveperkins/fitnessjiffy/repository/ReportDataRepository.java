@@ -12,6 +12,12 @@ import java.util.UUID;
 public interface ReportDataRepository extends CrudRepository<ReportData, UUID> {
 
     @Nonnull
+    public List<ReportData> findByUser(@Nonnull User user);
+
+    @Nonnull
     public List<ReportData> findByUserAndDate(@Nonnull User user, @Nonnull Date date);
+
+    @Nonnull
+    public List<ReportData> findByUserAndDateBetween(@Nonnull User user, @Nonnull Date startDate, @Nonnull Date endDate);
 
 }

@@ -9,21 +9,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
 
 import net.steveperkins.fitnessjiffy.domain.Exercise;
 import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
+import net.steveperkins.fitnessjiffy.domain.ReportData;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
+import net.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.junit.Test;
@@ -45,6 +45,9 @@ public class RepositoryTest extends AbstractTest {
 
     @Autowired
     private ExercisePerformedRepository exercisePerformedRepository;
+
+    @Autowired
+    private ReportDataRepository reportDataRepository;
 
     @Test
     public void testUserRepository() {
@@ -257,18 +260,38 @@ public class RepositoryTest extends AbstractTest {
         final Date exercisePerformedStartDate = new Date(simpleDateFormat.parse("2012-06-15").getTime());
         final Date exercisePerformedEndDate = new Date(simpleDateFormat.parse("2012-06-30").getTime());
         final List<Exercise> exerciseRangeList = exercisePerformedRepository.findByUserPerformedWithinRange(existingUser, exercisePerformedStartDate, exercisePerformedEndDate);
-        TestCase.assertEquals(4, exerciseRangeList.size());
+        assertEquals(4, exerciseRangeList.size());
 
         // Test a save
         final ExercisePerformed newExercisePerformed = exercisePerformedList.get(0);
         newExercisePerformed.setId(UUID.randomUUID());
         newExercisePerformed.setDate(new Date(simpleDateFormat.parse("2014-06-30").getTime()));
         exercisePerformedRepository.save(newExercisePerformed);
-        TestCase.assertEquals(519, exercisePerformedRepository.count());
+        assertEquals(519, exercisePerformedRepository.count());
 
         // Test a delete
         exercisePerformedRepository.delete(newExercisePerformed);
-        TestCase.assertEquals(518, exercisePerformedRepository.count());
+        assertEquals(518, exercisePerformedRepository.count());
+    }
+
+    @Test
+    public void testReportDataRepository() {
+        final User user = userRepository.findAll().iterator().next();
+
+        // Test an insert, update, find, and delete
+        final ReportData todayData = new ReportData(UUID.randomUUID(), user, new Date(System.currentTimeMillis()), 200.0, 2000, 30);
+        reportDataRepository.save(todayData);
+        assertEquals(1, reportDataRepository.findByUser(user).size());
+
+        todayData.setNetPoints(35.0);
+        reportDataRepository.save(todayData);
+        assertEquals(1, reportDataRepository.findByUser(user).size());
+
+        reportDataRepository.delete(todayData);
+        assertEquals(0, reportDataRepository.findByUser(user).size());
+
+        // TODO: Create ReportData objects for a range of dates, to test the repository methods for retrieving by date and range.
+
     }
 
 }

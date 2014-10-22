@@ -24,6 +24,7 @@ import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import net.steveperkins.fitnessjiffy.service.ExerciseService;
 import net.steveperkins.fitnessjiffy.service.FoodService;
+import net.steveperkins.fitnessjiffy.service.ReportDataService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +54,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Nonnull
     ExerciseService exerciseService() {
         return new ExerciseService();
+    }
+
+    @Bean
+    @Nonnull
+    ReportDataService reportDataService() {
+        return new ReportDataService();
     }
 
     @Bean
