@@ -290,8 +290,31 @@ public class RepositoryTest extends AbstractTest {
         reportDataRepository.delete(todayData);
         assertEquals(0, reportDataRepository.findByUser(user).size());
 
-        // TODO: Create ReportData objects for a range of dates, to test the repository methods for retrieving by date and range.
+        // Create records across a couple of weeks, and test retrieving on a specific date and across a date range
+        final Calendar dateCursor = new GregorianCalendar();
+        dateCursor.add(Calendar.DATE, -14);
+        while (new Date(dateCursor.getTimeInMillis()).compareTo(new Date(System.currentTimeMillis())) < 0) { //NOPMD
+            final ReportData reportData = new ReportData(UUID.randomUUID(), user, new Date(dateCursor.getTimeInMillis()), 200.0, 2000, 30); //NOPMD
+            reportDataRepository.save(reportData);
+            dateCursor.add(Calendar.DATE, 1);
+        }
 
+        final Calendar twoWeeksAgo = new GregorianCalendar();
+        twoWeeksAgo.add(Calendar.DATE, -14);
+        final List<ReportData> specificDateReportData = reportDataRepository.findByUserAndDate(
+                user,
+                new Date(twoWeeksAgo.getTimeInMillis())
+        );
+        assertEquals(1, specificDateReportData.size());
+
+        final Calendar oneWeekFromStart = (Calendar) twoWeeksAgo.clone();
+        oneWeekFromStart.add(Calendar.DATE, 6);  // "Between" clauses are inclusive, so effectively a date range is zero-indexed.  A 7-day range is Mon-Sun... *not* Mon-Mon.
+        final List<ReportData> dateRangeReportData = reportDataRepository.findByUserAndDateBetween(
+                user,
+                new Date(twoWeeksAgo.getTimeInMillis()),
+                new Date(oneWeekFromStart.getTimeInMillis())
+        );
+        assertEquals(7, dateRangeReportData.size());
     }
 
 }

@@ -192,8 +192,7 @@ public class ServiceTest extends AbstractTest {
 
     @Test
     public void testReportDataService() throws ParseException, ExecutionException, InterruptedException {
-        // NOTE:  In the test dataset, the earliest date on which the test user has raw data is '2007-11-21', and
-        //        the most recent date is '2013-12-11'.
+        // NOTE:  In the test dataset, the earliest date on which the test user has raw data is '2007-11-21', and the most recent date is '2013-12-11'.
 
         // Test generating report data for the past week.
         final User user = userRepository.findAll().iterator().next();
