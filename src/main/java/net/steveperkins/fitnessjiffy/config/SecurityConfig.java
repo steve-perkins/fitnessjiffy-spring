@@ -3,12 +3,15 @@ package net.steveperkins.fitnessjiffy.config;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
+import net.steveperkins.fitnessjiffy.service.ReportDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,6 +24,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -89,6 +94,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
+    public final class LoginListener implements ApplicationListener<InteractiveAuthenticationSuccessEvent> {
+
+        @Override
+        public void onApplicationEvent(final InteractiveAuthenticationSuccessEvent event) {
+            // Retrieve the user
+            final SpringUserDetails userDetails = (SpringUserDetails) event.getAuthentication().getPrincipal();
+            final UserDTO userDTO = userDetails.getUserDTO();
+            final User user = userRepository.findOne(userDTO.getId());
+
+            // Update the last-login time
+            final long currentTime = System.currentTimeMillis();
+            user.setLastUpdatedTime(new Timestamp(currentTime));
+            userRepository.save(user);
+
+            // Schedule a ReportData update
+            final Date today = new Date(currentTime);  // TODO:  need to account for time zone?
+            reportDataService.updateUserFromDate(userDTO.getId(), today);
+        }
+
+    }
+
+    @Autowired
+    ReportDataService reportDataService;
+
     @Autowired
     UserRepository userRepository;
 
@@ -105,6 +134,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public LoginListener loginListener() {
+        return new LoginListener();
     }
 
     @Override

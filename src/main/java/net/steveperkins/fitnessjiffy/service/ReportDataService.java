@@ -14,7 +14,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import java.sql.Date;
@@ -26,7 +25,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class ReportDataService {
 
     @Autowired
