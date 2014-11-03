@@ -3,6 +3,7 @@
 /h2test.h2.db
 /h2test.lock.db
 /h2test.trace.db
+/h2test.trace.db.old
 /.settings
 /.classpath
 /.project

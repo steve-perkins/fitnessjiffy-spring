@@ -219,6 +219,12 @@ public class ServiceTest extends AbstractTest {
         );
         assertEquals(3, firstThreeDaysOfLastWeekReportData.size());
 
+        // Schedule an update starting from a month ago, but immediately move on without blocking.  This scheduled update
+        // should be superseded and canceled by the one that follows next.
+        final Calendar oneMonthAgo = new GregorianCalendar();
+        oneMonthAgo.add(Calendar.MONTH, -1);
+        final Future shouldGetCanceledUpdate = reportDataService.updateUserFromDate(user.getId(), new Date(oneMonthAgo.getTimeInMillis()));
+
         // Generate report data across all good dates for the test user.  This tests the actual number-crunching (because
         // the data entries generated above were for dates that didn't actually have any data), and well as the update
         // operation (because the "last week" entries that were just created will now be re-written).
@@ -226,6 +232,8 @@ public class ServiceTest extends AbstractTest {
         final Date lastDateWithGoodData = new Date(simpleDateFormat.parse("2013-12-11").getTime());
         final Future allTimeUpdate = reportDataService.updateUserFromDate(user.getId(), firstDateWithGoodData);
         allTimeUpdate.get();
+
+        assertTrue(shouldGetCanceledUpdate.isCancelled());
 
         final List<ReportData> allGoodReportData = reportDataRepository.findByUserAndDateBetween(user, firstDateWithGoodData, lastDateWithGoodData);
         assertEquals(2213, allGoodReportData.size());

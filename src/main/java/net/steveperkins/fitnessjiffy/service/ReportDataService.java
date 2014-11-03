@@ -61,15 +61,15 @@ public class ReportDataService {
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
-        final ReportDataUpdateEntry updateEntry = scheduledUserUpdates.get(userId);
-        if (updateEntry != null) {
-            if (updateEntry.getFuture().isCancelled() || updateEntry.getFuture().isDone()) {
+        final ReportDataUpdateEntry existingEntry = scheduledUserUpdates.get(userId);
+        if (existingEntry != null) {
+            if (existingEntry.getFuture().isCancelled() || existingEntry.getFuture().isDone()) {
                 // There was an update recently scheduled for this user, but it has completed and its entry can be cleaned up.
                 scheduledUserUpdates.remove(userId);
-            } else if (updateEntry.getStartDate().before(date)) {
+            } else if (existingEntry.getStartDate().after(date)) {
                 // There is an update still pending for this user, but its date range is superseded by that of the new
                 // update and therefore can be cancelled and cleaned up.
-                updateEntry.getFuture().cancel(false);
+                existingEntry.getFuture().cancel(false);
                 scheduledUserUpdates.remove(userId);
             } else {
                 // There is an update still pending for this user, and it supersedes the new one here.  Do nothing, and
