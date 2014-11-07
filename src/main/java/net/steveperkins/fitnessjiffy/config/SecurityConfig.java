@@ -25,7 +25,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -103,14 +102,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             final UserDTO userDTO = userDetails.getUserDTO();
             final User user = userRepository.findOne(userDTO.getId());
 
-            // Update the last-login time
-            final long currentTime = System.currentTimeMillis();
-            user.setLastUpdatedTime(new Timestamp(currentTime));
-            userRepository.save(user);
-
             // Schedule a ReportData update
-            final Date today = new Date(currentTime);  // TODO:  need to account for time zone?
-            reportDataService.updateUserFromDate(userDTO.getId(), today);
+            final Date lastUpdateDate = new Date(user.getLastUpdatedTime().getTime());  // TODO:  need to account for time zone?
+            reportDataService.updateUserFromDate(userDTO.getId(), lastUpdateDate);
         }
 
     }

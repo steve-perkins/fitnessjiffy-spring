@@ -27,6 +27,9 @@ import java.util.UUID;
 public final class FoodService {
 
     @Autowired
+    private ReportDataService reportDataService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -116,6 +119,7 @@ public final class FoodService {
                     food.getServingTypeQty()
             );
             foodEatenRepository.save(foodEaten);
+            reportDataService.updateUserFromDate(userId, date);
         }
     }
 
@@ -128,10 +132,12 @@ public final class FoodService {
         foodEaten.setServingQty(servingQty);
         foodEaten.setServingType(servingType);
         foodEatenRepository.save(foodEaten);
+        reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
     }
 
     public void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
         foodEatenRepository.delete(foodEaten);
     }
 
@@ -180,12 +186,17 @@ public final class FoodService {
                 // If this is already a user-owned food, then simply update it.  Otherwise, if it's a global food then create a
                 // user-owned copy for this user.
                 Food food = null;
+                Date dateFirstEaten = null;
                 if (foodDTO.getOwnerId() == null) {
                     food = new Food();
                     food.setId(UUID.randomUUID());
                     food.setOwner(user);
+                    dateFirstEaten = new Date(System.currentTimeMillis());
                 } else {
                     food = foodRepository.findOne(foodDTO.getId());
+                    final List<FoodEaten> foodsEatenSortedByDate = foodEatenRepository.findByUserEqualsAndFoodEqualsOrderByDateAsc(user, food);
+                    dateFirstEaten = (foodsEatenSortedByDate != null && !foodsEatenSortedByDate.isEmpty())
+                            ? foodsEatenSortedByDate.get(0).getDate() : new Date(System.currentTimeMillis());
                 }
                 food.setName(foodDTO.getName());
                 food.setDefaultServingType(foodDTO.getDefaultServingType());
@@ -200,6 +211,7 @@ public final class FoodService {
                 food.setSodium(foodDTO.getSodium());
                 foodRepository.save(food);
                 resultMessage = "Success!";
+                reportDataService.updateUserFromDate(userDTO.getId(), dateFirstEaten);
             }
 
         } else {
@@ -243,6 +255,7 @@ public final class FoodService {
             food.setSodium(foodDTO.getSodium());
             foodRepository.save(food);
             resultMessage = "Success!";
+            reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
         } else {
             resultMessage = "Error:  You already have another customized food with this name.";
         }

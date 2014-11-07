@@ -196,7 +196,7 @@ public class RepositoryTest extends AbstractTest {
 
     @Test
     public void testFoodEatenRepository() throws ParseException {
-        // Grab the first test user, and confirm that they have foods eaten
+        // Grab the first test user
         final List<User> userList = new LinkedList<>();
         final Iterable<User> usersIterator = userRepository.findAll();
         for (final User user : usersIterator) {
@@ -205,7 +205,20 @@ public class RepositoryTest extends AbstractTest {
         assertEquals(1, userList.size());
         final User existingUser = userList.get(0);
         assertNotNull(existingUser);
-        assertEquals(19307, foodEatenRepository.count());
+
+        // Confirm that they have foods eaten...
+        final List<FoodEaten> allFoodsEaten = foodEatenRepository.findByUserEqualsOrderByDateAsc(existingUser);
+        assertEquals(19307, allFoodsEaten.size());
+        final FoodEaten earliestFoodEaten = allFoodsEaten.get(0);
+        assertEquals(new Date(simpleDateFormat.parse("2008-01-22").getTime()), earliestFoodEaten.getDate());
+        assertEquals("Ham (lean only)", earliestFoodEaten.getFood().getName());
+
+        // ... and that we can detect the earliest date on which a particular food was first eaten.
+        final List<FoodEaten> hamEatenRecords = foodEatenRepository.findByUserEqualsAndFoodEqualsOrderByDateAsc(
+                existingUser,
+                earliestFoodEaten.getFood()
+        );
+        assertEquals(new Date(simpleDateFormat.parse("2008-01-22").getTime()), hamEatenRecords.get(0).getDate());
 
         // Test "recently eaten foods" query
         final Date currentDate = new Date(simpleDateFormat.parse("2013-12-01").getTime());

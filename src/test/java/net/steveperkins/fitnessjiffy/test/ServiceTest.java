@@ -197,7 +197,7 @@ public class ServiceTest extends AbstractTest {
         // Test generating report data for the past week.
         final User user = userRepository.findAll().iterator().next();
         final Calendar oneWeekAgo = new GregorianCalendar();
-        oneWeekAgo.add(Calendar.DATE, -7);
+        oneWeekAgo.add(Calendar.DATE, -6);
         final Future lastWeekUpdate = reportDataService.updateUserFromDate(user.getId(), new Date(oneWeekAgo.getTime().getTime()));
         lastWeekUpdate.get();
 

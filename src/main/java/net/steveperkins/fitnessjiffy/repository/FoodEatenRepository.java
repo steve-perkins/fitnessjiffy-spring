@@ -14,6 +14,15 @@ import java.util.UUID;
 
 public interface FoodEatenRepository extends CrudRepository<FoodEaten, UUID> {
 
+    @Nonnull
+    public List<FoodEaten> findByUserEqualsOrderByDateAsc(@Nonnull User user);
+
+    @Nonnull
+    public List<FoodEaten> findByUserEqualsAndFoodEqualsOrderByDateAsc(
+            @Nonnull User user,
+            @Nonnull Food food
+    );
+
     @Query(
             "SELECT foodEaten FROM FoodEaten foodEaten, Food food "
                     + "WHERE foodEaten.food = food "

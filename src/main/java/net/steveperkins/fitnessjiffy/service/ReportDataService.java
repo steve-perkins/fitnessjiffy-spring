@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nonnull;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,8 +51,43 @@ public class ReportDataService {
     @Value("${reportdata.update-delay-in-millis:300000}")
     private long scheduleDelayInMillis;
 
+    /**
+     * By default, a background thread should prune outdated entries from the "scheduledUserUpdates" map once every
+     * hour.  This can be overwritten in the "application.properties" config file, primarily so that unit tests can
+     * use a much shorter value.
+     */
+    @Value("${reportdata.cleanup-frequency-in-millis:3600000}")
+    private long cleanupFrequencyInMillis;
+
     private final ScheduledThreadPoolExecutor reportDataUpdateThreadPool = new ScheduledThreadPoolExecutor(1);
     private final Map<UUID, ReportDataUpdateEntry> scheduledUserUpdates = new ConcurrentHashMap<>();
+
+    /**
+     * The constructor spawns a background thread, which periodically iterates through the "scheduledUserUpdates" map
+     * and prunes outdated entries.
+     */
+    public ReportDataService() {
+        final Runnable backgroundCleanupThread = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    for (Map.Entry<UUID, ReportDataUpdateEntry> entry : scheduledUserUpdates.entrySet()) {
+                        final Future future = entry.getValue().getFuture();
+                        if (future == null || future.isDone() || future.isCancelled()) {
+                            scheduledUserUpdates.remove(entry.getKey());
+                        }
+                    }
+                    try {
+                        Thread.sleep(cleanupFrequencyInMillis);
+                    } catch (InterruptedException e) {
+                        System.out.println("Exception thrown while sleeping in between runs of the ReportData cleanup thread");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        new Thread(backgroundCleanupThread).start();
+    }
 
     /**
      * Update the ReportData records for a given user, starting on a given date and ending after today's date (in the
@@ -80,12 +116,17 @@ public class ReportDataService {
 
         // Schedule an update for this user, and add an entry in the conflicts list.
         final User user = userRepository.findOne(userId);
-        System.out.println("Scheduling a ReportData update for user [" + user.getEmail() + "] in " + scheduleDelayInMillis + " milliseconds");
+        System.out.printf("Scheduling a ReportData update for user [%s] from date [%s] in %d milliseconds%n", user.getEmail(), date, scheduleDelayInMillis);
         final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
         final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInMillis, TimeUnit.MILLISECONDS);
         final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(date, future);
         scheduledUserUpdates.put(userId, newUpdateEntry);
         return future;
+    }
+
+    public synchronized final boolean isIdle() {
+        System.out.printf("%d active threads, %d queued tasks%n", reportDataUpdateThreadPool.getActiveCount(), scheduledUserUpdates.size());
+        return reportDataUpdateThreadPool.getActiveCount() == 0 && scheduledUserUpdates.isEmpty();
     }
 
     /**
@@ -147,11 +188,13 @@ public class ReportDataService {
 
         @Override
         public void run() {
-            final Date today = new Date(new LocalDate().toDateTimeAtStartOfDay().getMillis());
+            final Date today = new Date(System.currentTimeMillis());
             Date currentDate = startDate;
 
             // Iterate through all dates from the start date through today.
-            while (currentDate.compareTo(today) <= 0) {
+            while (currentDate.toString().compareTo(today.toString()) <= 0) {  // TODO: Using string-based comparison rather than true object-level comparison, because of time zone wonkiness that needs to be sorted out across the board.
+
+                System.out.printf("Creating or updating ReportData record for user [%s] on date [%s]%n", user.getEmail(), currentDate);
 
                 // Get the user's weight on this date, and initialize accumulator variables to hold this date's net calories and net points.
                 final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, currentDate);
@@ -205,6 +248,11 @@ public class ReportDataService {
                         new LocalDate(currentDate.getTime(), DateTimeZone.UTC).plusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis()
                 );
             }
+
+            user.setLastUpdatedTime(new Timestamp(System.currentTimeMillis()));
+            userRepository.save(user);
+
+            System.out.printf("ReportData update complete for user [%s] from date [%s] to the day prior to [%s]%n", user.getEmail(), startDate, currentDate);
         }
     }
 

@@ -1,6 +1,8 @@
 package net.steveperkins.fitnessjiffy.test;
 
 import net.steveperkins.fitnessjiffy.Application;
+import net.steveperkins.fitnessjiffy.service.ReportDataService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -20,6 +23,9 @@ public abstract class AbstractTest {
 
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    ReportDataService reportDataService;
 
     final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -31,5 +37,11 @@ public abstract class AbstractTest {
         statement.execute("RUNSCRIPT FROM 'classpath:/backup.sql'");
     }
 
+    @After
+    public void after() throws InterruptedException {
+        while (!reportDataService.isIdle()) {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
+    }
 
 }

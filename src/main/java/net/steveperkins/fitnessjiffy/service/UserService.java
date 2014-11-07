@@ -24,6 +24,9 @@ import java.util.UUID;
 public final class UserService {
 
     @Autowired
+    private ReportDataService reportDataService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -70,6 +73,7 @@ public final class UserService {
                 new Timestamp(new java.util.Date().getTime())
         );
         userRepository.save(user);
+        reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
     }
 
     public void updateUser(
@@ -89,6 +93,7 @@ public final class UserService {
             user.setPasswordHash(encryptPassword(newPassword));
         }
         userRepository.save(user);
+        reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
     }
 
     @Nullable
@@ -122,6 +127,7 @@ public final class UserService {
             weight.setPounds(pounds);
         }
         weightRepository.save(weight);
+        reportDataService.updateUserFromDate(userDTO.getId(), date);
     }
 
     public boolean verifyPassword(

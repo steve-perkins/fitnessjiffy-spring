@@ -32,6 +32,9 @@ public final class ExerciseService {
     private UserService userService;
 
     @Autowired
+    private ReportDataService reportDataService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -134,6 +137,7 @@ public final class ExerciseService {
                     1
             );
             exercisePerformedRepository.save(exercisePerformed);
+            reportDataService.updateUserFromDate(userId, date);
         }
     }
 
@@ -144,11 +148,13 @@ public final class ExerciseService {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformed.setMinutes(minutes);
         exercisePerformedRepository.save(exercisePerformed);
+        reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
     }
 
     public void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformedRepository.delete(exercisePerformed);
+        reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
     }
 
     @Nullable
