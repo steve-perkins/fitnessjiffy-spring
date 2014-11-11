@@ -6,10 +6,11 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -33,10 +34,10 @@ public final class UserService {
     private WeightRepository weightRepository;
 
     @Autowired
-    private Converter<User, UserDTO> userDTOConverter;
+    private UserToUserDTO userDTOConverter;
 
     @Autowired
-    private Converter<Weight, WeightDTO> weightDTOConverter;
+    private WeightToWeightDTO weightDTOConverter;
 
     @Nullable
     public UserDTO findUser(@Nonnull final UUID userId) {

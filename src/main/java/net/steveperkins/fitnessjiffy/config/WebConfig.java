@@ -1,20 +1,6 @@
 package net.steveperkins.fitnessjiffy.config;
 
 import net.steveperkins.fitnessjiffy.controller.AbstractController;
-import net.steveperkins.fitnessjiffy.domain.Exercise;
-import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
-import net.steveperkins.fitnessjiffy.domain.Food;
-import net.steveperkins.fitnessjiffy.domain.FoodEaten;
-import net.steveperkins.fitnessjiffy.domain.ReportData;
-import net.steveperkins.fitnessjiffy.domain.User;
-import net.steveperkins.fitnessjiffy.domain.Weight;
-import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
-import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
-import net.steveperkins.fitnessjiffy.dto.FoodDTO;
-import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
-import net.steveperkins.fitnessjiffy.dto.ReportDataDTO;
-import net.steveperkins.fitnessjiffy.dto.UserDTO;
-import net.steveperkins.fitnessjiffy.dto.WeightDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.ExercisePerformedToExercisePerformedDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.ExerciseToExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.converter.FoodEatenToFoodEatenDTO;
@@ -28,7 +14,6 @@ import net.steveperkins.fitnessjiffy.service.ReportDataService;
 import net.steveperkins.fitnessjiffy.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -64,43 +49,43 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     @Nonnull
-    Converter<User, UserDTO> userDTOConverter() {
+    UserToUserDTO userDTOConverter() {
         return new UserToUserDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<Weight, WeightDTO> weightDTOConverter() {
+    WeightToWeightDTO weightDTOConverter() {
         return new WeightToWeightDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<Food, FoodDTO> foodDTOConverter() {
+    FoodToFoodDTO foodDTOConverter() {
         return new FoodToFoodDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter() {
+    FoodEatenToFoodEatenDTO foodEatenDTOConverter() {
         return new FoodEatenToFoodEatenDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<Exercise, ExerciseDTO> exerciseDTOConverter() {
+    ExerciseToExerciseDTO exerciseDTOConverter() {
         return new ExerciseToExerciseDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<ReportData, ReportDataDTO> reportDataDTOConverter() {
+    ReportDataToReportDataDTO reportDataDTOConverter() {
         return new ReportDataToReportDataDTO();
     }
 
     @Bean
     @Nonnull
-    Converter<ExercisePerformed, ExercisePerformedDTO> exercisePerformedDTOConverter() {
+    ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter() {
         return new ExercisePerformedToExercisePerformedDTO();
     }
     /** Needed to support file uploads. */

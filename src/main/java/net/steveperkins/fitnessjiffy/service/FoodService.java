@@ -10,11 +10,12 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodEatenToFoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.FoodToFoodDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,10 +40,10 @@ public final class FoodService {
     private FoodEatenRepository foodEatenRepository;
 
     @Autowired
-    private Converter<Food, FoodDTO> foodDTOConverter;
+    private FoodToFoodDTO foodDTOConverter;
 
     @Autowired
-    private Converter<FoodEaten, FoodEatenDTO> foodEatenDTOConverter;
+    private FoodEatenToFoodEatenDTO foodEatenDTOConverter;
 
     private final Function<Food, FoodDTO> foodToDTOConversionFunction =
             new Function<Food, FoodDTO>() {

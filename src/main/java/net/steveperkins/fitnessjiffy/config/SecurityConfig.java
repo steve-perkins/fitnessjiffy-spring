@@ -2,13 +2,13 @@ package net.steveperkins.fitnessjiffy.config;
 
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.service.ReportDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -116,7 +116,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     UserRepository userRepository;
 
     @Autowired
-    private Converter<User, UserDTO> userDTOConverter;
+    private UserToUserDTO userDTOConverter;
 
     /**
      * This override is necessary to work around a Spring Security issue introduced with Spring Boot 1.1.6.RELEASE, and

@@ -9,14 +9,15 @@ import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
-import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.dto.WeightDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ExercisePerformedToExercisePerformedDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ExerciseToExerciseDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.ExerciseRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,13 +48,13 @@ public final class ExerciseService {
     private ExercisePerformedRepository exercisePerformedRepository;
 
     @Autowired
-    private Converter<User, UserDTO> userDTOConverter;
+    private UserToUserDTO userDTOConverter;
 
     @Autowired
-    private Converter<Exercise, ExerciseDTO> exerciseDTOConverter;
+    private ExerciseToExerciseDTO exerciseDTOConverter;
 
     @Autowired
-    private Converter<ExercisePerformed, ExercisePerformedDTO> exercisePerformedDTOConverter;
+    private ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter;
 
     private final Function<Exercise, ExerciseDTO> exerciseToDTOConversionFunction =
             new Function<Exercise, ExerciseDTO>() {
