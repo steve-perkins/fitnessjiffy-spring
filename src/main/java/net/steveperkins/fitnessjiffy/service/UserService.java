@@ -2,6 +2,7 @@ package net.steveperkins.fitnessjiffy.service;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import net.steveperkins.fitnessjiffy.config.SecurityConfig;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
@@ -11,6 +12,9 @@ import net.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -95,6 +99,20 @@ public final class UserService {
         }
         userRepository.save(user);
         reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
+        refreshAuthenticatedUser();
+    }
+
+    public void refreshAuthenticatedUser() {
+        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        if (currentAuthentication.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
+            final SecurityConfig.SpringUserDetails currentPrincipal = (SecurityConfig.SpringUserDetails) currentAuthentication.getPrincipal();
+            final User refreshedUser = userRepository.findOne(currentPrincipal.getUserDTO().getId());
+            final SecurityConfig.SpringUserDetails refreshedPrincipal = new SecurityConfig.SpringUserDetails(userDTOConverter.convert(refreshedUser), refreshedUser.getPasswordHash());
+            final Authentication newAuthentication = new UsernamePasswordAuthenticationToken(refreshedPrincipal, refreshedUser.getPasswordHash(), currentPrincipal.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        } else {
+            System.out.println("The currently-authenticated principal is not an instance of type SecurityConfig.SpringUserDetails");
+        }
     }
 
     @Nullable
@@ -129,6 +147,7 @@ public final class UserService {
         }
         weightRepository.save(weight);
         reportDataService.updateUserFromDate(userDTO.getId(), date);
+        refreshAuthenticatedUser();
     }
 
     public boolean verifyPassword(

@@ -64,7 +64,7 @@ public final class FoodService {
             };
 
     @Nonnull
-    public List<FoodEatenDTO> findEatenOnDate(
+    public final List<FoodEatenDTO> findEatenOnDate(
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
@@ -74,7 +74,7 @@ public final class FoodService {
     }
 
     @Nonnull
-    public List<FoodDTO> findEatenRecently(
+    public final List<FoodDTO> findEatenRecently(
             @Nonnull final UUID userId,
             @Nonnull final Date currentDate
     ) {
@@ -92,12 +92,12 @@ public final class FoodService {
     }
 
     @Nullable
-    public FoodEatenDTO findFoodEatenById(@Nonnull final UUID foodEatenId) {
+    public final FoodEatenDTO findFoodEatenById(@Nonnull final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
-    public void addFoodEaten(
+    public final void addFoodEaten(
             @Nonnull final UUID userId,
             @Nonnull final UUID foodId,
             @Nonnull final Date date
@@ -124,7 +124,7 @@ public final class FoodService {
         }
     }
 
-    public void updateFoodEaten(
+    public final void updateFoodEaten(
             @Nonnull final UUID foodEatenId,
             final double servingQty,
             @Nonnull final Food.ServingType servingType
@@ -136,14 +136,14 @@ public final class FoodService {
         reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
     }
 
-    public void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
+    public final void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
         reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
         foodEatenRepository.delete(foodEaten);
     }
 
     @Nonnull
-    public List<FoodDTO> searchFoods(
+    public final List<FoodDTO> searchFoods(
             @Nonnull final UUID userId,
             @Nonnull final String searchString
     ) {
@@ -153,13 +153,13 @@ public final class FoodService {
     }
 
     @Nullable
-    public FoodDTO getFoodById(@Nonnull final UUID foodId) {
+    public final FoodDTO getFoodById(@Nonnull final UUID foodId) {
         final Food food = foodRepository.findOne(foodId);
         return foodDTOConverter.convert(food);
     }
 
     @Nonnull
-    public String updateFood(
+    public final String updateFood(
             @Nonnull final FoodDTO foodDTO,
             @Nonnull final UserDTO userDTO
     ) {
@@ -222,7 +222,7 @@ public final class FoodService {
     }
 
     @Nonnull
-    public String createFood(
+    public final String createFood(
             @Nonnull final FoodDTO foodDTO,
             @Nonnull final UserDTO userDTO
     ) {

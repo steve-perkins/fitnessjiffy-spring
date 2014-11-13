@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-public class FoodController extends AbstractController {
+public final class FoodController extends AbstractController {
 
     @Autowired
     FoodService foodService;
@@ -36,7 +36,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = {"/food"}, method = RequestMethod.GET)
     @Nonnull
-    public String viewMainFoodPage(
+    public final String viewMainFoodPage(
             @Nonnull
             @RequestParam(value = "date", defaultValue = TODAY)
             final String dateString,
@@ -91,7 +91,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = "/food/eaten/add")
     @Nonnull
-    public String addFoodEaten(
+    public final String addFoodEaten(
             @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
             @Nonnull @RequestParam(value = "date", defaultValue = TODAY) final String dateString,
             @Nonnull final Model model
@@ -105,7 +105,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = "/food/eaten/update")
     @Nonnull
-    public String updateFoodEaten(
+    public final String updateFoodEaten(
             @Nonnull @RequestParam(value = "foodEatenId", required = true) final String foodEatenId,
             @Nonnull @RequestParam(value = "foodEatenQty", required = true) final double foodEatenQty,
             @Nonnull @RequestParam(value = "foodEatenServing", required = true) final String foodEatenServing,
@@ -130,7 +130,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = "/food/search/{searchString}")
     @Nonnull
-    public
+    public final
     @ResponseBody
     List<FoodDTO> searchFoods(@Nonnull @PathVariable final String searchString) {
         final UserDTO userDTO = currentAuthenticatedUser();
@@ -139,7 +139,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = "/food/get/{foodId}")
     @Nullable
-    public
+    public final
     @ResponseBody
     FoodDTO getFood(@Nonnull @PathVariable final String foodId) {
         final UserDTO userDTO = currentAuthenticatedUser();
@@ -153,7 +153,7 @@ public class FoodController extends AbstractController {
 
     @RequestMapping(value = "/food/update")
     @Nonnull
-    public
+    public final
     @ResponseBody
     String createOrUpdateFood(
             @Nonnull @ModelAttribute final FoodDTO foodDTO,

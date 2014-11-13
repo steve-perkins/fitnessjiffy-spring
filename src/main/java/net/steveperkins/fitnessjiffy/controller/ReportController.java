@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.annotation.Nonnull;
 
 @Controller
-public class ReportController extends AbstractController {
+public final class ReportController extends AbstractController {
 
     @RequestMapping(value = {"/report"}, method = RequestMethod.GET)
     @Nonnull
-    public String viewMainReportPage() {
+    public final String viewMainReportPage() {
         return REPORT_TEMPLATE;
     }
 

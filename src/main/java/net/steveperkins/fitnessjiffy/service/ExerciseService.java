@@ -66,7 +66,7 @@ public final class ExerciseService {
             };
 
     @Nonnull
-    public List<ExercisePerformedDTO> findPerformedOnDate(
+    public final List<ExercisePerformedDTO> findPerformedOnDate(
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
@@ -99,7 +99,7 @@ public final class ExerciseService {
     }
 
     @Nonnull
-    public List<ExerciseDTO> findPerformedRecently(
+    public final List<ExerciseDTO> findPerformedRecently(
             @Nonnull final UUID userId,
             @Nonnull final Date currentDate
     ) {
@@ -116,7 +116,7 @@ public final class ExerciseService {
         return Lists.transform(recentExercises, exerciseToDTOConversionFunction);
     }
 
-    public void addExercisePerformed(
+    public final void addExercisePerformed(
             @Nonnull final UUID userId,
             @Nonnull final UUID exerciseId,
             @Nonnull final Date date
@@ -142,7 +142,7 @@ public final class ExerciseService {
         }
     }
 
-    public void updateExercisePerformed(
+    public final void updateExercisePerformed(
             @Nonnull final UUID exercisePerformedId,
             @Nonnull final int minutes
     ) {
@@ -152,36 +152,36 @@ public final class ExerciseService {
         reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
     }
 
-    public void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
+    public final void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformedRepository.delete(exercisePerformed);
         reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
     }
 
     @Nullable
-    public ExercisePerformedDTO findExercisePerformedById(@Nonnull final UUID exercisePerformedId) {
+    public final ExercisePerformedDTO findExercisePerformedById(@Nonnull final UUID exercisePerformedId) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         return exercisePerformedDTOConverter.convert(exercisePerformed);
     }
 
     @Nonnull
-    public List<String> findAllCategories() {
+    public final List<String> findAllCategories() {
         return exerciseRepository.findAllCategories();
     }
 
     @Nonnull
-    public List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
+    public final List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
         final List<Exercise> exercises = exerciseRepository.findByCategoryOrderByDescriptionAsc(category);
         return Lists.transform(exercises, exerciseToDTOConversionFunction);
     }
 
     @Nonnull
-    public List<ExerciseDTO> searchExercises(@Nonnull final String searchString) {
+    public final List<ExerciseDTO> searchExercises(@Nonnull final String searchString) {
         final List<Exercise> exercises = exerciseRepository.findByDescriptionLike(searchString);
         return Lists.transform(exercises, exerciseToDTOConversionFunction);
     }
 
-    public static int calculateCaloriesBurned(
+    public static final int calculateCaloriesBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds
@@ -190,7 +190,7 @@ public final class ExerciseService {
         return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
 
-    public static double calculatePointsBurned(
+    public static final double calculatePointsBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds

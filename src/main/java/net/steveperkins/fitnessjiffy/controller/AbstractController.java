@@ -115,9 +115,9 @@ public abstract class AbstractController {
     @Nullable
     protected final UserDTO currentAuthenticatedUser() {
         UserDTO userDTO = null;
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
-            final SecurityConfig.SpringUserDetails userDetails = (SecurityConfig.SpringUserDetails) auth.getPrincipal();
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
+            final SecurityConfig.SpringUserDetails userDetails = (SecurityConfig.SpringUserDetails) authentication.getPrincipal();
             userDTO = userDetails.getUserDTO();
         }
         return userDTO;

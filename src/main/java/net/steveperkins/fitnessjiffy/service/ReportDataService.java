@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class ReportDataService {
+public final class ReportDataService {
 
     @Autowired
     private UserRepository userRepository;

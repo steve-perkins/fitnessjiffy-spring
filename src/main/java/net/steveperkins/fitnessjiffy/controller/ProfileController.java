@@ -27,7 +27,7 @@ public final class ProfileController extends AbstractController {
 
     @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
     @Nonnull
-    public String viewMainProfilePage(
+    public final String viewMainProfilePage(
             @Nonnull
             @RequestParam(value = "date", defaultValue = TODAY)
             final String dateString,
@@ -52,7 +52,7 @@ public final class ProfileController extends AbstractController {
 
     @RequestMapping(value = {"/profile/save"}, method = RequestMethod.POST)
     @Nonnull
-    public String updateProfile(
+    public final String updateProfile(
             @Nonnull
             @RequestParam(value = "date", defaultValue = TODAY)
             final String dateString,
@@ -102,7 +102,7 @@ public final class ProfileController extends AbstractController {
 
     @RequestMapping(value = {"/profile/weight/save"}, method = RequestMethod.POST)
     @Nonnull
-    public String createOrUpdateWeight(
+    public final String createOrUpdateWeight(
         @Nonnull
         @RequestParam(value = "weightEntry", defaultValue = "0")
         final double weightEntry,
