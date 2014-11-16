@@ -15,13 +15,14 @@ decade or so I've written numerous versions of this application (calling it diff
 want some deeper experience in learning a new programming language or framework.  
 
 This version is based on [Java](http://www.oracle.com/technetwork/java/index.html) and the 
-[Spring Framework](http://spring.io/), and was written as an excuse to learn 
-[Spring Boot](http://projects.spring.io/spring-boot/) in particular.  I used the code and build process here as 
-the basis for a lengthy blog post on Spring Boot (http://steveperkins.com/use-spring-boot-next-project), which 
-was linked from the Spring website and drew a bit of attention in that community.
+[Spring Framework](http://spring.io/).  Although these are the main tools I've already been using professionally 
+anyway, I wrote this version primarily as an excuse to [Spring Boot](http://projects.spring.io/spring-boot/) in particular.  
+I used the code and build process here as the basis for a lengthy blog post on Spring Boot 
+(http://steveperkins.com/use-spring-boot-next-project), which was linked from the Spring website and drew a bit of 
+attention in that community.
 
 [FitnessJiffy ETL](https://github.com/steve-perkins/fitnessjiffy-etl) is a companion project... a command-line tool 
-for migrating data from previous incarnations of this application, or for exporting the data from any version into 
+for migrating data between the various incarnations of this application, or for exporting the data from any version into 
 JSON format.
     
 ## Technologies Used 
@@ -42,7 +43,7 @@ In addition to Spring Boot, this application makes use of technologies including
 
 ## Future Technical Roadmap 
 
-Technologies that I plan to add for the 2.0 release:
+Technologies that I plan to add for the 2.0 release include:
 
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) (will replace Guava and Joda-Time)
 * [Gradle](http://www.gradle.org/) (will replace Maven, maybe... I'm still undecided about this one)
@@ -53,11 +54,11 @@ Technologies that I plan to add for the 2.0 release:
 
 ## Application Features and Screenshots
 
-(click on a screenshot thumbnail to see its full size)
+*(click on a screenshot thumbnail to see its full size)*
 
-Login and logout is built around Spring Security, with some custom event handling hooks.  In the future, I may add 
-OpenID or OAuth support, to let users authenticate through an existing provider account (e.g. Google, Yahoo, etc).  More 
-importantly, there is not yet a "Create User" function in the web application.  Users must be created in the 
+Login and logout is built around Spring Security, with some custom event-handling hooks.  In the future, I might add 
+OpenID or OAuth support, to let users authenticate through an existing account with some provider (e.g. Google, Yahoo, 
+etc).  More importantly, there is not yet a "Create User" function in the web application.  Users must be created in the 
 database manually.  This is not so much due to the complexity of adding a "Create User" page, but rather due to not 
 yet being ready to open it up a hosted version of the application for public use.
 
