@@ -1,18 +1,23 @@
 package net.steveperkins.fitnessjiffy.dto.converter;
 
-import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
-import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@Component
 public final class FoodEatenToFoodEatenDTO implements Converter<FoodEaten, FoodEatenDTO> {
 
+    private final FoodToFoodDTO foodDTOConverter;
+
     @Autowired
-    Converter<Food, FoodDTO> foodDTOConverter;
+    public FoodEatenToFoodEatenDTO(@Nonnull final FoodToFoodDTO foodDTOConverter) {
+        this.foodDTOConverter = foodDTOConverter;
+    }
 
     @Override
     @Nullable

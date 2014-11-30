@@ -15,8 +15,12 @@ import java.util.List;
 @Controller
 public final class ReportController extends AbstractController {
 
+    private final ReportDataService reportDataService;
+
     @Autowired
-    ReportDataService reportDataService;
+    public ReportController(@Nonnull final ReportDataService reportDataService) {
+        this.reportDataService = reportDataService;
+    }
 
     @RequestMapping(value = {"/report"}, method = RequestMethod.GET)
     @Nonnull

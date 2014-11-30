@@ -16,6 +16,7 @@ import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,25 +26,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public final class FoodService {
 
-    @Autowired
-    private ReportDataService reportDataService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private FoodRepository foodRepository;
-
-    @Autowired
-    private FoodEatenRepository foodEatenRepository;
-
-    @Autowired
-    private FoodToFoodDTO foodDTOConverter;
-
-    @Autowired
-    private FoodEatenToFoodEatenDTO foodEatenDTOConverter;
+    private final ReportDataService reportDataService;
+    private final UserRepository userRepository;
+    private final FoodRepository foodRepository;
+    private final FoodEatenRepository foodEatenRepository;
+    private final FoodToFoodDTO foodDTOConverter;
+    private final FoodEatenToFoodEatenDTO foodEatenDTOConverter;
 
     private final Function<Food, FoodDTO> foodToDTOConversionFunction =
             new Function<Food, FoodDTO>() {
@@ -62,6 +53,23 @@ public final class FoodService {
                     return foodEatenDTOConverter.convert(foodEaten);
                 }
             };
+
+    @Autowired
+    public FoodService(
+            @Nonnull final ReportDataService reportDataService,
+            @Nonnull final UserRepository userRepository,
+            @Nonnull final FoodRepository foodRepository,
+            @Nonnull final FoodEatenRepository foodEatenRepository,
+            @Nonnull final FoodToFoodDTO foodDTOConverter,
+            @Nonnull final FoodEatenToFoodEatenDTO foodEatenDTOConverter
+    ) {
+        this.reportDataService = reportDataService;
+        this.userRepository = userRepository;
+        this.foodRepository = foodRepository;
+        this.foodEatenRepository = foodEatenRepository;
+        this.foodDTOConverter = foodDTOConverter;
+        this.foodEatenDTOConverter = foodEatenDTOConverter;
+    }
 
     @Nonnull
     public final List<FoodEatenDTO> findEatenOnDate(

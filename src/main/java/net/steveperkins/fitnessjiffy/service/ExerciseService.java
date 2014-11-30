@@ -16,8 +16,8 @@ import net.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.ExerciseRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
-import net.steveperkins.fitnessjiffy.repository.WeightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,34 +27,17 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public final class ExerciseService {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ReportDataService reportDataService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WeightRepository weightRepository;
-
-    @Autowired
-    private ExerciseRepository exerciseRepository;
-
-    @Autowired
-    private ExercisePerformedRepository exercisePerformedRepository;
-
-    @Autowired
-    private UserToUserDTO userDTOConverter;
-
-    @Autowired
-    private ExerciseToExerciseDTO exerciseDTOConverter;
-
-    @Autowired
-    private ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter;
+    private final UserService userService;
+    private final ReportDataService reportDataService;
+    private final UserRepository userRepository;
+    private final ExerciseRepository exerciseRepository;
+    private final ExercisePerformedRepository exercisePerformedRepository;
+    private final UserToUserDTO userDTOConverter;
+    private final ExerciseToExerciseDTO exerciseDTOConverter;
+    private final ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter;
 
     private final Function<Exercise, ExerciseDTO> exerciseToDTOConversionFunction =
             new Function<Exercise, ExerciseDTO>() {
@@ -64,6 +47,27 @@ public final class ExerciseService {
                     return exerciseDTOConverter.convert(exercise);
                 }
             };
+
+    @Autowired
+    public ExerciseService(
+            @Nonnull final UserService userService,
+            @Nonnull final ReportDataService reportDataService,
+            @Nonnull final UserRepository userRepository,
+            @Nonnull final ExerciseRepository exerciseRepository,
+            @Nonnull final ExercisePerformedRepository exercisePerformedRepository,
+            @Nonnull final UserToUserDTO userDTOConverter,
+            @Nonnull final ExerciseToExerciseDTO exerciseDTOConverter,
+            @Nonnull final ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter
+    ) {
+        this.userService = userService;
+        this.reportDataService = reportDataService;
+        this.userRepository = userRepository;
+        this.exerciseRepository = exerciseRepository;
+        this.exercisePerformedRepository = exercisePerformedRepository;
+        this.userDTOConverter = userDTOConverter;
+        this.exerciseDTOConverter = exerciseDTOConverter;
+        this.exercisePerformedDTOConverter = exercisePerformedDTOConverter;
+    }
 
     @Nonnull
     public final List<ExercisePerformedDTO> findPerformedOnDate(
@@ -144,7 +148,7 @@ public final class ExerciseService {
 
     public final void updateExercisePerformed(
             @Nonnull final UUID exercisePerformedId,
-            @Nonnull final int minutes
+            final int minutes
     ) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformed.setMinutes(minutes);
@@ -181,7 +185,7 @@ public final class ExerciseService {
         return Lists.transform(exercises, exerciseToDTOConversionFunction);
     }
 
-    public static final int calculateCaloriesBurned(
+    public static int calculateCaloriesBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds
@@ -190,7 +194,7 @@ public final class ExerciseService {
         return (int) (metabolicEquivalent * 3.5 * weightInKilograms / 200 * minutes);
     }
 
-    public static final double calculatePointsBurned(
+    public static double calculatePointsBurned(
             final double metabolicEquivalent,
             final int minutes,
             final double weightInPounds

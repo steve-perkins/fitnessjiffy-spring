@@ -3,9 +3,11 @@ package net.steveperkins.fitnessjiffy.dto.converter;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 
+@Component
 public final class FoodToFoodDTO implements Converter<Food, FoodDTO> {
 
     @Override

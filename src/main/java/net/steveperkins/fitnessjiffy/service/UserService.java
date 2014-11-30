@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,22 +27,29 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public final class UserService {
 
-    @Autowired
-    private ReportDataService reportDataService;
+    private final ReportDataService reportDataService;
+    private final UserRepository userRepository;
+    private final WeightRepository weightRepository;
+    private final UserToUserDTO userDTOConverter;
+    private final WeightToWeightDTO weightDTOConverter;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WeightRepository weightRepository;
-
-    @Autowired
-    private UserToUserDTO userDTOConverter;
-
-    @Autowired
-    private WeightToWeightDTO weightDTOConverter;
+    public UserService(
+            @Nonnull final ReportDataService reportDataService,
+            @Nonnull final UserRepository userRepository,
+            @Nonnull final WeightRepository weightRepository,
+            @Nonnull final UserToUserDTO userDTOConverter,
+            @Nonnull final WeightToWeightDTO weightDTOConverter
+    ) {
+        this.reportDataService = reportDataService;
+        this.userRepository = userRepository;
+        this.weightRepository = weightRepository;
+        this.userDTOConverter = userDTOConverter;
+        this.weightDTOConverter = weightDTOConverter;
+    }
 
     @Nullable
     public UserDTO findUser(@Nonnull final UUID userId) {

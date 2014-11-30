@@ -69,25 +69,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         @Override
-        @Nonnull
         public boolean isAccountNonExpired() {
             return true;
         }
 
         @Override
-        @Nonnull
         public boolean isAccountNonLocked() {
             return true;
         }
 
         @Override
-        @Nonnull
         public boolean isCredentialsNonExpired() {
             return true;
         }
 
         @Override
-        @Nonnull
         public boolean isEnabled() {
             return true;
         }
@@ -130,6 +126,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /** This bean must be manually declared, since Spring's autoscanning apparently won't find a @Component-annotated inner class. */
     @Bean
     public LoginListener loginListener() {
         return new LoginListener();

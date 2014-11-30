@@ -18,6 +18,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,25 +32,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@Service
 public final class ReportDataService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WeightRepository weightRepository;
-
-    @Autowired
-    private FoodEatenRepository foodEatenRepository;
-
-    @Autowired
-    private ExercisePerformedRepository exercisePerformedRepository;
-
-    @Autowired
-    private ReportDataRepository reportDataRepository;
-
-    @Autowired
-    private ReportDataToReportDataDTO reportDataDTOConverter;
+    private final UserRepository userRepository;
+    private final WeightRepository weightRepository;
+    private final FoodEatenRepository foodEatenRepository;
+    private final ExercisePerformedRepository exercisePerformedRepository;
+    private final ReportDataRepository reportDataRepository;
+    private final ReportDataToReportDataDTO reportDataDTOConverter;
 
     /**
      * By default, update tasks should be scheduled for 5 minutes in the future (i.e. 300000 milliseconds).  However,
@@ -74,7 +65,22 @@ public final class ReportDataService {
      * The constructor spawns a background thread, which periodically iterates through the "scheduledUserUpdates" map
      * and prunes outdated entries.
      */
-    public ReportDataService() {
+    @Autowired
+    public ReportDataService(
+            @Nonnull final UserRepository userRepository,
+            @Nonnull final WeightRepository weightRepository,
+            @Nonnull final FoodEatenRepository foodEatenRepository,
+            @Nonnull final ExercisePerformedRepository exercisePerformedRepository,
+            @Nonnull final ReportDataRepository reportDataRepository,
+            @Nonnull final ReportDataToReportDataDTO reportDataDTOConverter
+    ) {
+        this.userRepository = userRepository;
+        this.weightRepository = weightRepository;
+        this.foodEatenRepository = foodEatenRepository;
+        this.exercisePerformedRepository = exercisePerformedRepository;
+        this.reportDataRepository = reportDataRepository;
+        this.reportDataDTOConverter = reportDataDTOConverter;
+
         final Runnable backgroundCleanupThread = new Runnable() {
             @Override
             public void run() {

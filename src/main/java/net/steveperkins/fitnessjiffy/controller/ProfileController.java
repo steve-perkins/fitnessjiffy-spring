@@ -22,8 +22,12 @@ import java.sql.Date;
 @Controller
 public final class ProfileController extends AbstractController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public ProfileController(@Nonnull final UserService userService) {
+        this.userService = userService;
+    }
 
     @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
     @Nonnull

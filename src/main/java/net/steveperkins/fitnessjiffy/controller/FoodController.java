@@ -28,11 +28,17 @@ import java.util.UUID;
 @Controller
 public final class FoodController extends AbstractController {
 
-    @Autowired
-    FoodService foodService;
+    private final FoodService foodService;
+    private final ExerciseService exerciseService;
 
     @Autowired
-    ExerciseService exerciseService;
+    public FoodController(
+            @Nonnull final FoodService foodService,
+            @Nonnull final ExerciseService exerciseService
+    ) {
+        this.foodService = foodService;
+        this.exerciseService = exerciseService;
+    }
 
     @RequestMapping(value = {"/food"}, method = RequestMethod.GET)
     @Nonnull

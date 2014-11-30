@@ -23,8 +23,7 @@ import java.util.UUID;
 @Controller
 public final class ExerciseController extends AbstractController {
 
-    @Autowired
-    ExerciseService exerciseService;
+    private final ExerciseService exerciseService;
 
     private final Function<ExerciseDTO, ExerciseDTO> truncateExerciseDescriptionFunction = new Function<ExerciseDTO, ExerciseDTO>() {
         @Nonnull
@@ -37,6 +36,11 @@ public final class ExerciseController extends AbstractController {
             return exerciseDTO;
         }
     };
+
+    @Autowired
+    public ExerciseController(@Nonnull final ExerciseService exerciseService) {
+        this.exerciseService = exerciseService;
+    }
 
     @RequestMapping(value = "/exercise", method = RequestMethod.GET)
     @Nonnull
@@ -98,7 +102,7 @@ public final class ExerciseController extends AbstractController {
     @Nonnull
     public final String updateExercisePerformed(
             @Nonnull @RequestParam(value = "exercisePerformedId", required = true) final String exercisePerformedId,
-            @Nonnull @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
+            @RequestParam(value = "minutes", required = true, defaultValue = "1") final int minutes,
             @Nonnull @RequestParam(value = "action", required = true) final String action,
             @Nonnull final Model model
     ) {

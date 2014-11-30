@@ -8,15 +8,21 @@ import org.joda.time.DateTime;
 import org.joda.time.Years;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@Component
 public final class UserToUserDTO implements Converter<User, UserDTO> {
 
+    private final WeightRepository weightRepository;
+
     @Autowired
-    private WeightRepository weightRepository;
+    public UserToUserDTO(@Nonnull final WeightRepository weightRepository) {
+        this.weightRepository = weightRepository;
+    }
 
     @Override
     @Nullable
