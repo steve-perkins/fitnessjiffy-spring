@@ -294,14 +294,14 @@ public class RepositoryTest extends AbstractTest {
         // Test an insert, update, find, and delete
         final ReportData todayData = new ReportData(UUID.randomUUID(), user, new Date(System.currentTimeMillis()), 200.0, 2000, 30);
         reportDataRepository.save(todayData);
-        assertEquals(1, reportDataRepository.findByUser(user).size());
+        assertEquals(1, reportDataRepository.findByUserOrderByDateAsc(user).size());
 
         todayData.setNetPoints(35.0);
         reportDataRepository.save(todayData);
-        assertEquals(1, reportDataRepository.findByUser(user).size());
+        assertEquals(1, reportDataRepository.findByUserOrderByDateAsc(user).size());
 
         reportDataRepository.delete(todayData);
-        assertEquals(0, reportDataRepository.findByUser(user).size());
+        assertEquals(0, reportDataRepository.findByUserOrderByDateAsc(user).size());
 
         // Create records across a couple of weeks, and test retrieving on a specific date and across a date range
         final Calendar dateCursor = new GregorianCalendar();
@@ -314,7 +314,7 @@ public class RepositoryTest extends AbstractTest {
 
         final Calendar twoWeeksAgo = new GregorianCalendar();
         twoWeeksAgo.add(Calendar.DATE, -14);
-        final List<ReportData> specificDateReportData = reportDataRepository.findByUserAndDate(
+        final List<ReportData> specificDateReportData = reportDataRepository.findByUserAndDateOrderByDateAsc(
                 user,
                 new Date(twoWeeksAgo.getTimeInMillis())
         );
@@ -322,7 +322,7 @@ public class RepositoryTest extends AbstractTest {
 
         final Calendar oneWeekFromStart = (Calendar) twoWeeksAgo.clone();
         oneWeekFromStart.add(Calendar.DATE, 6);  // "Between" clauses are inclusive, so effectively a date range is zero-indexed.  A 7-day range is Mon-Sun... *not* Mon-Mon.
-        final List<ReportData> dateRangeReportData = reportDataRepository.findByUserAndDateBetween(
+        final List<ReportData> dateRangeReportData = reportDataRepository.findByUserAndDateBetweenOrderByDateAsc(
                 user,
                 new Date(twoWeeksAgo.getTimeInMillis()),
                 new Date(oneWeekFromStart.getTimeInMillis())

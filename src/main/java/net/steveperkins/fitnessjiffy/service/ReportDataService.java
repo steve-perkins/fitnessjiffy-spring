@@ -1,10 +1,14 @@
 package net.steveperkins.fitnessjiffy.service;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.ReportData;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
+import net.steveperkins.fitnessjiffy.dto.ReportDataDTO;
+import net.steveperkins.fitnessjiffy.dto.converter.ReportDataToReportDataDTO;
 import net.steveperkins.fitnessjiffy.repository.ExercisePerformedRepository;
 import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.ReportDataRepository;
@@ -16,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
@@ -42,6 +47,9 @@ public final class ReportDataService {
 
     @Autowired
     private ReportDataRepository reportDataRepository;
+
+    @Autowired
+    private ReportDataToReportDataDTO reportDataDTOConverter;
 
     /**
      * By default, update tasks should be scheduled for 5 minutes in the future (i.e. 300000 milliseconds).  However,
@@ -89,10 +97,24 @@ public final class ReportDataService {
         new Thread(backgroundCleanupThread).start();
     }
 
+    @Nonnull
+    public List<ReportDataDTO> findByUser(@Nonnull final UUID userId) {
+        final User user = userRepository.findOne(userId);
+        final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user);
+        return Lists.transform(reportData, new Function<ReportData, ReportDataDTO>() {
+            @Nonnull
+            @Override
+            public ReportDataDTO apply(@Nonnull final ReportData reportData) {
+                return reportDataDTOConverter.convert(reportData);
+            }
+        });
+    }
+
     /**
      * Update the ReportData records for a given user, starting on a given date and ending after today's date (in the
      * most common use case, it will be a one-day range consisting of today anyway).
      */
+    @Nullable
     public synchronized final Future updateUserFromDate(
             @Nonnull final UUID userId,
             @Nonnull final Date date
@@ -224,7 +246,7 @@ public final class ReportDataService {
                 }
 
                 // Create a ReportData entry for this date if none already exists, or else updating the existing record for this date.
-                final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDate(user, currentDate);
+                final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDateOrderByDateAsc(user, currentDate);
                 if (existingReportDataList.isEmpty()) {
                     final ReportData reportData = new ReportData(//NOPMD
                             UUID.randomUUID(),

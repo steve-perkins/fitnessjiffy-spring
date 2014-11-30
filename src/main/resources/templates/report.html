@@ -5,7 +5,6 @@
 
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/static/bootstrap-datepicker/datepicker3.min.css" rel="stylesheet"/>
     <link href="/static/css/main.css" rel="stylesheet"/>
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
@@ -19,6 +18,12 @@
         ga('create', 'UA-42929895-3', 'auto');
         ga('send', 'pageview');
     </script>
+    <style>
+        #chartdiv {
+            width	: 100%;
+            height	: 500px;
+        }
+    </style>
 </head>
 
 <body>
@@ -52,11 +57,89 @@
         </div>
         <div class="row">
             <div class="center-block center-content">
-
+                <div id="chartdiv"></div>
             </div>
         </div>
     </div>
 </div>
 
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/serial.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
+<script>
+    $(function() {
+        $.ajax({
+            url: "/report/get",
+
+            success: function (response) {
+                var chartData = response;
+                var chart = AmCharts.makeChart("chartdiv", {
+                    "type": "serial",
+                    "theme": "none",
+                    "pathToImages": "http://www.amcharts.com/lib/3/images/",
+                    "legend": {
+                        "useGraphSettings": true
+                    },
+                    "dataProvider": chartData,
+                    "valueAxes": [{
+                        "id":"v1",
+                        "axisColor": "#FF6600",
+                        "axisThickness": 2,
+                        "gridAlpha": 0,
+                        "axisAlpha": 1,
+                        "position": "left"
+                    }, {
+                        "id":"v2",
+                        "axisColor": "#FCD202",
+                        "axisThickness": 2,
+                        "gridAlpha": 0,
+                        "axisAlpha": 1,
+                        "position": "right"
+                    }],
+                    "graphs": [{
+                        "valueAxis": "v1",
+                        "lineColor": "#FF6600",
+                        "bullet": "round",
+                        "bulletBorderThickness": 1,
+                        "hideBulletsCount": 0,
+                        "title": "Pounds",
+                        "valueField": "pounds",
+                        "fillAlphas": 0
+                    }, {
+                        "valueAxis": "v2",
+                        "lineColor": "#FCD202",
+                        "bullet": "square",
+                        "bulletBorderThickness": 1,
+                        "hideBulletsCount": 0,
+                        "title": "Net Calories",
+                        "valueField": "netCalories",
+                        "fillAlphas": 0
+                    }],
+                    "chartScrollbar": {},
+                    "chartCursor": {
+                        "cursorPosition": "mouse"
+                    },
+                    "categoryField": "date",
+                    "categoryAxis": {
+                        "parseDates": true,
+                        "axisColor": "#DADADA",
+                        "minorGridEnabled": true
+                    }
+                });
+
+//                chart.addListener("dataUpdated", zoomChart);
+//                zoomChart();
+//
+//                function zoomChart(){
+//                    chart.zoomToIndexes(chart.dataProvider.length - 20, chart.dataProvider.length - 1);
+//                }
+            },
+
+            fail: function (jqXHR, textStatus) {
+                alert("Request failed: " + textStatus);
+            }
+        });
+    });
+</script>
 </body>
 </html>

@@ -6,6 +6,7 @@ import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodDTO;
 import net.steveperkins.fitnessjiffy.dto.FoodEatenDTO;
+import net.steveperkins.fitnessjiffy.dto.ReportDataDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.FoodRepository;
 import net.steveperkins.fitnessjiffy.repository.ReportDataRepository;
@@ -202,17 +203,17 @@ public class ServiceTest extends AbstractTest {
         lastWeekUpdate.get();
 
         // Test retrieving all data for this user.
-        final List<ReportData> lastWeekReportData = reportDataRepository.findByUser(user);
+        final List<ReportDataDTO> lastWeekReportData = reportDataService.findByUser(user.getId());
         assertEquals(7, lastWeekReportData.size());
 
         // Test retrieving a single date's data.
-        final List<ReportData> firstDayOfLastWeekReportData = reportDataRepository.findByUserAndDate(user, new Date(oneWeekAgo.getTime().getTime()));
+        final List<ReportData> firstDayOfLastWeekReportData = reportDataRepository.findByUserAndDateOrderByDateAsc(user, new Date(oneWeekAgo.getTime().getTime()));
         assertEquals(1, firstDayOfLastWeekReportData.size());
 
         // Test retrieving report data between a specified date range
         final Calendar thirdDayOfLastWeek = (Calendar) oneWeekAgo.clone();
         thirdDayOfLastWeek.add(Calendar.DATE, 2);
-        final List<ReportData> firstThreeDaysOfLastWeekReportData = reportDataRepository.findByUserAndDateBetween(
+        final List<ReportData> firstThreeDaysOfLastWeekReportData = reportDataRepository.findByUserAndDateBetweenOrderByDateAsc(
                 user,
                 new Date(oneWeekAgo.getTime().getTime()),
                 new Date(thirdDayOfLastWeek.getTime().getTime())
@@ -235,10 +236,10 @@ public class ServiceTest extends AbstractTest {
 
         assertTrue(shouldGetCanceledUpdate.isCancelled());
 
-        final List<ReportData> allGoodReportData = reportDataRepository.findByUserAndDateBetween(user, firstDateWithGoodData, lastDateWithGoodData);
+        final List<ReportData> allGoodReportData = reportDataRepository.findByUserAndDateBetweenOrderByDateAsc(user, firstDateWithGoodData, lastDateWithGoodData);
         assertEquals(2213, allGoodReportData.size());
 
-        final List<ReportData> allReportData = reportDataRepository.findByUser(user);
+        final List<ReportDataDTO> allReportData = reportDataService.findByUser(user.getId());
         assertTrue(allReportData.size() > 2213);
     }
 
