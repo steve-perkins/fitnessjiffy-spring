@@ -17,12 +17,10 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
     public List<Weight> findByUserOrderByDateDesc(@Nonnull User user);
 
     /**
-     * Unfortunately, this method is using a native query because JPQL does
-     * not support the "LIMIT" keyword.  Alternatives would include using
-     * a JPQL query built with a subselect, or using Spring Data JPA
-     * pagination... but a native query is perhaps the least ugly of all
-     * evils.  Also, this is meant to be a demo and teaching application
-     * anyway, so why not show a native query example somewhere in the mix?
+     * Unfortunately, this method is using a native query because JPQL does not support the "LIMIT" keyword.
+     * Alternatives would include using a JPQL query built with a subselect, or using Spring Data JPA pagination...
+     * but a native query is perhaps the least ugly of all evils.  Also, this is meant to be a demo and teaching
+     * application anyway, so why not show a native query example somewhere in the mix?
      */
     @Query(
             value = "SELECT WEIGHT.* FROM WEIGHT, FITNESSJIFFY_USER "

@@ -38,19 +38,20 @@ public final class ProfileController extends AbstractController {
 
             @Nonnull final Model model
     ) {
-
-        // TODO: Add Datepicker widget to "Birthdate" field in template, and also change "Height in Inches" to more user-friendly pulldown selectors for feet and inches.
-
         final UserDTO user = currentAuthenticatedUser();
         final Date date = stringToSqlDate(dateString);
         final WeightDTO weight = userService.findWeightOnDate(user, date);
         final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
+        final int heightFeet = (int) (user.getHeightInInches() / 12);
+        final int heightInches = (int) user.getHeightInInches() % 12;
 
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
         model.addAttribute("user", user);
         model.addAttribute("dateString", dateString);
         model.addAttribute("weightEntry", weightEntry);
+        model.addAttribute("heightFeet", heightFeet);
+        model.addAttribute("heightInches", heightInches);
         return PROFILE_TEMPLATE;
     }
 
@@ -74,6 +75,14 @@ public final class ProfileController extends AbstractController {
             final String reenterNewPassword,
 
             @Nonnull
+            @RequestParam(value = "heightFeet")
+            final int heightFeet,
+
+            @Nonnull
+            @RequestParam(value = "heightInches")
+            final int heightInches,
+
+            @Nonnull
             @ModelAttribute("user")
             final UserDTO user,
 
@@ -83,7 +92,6 @@ public final class ProfileController extends AbstractController {
             @Nonnull
             final Model model
     ) {
-
         if (currentPassword == null || currentPassword.isEmpty()) {
             model.addAttribute("profileSaveError", "You must verify the current password in order to make any changes to this profile.");
         } else if (!userService.verifyPassword(user, currentPassword)) {
@@ -91,8 +99,15 @@ public final class ProfileController extends AbstractController {
         } else if (newPassword != null && !newPassword.isEmpty() && reenterNewPassword != null && !reenterNewPassword.equals(newPassword)) {
             model.addAttribute("profileSaveError", "The 'New Password' and 'Re-enter New Password' fields did not match.");
         } else {
+            // Apply the height fields to the user entity
+            user.setHeightInInches( (heightFeet * 12) + heightInches );
+
             // Update user in the database
-            userService.updateUser(user, newPassword);
+            if (newPassword.isEmpty()) {
+                userService.updateUser(user);
+            } else {
+                userService.updateUser(user, newPassword);
+            }
 
             // Update the user in the active Spring Security session
             final UserDTO updatedUser = userService.findUser(user.getId());  // re-calc BMI, daily calorie needs, etc

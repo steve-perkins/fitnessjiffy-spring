@@ -39,17 +39,22 @@
         dateString = year + "-" + month + "-" + day;
     }
 
-    /** On document load, initialize the datepicker widget. */
+    /** On document load, initialize the datepicker widgets. */
     $(function () {
-        $("#datepicker").datepicker({
+        $("#datepicker-weight").datepicker({
             format: "yyyy-mm-dd",
             autoclose: true,
             todayHighlight: true,
             todayBtn: "linked"
         });
-        $("#datepicker").datepicker("setDate", dateString);
-        $("#datepicker").datepicker().on("changeDate", function(e) {
+        $("#datepicker-weight").datepicker("setDate", dateString);
+        $("#datepicker-weight").datepicker().on("changeDate", function(e) {
             window.location.href = "/profile?date=" + this.value;
+        });
+        $("#datepicker-birthdate").datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayBtn: "linked"
         });
     });
     /*]]>*/
@@ -92,7 +97,7 @@
                 <div class="center-block center-content input-append date">
                     <label>
                         Date:
-                        <input id="datepicker" name="dateString" class="datepicker form-control" size="10"/>
+                        <input id="datepicker-weight" name="dateString" class="datepicker form-control" size="10"/>
                         <span class="add-on glyphicon glyphicon-calendar"></span>
                     </label>
                 </div>
@@ -178,7 +183,12 @@
                 </div>
                 <div class="col-sm-6 rightcolumn">
                     <div th:each="gen : ${allGenders}">
-                        <input class="form-control" type="radio" th:field="*{gender}" th:value="${gen}" th:text="${#strings.toLowerCase(gen)}"/>
+                        <label class="radio control-label">
+                            <label class="radio inline">
+                                <input class="radio" type="radio" th:field="*{gender}" th:value="${gen}"/>
+                                <span th:text="${#strings.toLowerCase(gen)}"/>
+                            </label>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -187,15 +197,44 @@
                     Birthdate:
                 </div>
                 <div class="col-sm-6 rightcolumn">
-                    <input class="form-control" type="text" th:field="*{birthdate}" maxlength="10" size="10"/>
+                    <input id="datepicker-birthdate" class="datepicker form-control" type="text" th:field="*{birthdate}" maxlength="10" size="10"/>
+                    <span class="add-on glyphicon glyphicon-calendar"></span>
                 </div>
             </div>
             <div class="row padded-bottom">
                 <div class="col-sm-6 leftcolumn">
-                    Height in Inches:
+                    Height:
                 </div>
                 <div class="col-sm-6 rightcolumn">
-                    <input class="form-control" type="text" th:field="*{heightInInches}" maxlength="5" size="5"/>
+                    <label>
+                        <select class="form-control" id="heightFeet" name="heightFeet" th:value="${heightFeet}">
+                            <option th:attr="selected=${heightFeet == 3}" value="3">3</option>
+                            <option th:attr="selected=${heightFeet == 4}" value="4">4</option>
+                            <option th:attr="selected=${heightFeet == 5}" value="5">5</option>
+                            <option th:attr="selected=${heightFeet == 6}" value="6">6</option>
+                            <option th:attr="selected=${heightFeet == 7}" value="7">7</option>
+                            <option th:attr="selected=${heightFeet == 8}" value="8">8</option>
+                        </select>
+                        ft.
+                    </label>
+                    <label>
+                        <select class="form-control" id="heightInches" name="heightInches" th:value="${heightInches}">
+                            <option th:attr="selected=${heightInches == 0}" value="0">0</option>
+                            <option th:attr="selected=${heightInches == 1}" value="1">1</option>
+                            <option th:attr="selected=${heightInches == 2}" value="2">2</option>
+                            <option th:attr="selected=${heightInches == 3}" value="3">3</option>
+                            <option th:attr="selected=${heightInches == 4}" value="4">4</option>
+                            <option th:attr="selected=${heightInches == 5}" value="5">5</option>
+                            <option th:attr="selected=${heightInches == 6}" value="6">6</option>
+                            <option th:attr="selected=${heightInches == 7}" value="7">7</option>
+                            <option th:attr="selected=${heightInches == 8}" value="8">8</option>
+                            <option th:attr="selected=${heightInches == 9}" value="9">9</option>
+                            <option th:attr="selected=${heightInches == 10}" value="10">10</option>
+                            <option th:attr="selected=${heightInches == 11}" value="11">11</option>
+                            <option th:attr="selected=${heightInches == 12}" value="12">12</option>
+                        </select>
+                        in.
+                    </label>
                 </div>
             </div>
             <div class="row padded-bottom">
@@ -204,7 +243,7 @@
                 </div>
                 <div class="col-sm-6 rightcolumn">
                     <select class="form-control" th:field="*{activityLevel}">
-                        <option th:each="level : ${allActivityLevels}" th:value="${#strings.toUpperCase(level)}" th:text="${level}"></option>
+                        <option th:each="level : ${allActivityLevels}" th:value="${#strings.replace(#strings.toUpperCase(level), ' ', '_')}" th:text="${level}"></option>
                     </select>
                 </div>
             </div>

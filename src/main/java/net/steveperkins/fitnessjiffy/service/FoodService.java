@@ -166,14 +166,12 @@ public final class FoodService {
         return foodDTOConverter.convert(food);
     }
 
+    /** @return A message, suitable for UI display, indicating the result of the save operation. */
     @Nonnull
     public final String updateFood(
             @Nonnull final FoodDTO foodDTO,
             @Nonnull final UserDTO userDTO
     ) {
-
-        // TODO: Maybe this method should return some sort of ID, which maps to a message string elsewhere... rather than directly returning hardcoded strings meant for display.
-
         String resultMessage = "";
         // Halt if this operation is not allowed
         if (foodDTO.getOwnerId() == null || foodDTO.getOwnerId().equals(userDTO.getId())) {
@@ -229,14 +227,12 @@ public final class FoodService {
         return resultMessage;
     }
 
+    /** @return A message, suitable for UI display, indicating the result of the save operation. */
     @Nonnull
     public final String createFood(
             @Nonnull final FoodDTO foodDTO,
             @Nonnull final UserDTO userDTO
     ) {
-
-        // TODO: Maybe this method should return some sort of ID, which maps to a message string elsewhere... rather than directly returning hardcoded strings meant for display.
-
         String resultMessage = "";
 
         // Halt if this update would create two foods with duplicate names owned by the same user.

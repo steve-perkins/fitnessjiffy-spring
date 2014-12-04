@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
@@ -90,6 +91,10 @@ public final class UserService {
         reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
     }
 
+    public void updateUser(@Nonnull final UserDTO userDTO) {
+        updateUser(userDTO, null);
+    }
+
     public void updateUser(
             @Nonnull final UserDTO userDTO,
             @Nullable final String newPassword
@@ -116,7 +121,7 @@ public final class UserService {
      * calling "reportDataService.updateUserFromDate()", so that the latter method won't read and re-save the previous
      * state.
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void saveUser(final User user) {
         userRepository.save(user);
     }
@@ -139,9 +144,6 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nonnull final Date date
     ) {
-
-        // TODO:  This logic should account for days on which no weight entry exists in the database, search backwards for the weight entry most recent to that date instead.
-
         final User user = userRepository.findOne(userDTO.getId());
         final Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
         return weightDTOConverter.convert(weight);
