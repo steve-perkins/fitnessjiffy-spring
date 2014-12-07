@@ -55,9 +55,46 @@
                 <h2>Reports</h2>
             </div>
         </div>
+        <!-- Chart contents -->
         <div class="row">
             <div class="center-block center-content">
-                <div id="chartdiv"></div>
+                <div id="chartdiv">loading...</div>
+            </div>
+        </div>
+        <!-- Chart controls -->
+        <div class="row padded-bottom">
+            <div class="col-sm-4 center-content vcenter-content">
+                <label>
+                    <div class="strong">Date Range:</div>
+                    <select class="form-control" id="dateRange" onchange="updateChart()">
+                        <option value="all">All dates</option>
+                    </select>
+                </label>
+                <div class="fine-print">Adjust the bar at the top of the chart<br/>to further refine the date range shown</div>
+            </div><!--
+         --><div class="col-sm-4 center-content vcenter-content">
+                <label>
+                    <div class="strong">Left Axis Data:</div>
+                    <select class="form-control" id="leftAxis" onchange="updateChart()">
+                        <option value="pounds" selected="selected">Weight</option>
+                        <option value="netCalories">Net calories per day</option>
+                        <option value="netPoints">Net points per day</option>
+                        <option value="calories30avg">Calories 30-day moving average</option>
+                        <option value="points30avg">Points 30-day moving average</option>
+                    </select>
+                </label>
+            </div><!--
+         --><div class="col-sm-4 center-content vcenter-content">
+                <label>
+                    <div class="strong">Right Axis Data:</div>
+                    <select class="form-control" id="rightAxis" onchange="updateChart()">
+                        <option value="pounds">Weight</option>
+                        <option value="netCalories" selected="selected">Net calories per day</option>
+                        <option value="netPoints">Net points per day</option>
+                        <option value="calories30avg">Calories 30-day moving average</option>
+                        <option value="points30avg">Points 30-day moving average</option>
+                    </select>
+                </label>
             </div>
         </div>
     </div>
@@ -66,73 +103,172 @@
 <script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
 <script type="text/javascript" src="http://www.amcharts.com/lib/3/serial.js"></script>
 <script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
-<script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var FIELD_LAST_MONTH = "30";
+    var FIELD_LAST_YEAR = "365";
+    var FIELD_ALL_DATES = "all";
+    var FIELD_WEIGHT = "pounds";
+    var FIELD_NET_CALORIES = "netCalories";
+    var FIELD_NET_POINTS = "netPoints";
+    var FIELD_CALORIES_30AVG = "calories30avg";
+    var FIELD_POINTS_30AVG = "points30avg";
+
+    var LABEL_LAST_MONTH = "Most recent month";
+    var LABEL_LAST_YEAR = "Most recent year";
+    var LABEL_ALL_DATES = "All dates";
+    var LABEL_WEIGHT = "Weight";
+    var LABEL_NET_CALORIES = "Net calories per day";
+    var LABEL_NET_POINTS = "Net points per day";
+    var LABEL_CALORIES_30AVG = "Calories 30-day moving average";
+    var LABEL_POINTS_30AVG = "Points 30-day moving average";
+
+    var chartData;
+
+    function updateChart() {
+        if ($("#leftAxis").val() === FIELD_CALORIES_30AVG
+                || $("#rightAxis").val() === FIELD_CALORIES_30AVG
+                || $("#leftAxis").val() === FIELD_POINTS_30AVG
+                || $("#rightAxis").val() === FIELD_POINTS_30AVG
+        ) {
+            verifyOrCreateMovingAverageData();
+        }
+
+        var data;
+        if ($("#dateRange").val() === FIELD_LAST_MONTH) {
+            data = chartData.slice(chartData.length - 30);
+        } else if ($("#dateRange").val() === FIELD_LAST_YEAR) {
+            data = chartData.slice(chartData.length - 365);
+        } else {
+            data = chartData;
+        }
+
+        var leftAxis = $("#leftAxis").val();
+        var rightAxis = $("#rightAxis").val();
+        renderChart(data, leftAxis, rightAxis);
+    }
+
+    function renderChart(data, leftAxis, rightAxis) {
+        AmCharts.makeChart("chartdiv", {
+            "type": "serial",
+            "theme": "none",
+            "pathToImages": "http://www.amcharts.com/lib/3/images/",
+            "legend": {
+                "useGraphSettings": true
+            },
+            "dataProvider": data,
+            "valueAxes": [{
+                "id":"v1",
+                "axisColor": "#FF6600",
+                "axisThickness": 2,
+                "gridAlpha": 0,
+                "axisAlpha": 1,
+                "position": "left"
+            }, {
+                "id":"v2",
+                "axisColor": "#FCD202",
+                "axisThickness": 2,
+                "gridAlpha": 0,
+                "axisAlpha": 1,
+                "position": "right"
+            }],
+            "graphs": [{
+                "valueAxis": "v1",
+                "lineColor": "#FF6600",
+                "bullet": "round",
+                "bulletBorderThickness": 1,
+                "hideBulletsCount": 0,
+                "title": fieldToLabel(leftAxis),
+                "valueField": leftAxis,
+                "fillAlphas": 0
+            }, {
+                "valueAxis": "v2",
+                "lineColor": "#FCD202",
+                "bullet": "square",
+                "bulletBorderThickness": 1,
+                "hideBulletsCount": 0,
+                "title": fieldToLabel(rightAxis),
+                "valueField": rightAxis,
+                "fillAlphas": 0
+            }],
+            "chartScrollbar": {},
+            "chartCursor": {
+                "cursorPosition": "mouse"
+            },
+            "categoryField": "date",
+            "categoryAxis": {
+                "parseDates": true,
+                "axisColor": "#DADADA",
+                "minorGridEnabled": true
+            }
+        });
+    }
+
+    function fieldToLabel(field) {
+        switch(field) {
+            case FIELD_WEIGHT :
+                return LABEL_WEIGHT;
+                break;
+            case FIELD_NET_CALORIES :
+                return LABEL_NET_CALORIES;
+                break;
+            case FIELD_NET_POINTS :
+                return LABEL_NET_POINTS;
+                break;
+            case FIELD_CALORIES_30AVG :
+                return LABEL_CALORIES_30AVG;
+                break;
+            case FIELD_POINTS_30AVG :
+                return LABEL_POINTS_30AVG;
+                break;
+            default :
+                return "unknown";
+                break;
+        }
+    }
+
+    function verifyOrCreateMovingAverageData() {
+        // Check for whether the fields have already been added previously, or if there just isn't any data to work with anyway.
+        if (chartData === undefined || chartData.length === 0 || chartData[0].calories30avg != undefined || chartData[0].points30avg != undefined) {
+            return;
+        }
+        var updatedData = [];
+        for (var masterIndex = 0; masterIndex < chartData.length; masterIndex++) {
+            var datesIncluded = 1;
+            var totalCalories = chartData[masterIndex].netCalories;
+            var totalPoints = chartData[masterIndex].netPoints;
+            for (var elementIndex = (masterIndex >= 30) ? masterIndex - 30 : 0; elementIndex < masterIndex; elementIndex++) {
+                datesIncluded++;
+                totalCalories += chartData[elementIndex].netCalories;
+                totalPoints += chartData[elementIndex].netPoints;
+            }
+            var updatedElement = $.extend({}, chartData[masterIndex]);
+            updatedElement.calories30avg = Math.round(totalCalories / datesIncluded);
+            updatedElement.points30avg = Math.round(totalPoints / datesIncluded);
+            updatedData.push(updatedElement);
+        }
+        chartData = updatedData;
+    }
+
     $(function() {
         $.ajax({
             url: "/report/get",
 
             success: function (response) {
-                var chartData = response;
-                var chart = AmCharts.makeChart("chartdiv", {
-                    "type": "serial",
-                    "theme": "none",
-                    "pathToImages": "http://www.amcharts.com/lib/3/images/",
-                    "legend": {
-                        "useGraphSettings": true
-                    },
-                    "dataProvider": chartData,
-                    "valueAxes": [{
-                        "id":"v1",
-                        "axisColor": "#FF6600",
-                        "axisThickness": 2,
-                        "gridAlpha": 0,
-                        "axisAlpha": 1,
-                        "position": "left"
-                    }, {
-                        "id":"v2",
-                        "axisColor": "#FCD202",
-                        "axisThickness": 2,
-                        "gridAlpha": 0,
-                        "axisAlpha": 1,
-                        "position": "right"
-                    }],
-                    "graphs": [{
-                        "valueAxis": "v1",
-                        "lineColor": "#FF6600",
-                        "bullet": "round",
-                        "bulletBorderThickness": 1,
-                        "hideBulletsCount": 0,
-                        "title": "Pounds",
-                        "valueField": "pounds",
-                        "fillAlphas": 0
-                    }, {
-                        "valueAxis": "v2",
-                        "lineColor": "#FCD202",
-                        "bullet": "square",
-                        "bulletBorderThickness": 1,
-                        "hideBulletsCount": 0,
-                        "title": "Net Calories",
-                        "valueField": "netCalories",
-                        "fillAlphas": 0
-                    }],
-                    "chartScrollbar": {},
-                    "chartCursor": {
-                        "cursorPosition": "mouse"
-                    },
-                    "categoryField": "date",
-                    "categoryAxis": {
-                        "parseDates": true,
-                        "axisColor": "#DADADA",
-                        "minorGridEnabled": true
-                    }
-                });
+                chartData = response;
 
-//                chart.addListener("dataUpdated", zoomChart);
-//                zoomChart();
-//
-//                function zoomChart(){
-//                    chart.zoomToIndexes(chart.dataProvider.length - 20, chart.dataProvider.length - 1);
-//                }
+                if (chartData.length >= 365) {
+                    $("#dateRange").prepend("<option value='" + FIELD_LAST_YEAR + "' selected='selected'>" + LABEL_LAST_YEAR + "</option>");
+                    $("#dateRange").prepend("<option value='" + FIELD_LAST_MONTH + "'>" + LABEL_LAST_MONTH + "</option>");
+                    var data = chartData.slice(chartData.length - 365);
+                    renderChart(data, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                } else if (chartData.length >= 30) {
+                    $("#dateRange").prepend("<option value='" + FIELD_LAST_MONTH + "' selected='selected'>" + LABEL_LAST_MONTH + "</option>");
+                    var data = chartData.slice(chartData.length - 30);
+                    renderChart(data, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                } else {
+                    renderChart(chartData, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                }
             },
 
             fail: function (jqXHR, textStatus) {
@@ -140,6 +276,7 @@
             }
         });
     });
+    /*]]>*/
 </script>
 </body>
 </html>
