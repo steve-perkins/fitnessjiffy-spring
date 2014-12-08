@@ -66,7 +66,7 @@
             <div class="col-sm-4 center-content vcenter-content">
                 <label>
                     <div class="strong">Date Range:</div>
-                    <select class="form-control" id="dateRange" onchange="updateChart()">
+                    <select class="form-control" id="dateRange" onchange="update()">
                         <option value="all">All dates</option>
                     </select>
                 </label>
@@ -75,7 +75,7 @@
          --><div class="col-sm-4 center-content vcenter-content">
                 <label>
                     <div class="strong">Left Axis Data:</div>
-                    <select class="form-control" id="leftAxis" onchange="updateChart()">
+                    <select class="form-control" id="leftAxis" onchange="update()">
                         <option value="pounds" selected="selected">Weight</option>
                         <option value="netCalories">Net calories per day</option>
                         <option value="netPoints">Net points per day</option>
@@ -87,14 +87,31 @@
          --><div class="col-sm-4 center-content vcenter-content">
                 <label>
                     <div class="strong">Right Axis Data:</div>
-                    <select class="form-control" id="rightAxis" onchange="updateChart()">
+                    <select class="form-control" id="rightAxis" onchange="update()">
                         <option value="pounds">Weight</option>
                         <option value="netCalories" selected="selected">Net calories per day</option>
                         <option value="netPoints">Net points per day</option>
                         <option value="calories30avg">Calories 30-day moving average</option>
                         <option value="points30avg">Points 30-day moving average</option>
+                        <option value="points30avg">Points 30-day moving average</option>
                     </select>
                 </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="center-block center-content">
+                <h3><span id="statLabel"/> stats</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 col-sm-offset-3 strong">
+                Average weight: <span id="averageWeight"/> lbs.<br/>
+                Max weight: <span id="maxWeight"/> lbs.<br/>
+                Min weight: <span id="minWeight"/> lbs.<br/>
+            </div>
+            <div class="col-sm-3 strong">
+                Average net calories per day: <span id="averageCalories"/><br/>
+                Average net points per day: <span id="averagePoints"/><br/>
             </div>
         </div>
     </div>
@@ -125,7 +142,7 @@
 
     var chartData;
 
-    function updateChart() {
+    function update() {
         if ($("#leftAxis").val() === FIELD_CALORIES_30AVG
                 || $("#rightAxis").val() === FIELD_CALORIES_30AVG
                 || $("#leftAxis").val() === FIELD_POINTS_30AVG
@@ -146,6 +163,7 @@
         var leftAxis = $("#leftAxis").val();
         var rightAxis = $("#rightAxis").val();
         renderChart(data, leftAxis, rightAxis);
+        renderStats(data);
     }
 
     function renderChart(data, leftAxis, rightAxis) {
@@ -221,6 +239,15 @@
             case FIELD_POINTS_30AVG :
                 return LABEL_POINTS_30AVG;
                 break;
+            case FIELD_LAST_MONTH :
+                return LABEL_LAST_MONTH;
+                break;
+            case FIELD_LAST_YEAR :
+                return LABEL_LAST_YEAR;
+                break;
+            case FIELD_ALL_DATES :
+                return LABEL_ALL_DATES;
+                break;
             default :
                 return "unknown";
                 break;
@@ -250,25 +277,56 @@
         chartData = updatedData;
     }
 
+    function renderStats(data) {
+        var maxWeight = 0;
+        var minWeight = 0;
+        var totalWeights = 0;
+        var totalCalories = 0;
+        var totalPoints = 0;
+        for (var index = 0; index < data.length; index++) {
+            var pounds = data[index].pounds;
+            if (pounds > maxWeight) {
+                maxWeight = pounds;
+            }
+            if (pounds < minWeight) {
+                minWeight = pounds;
+            }
+            totalWeights += pounds;
+            totalCalories += data[index].netCalories;
+            totalPoints += data[index].netPoints;
+        }
+        var averageWeight = Math.round(totalWeights / data.length);
+        var averageCalories = Math.round(totalCalories / data.length);
+        var averagePoints = Math.round(totalPoints / data.length);
+        var label = fieldToLabel( $("#dateRange").val() );
+        $("#statLabel").html(label);
+        $("#maxWeight").html(maxWeight);
+        $("#minWeight").html(minWeight);
+        $("#averageWeight").html(averageWeight);
+        $("#averageCalories").html(averageCalories);
+        $("#averagePoints").html(averagePoints);
+    }
+
     $(function() {
         $.ajax({
             url: "/report/get",
 
             success: function (response) {
                 chartData = response;
+                var data;
 
                 if (chartData.length >= 365) {
                     $("#dateRange").prepend("<option value='" + FIELD_LAST_YEAR + "' selected='selected'>" + LABEL_LAST_YEAR + "</option>");
                     $("#dateRange").prepend("<option value='" + FIELD_LAST_MONTH + "'>" + LABEL_LAST_MONTH + "</option>");
-                    var data = chartData.slice(chartData.length - 365);
-                    renderChart(data, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                    data = chartData.slice(chartData.length - 365);
                 } else if (chartData.length >= 30) {
                     $("#dateRange").prepend("<option value='" + FIELD_LAST_MONTH + "' selected='selected'>" + LABEL_LAST_MONTH + "</option>");
-                    var data = chartData.slice(chartData.length - 30);
-                    renderChart(data, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                    data = chartData.slice(chartData.length - 30);
                 } else {
-                    renderChart(chartData, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                    data = chartData;
                 }
+                renderChart(data, FIELD_WEIGHT, FIELD_NET_CALORIES);
+                renderStats(data);
             },
 
             fail: function (jqXHR, textStatus) {
