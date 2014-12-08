@@ -279,7 +279,7 @@
 
     function renderStats(data) {
         var maxWeight = 0;
-        var minWeight = 0;
+        var minWeight;
         var totalWeights = 0;
         var totalCalories = 0;
         var totalPoints = 0;
@@ -288,7 +288,7 @@
             if (pounds > maxWeight) {
                 maxWeight = pounds;
             }
-            if (pounds < minWeight) {
+            if (minWeight === undefined || pounds < minWeight) {
                 minWeight = pounds;
             }
             totalWeights += pounds;
