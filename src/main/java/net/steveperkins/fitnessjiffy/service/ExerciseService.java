@@ -142,7 +142,7 @@ public final class ExerciseService {
                     1
             );
             exercisePerformedRepository.save(exercisePerformed);
-            reportDataService.updateUserFromDate(userId, date);
+            reportDataService.updateUserFromDate(user, date);
         }
     }
 
@@ -153,13 +153,13 @@ public final class ExerciseService {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformed.setMinutes(minutes);
         exercisePerformedRepository.save(exercisePerformed);
-        reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
+        reportDataService.updateUserFromDate(exercisePerformed.getUser(), exercisePerformed.getDate());
     }
 
     public final void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
         final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
         exercisePerformedRepository.delete(exercisePerformed);
-        reportDataService.updateUserFromDate(exercisePerformed.getUser().getId(), exercisePerformed.getDate());
+        reportDataService.updateUserFromDate(exercisePerformed.getUser(), exercisePerformed.getDate());
     }
 
     @Nullable

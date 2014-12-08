@@ -18,8 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -87,8 +85,8 @@ public final class UserService {
                 new Timestamp(new java.util.Date().getTime()),
                 new Timestamp(new java.util.Date().getTime())
         );
-        saveUser(user);
-        reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
+        userRepository.save(user);
+        reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
     }
 
     public void updateUser(@Nonnull final UserDTO userDTO) {
@@ -111,19 +109,9 @@ public final class UserService {
         if (newPassword != null && !newPassword.isEmpty()) {
             user.setPasswordHash(encryptPassword(newPassword));
         }
-        saveUser(user);
-        refreshAuthenticatedUser();
-        reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
-    }
-
-    /**
-     * This transactional method ensures that user changes in "createUser()" or "saveUser()" are committed prior to
-     * calling "reportDataService.updateUserFromDate()", so that the latter method won't read and re-save the previous
-     * state.
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private void saveUser(final User user) {
         userRepository.save(user);
+        refreshAuthenticatedUser();
+        reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
     }
 
     public void refreshAuthenticatedUser() {
@@ -167,7 +155,7 @@ public final class UserService {
             weight.setPounds(pounds);
         }
         weightRepository.save(weight);
-        reportDataService.updateUserFromDate(userDTO.getId(), date);
+        reportDataService.updateUserFromDate(user, date);
         refreshAuthenticatedUser();
     }
 

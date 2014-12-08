@@ -100,7 +100,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Schedule a ReportData update
             final Date lastUpdateDate = new Date(user.getLastUpdatedTime().getTime());  // TODO:  need to account for time zone?
-            reportDataService.updateUserFromDate(userDTO.getId(), lastUpdateDate);
+            reportDataService.updateUserFromDate(user, lastUpdateDate);
         }
 
     }

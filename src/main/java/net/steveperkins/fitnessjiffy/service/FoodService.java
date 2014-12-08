@@ -128,7 +128,7 @@ public final class FoodService {
                     food.getServingTypeQty()
             );
             foodEatenRepository.save(foodEaten);
-            reportDataService.updateUserFromDate(userId, date);
+            reportDataService.updateUserFromDate(user, date);
         }
     }
 
@@ -141,12 +141,12 @@ public final class FoodService {
         foodEaten.setServingQty(servingQty);
         foodEaten.setServingType(servingType);
         foodEatenRepository.save(foodEaten);
-        reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
+        reportDataService.updateUserFromDate(foodEaten.getUser(), foodEaten.getDate());
     }
 
     public final void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
         final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
-        reportDataService.updateUserFromDate(foodEaten.getUser().getId(), foodEaten.getDate());
+        reportDataService.updateUserFromDate(foodEaten.getUser(), foodEaten.getDate());
         foodEatenRepository.delete(foodEaten);
     }
 
@@ -218,7 +218,7 @@ public final class FoodService {
                 food.setSodium(foodDTO.getSodium());
                 foodRepository.save(food);
                 resultMessage = "Success!";
-                reportDataService.updateUserFromDate(userDTO.getId(), dateFirstEaten);
+                reportDataService.updateUserFromDate(user, dateFirstEaten);
             }
 
         } else {
@@ -260,7 +260,7 @@ public final class FoodService {
             food.setSodium(foodDTO.getSodium());
             foodRepository.save(food);
             resultMessage = "Success!";
-            reportDataService.updateUserFromDate(userDTO.getId(), new Date(System.currentTimeMillis()));
+            reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
         } else {
             resultMessage = "Error:  You already have another customized food with this name.";
         }

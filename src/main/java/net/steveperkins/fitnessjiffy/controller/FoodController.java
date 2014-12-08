@@ -123,7 +123,6 @@ public final class FoodController extends AbstractController {
         final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
         final String dateString = dateFormat.format(foodEatenDTO.getDate());
         if (!userDTO.getId().equals(foodEatenDTO.getUserId())) {
-            // TODO: Add logging, and flash message on view template
             System.out.println("\n\nThis user is unable to update this food eaten\n");
         } else if (action.equalsIgnoreCase("update")) {
             final Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);

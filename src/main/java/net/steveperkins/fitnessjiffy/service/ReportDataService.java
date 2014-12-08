@@ -119,22 +119,37 @@ public final class ReportDataService {
     /**
      * Update the ReportData records for a given user, starting on a given date and ending after today's date (in the
      * most common use case, it will be a one-day range consisting of today anyway).
+     *
+     * I'm not happy about the fact that this method takes as a parameter a User object rather than a UserDTO, as
+     * all methods in the service tier should accept and return DTO's rather than actual entities.  However, there is
+     * a strange bug in which updates to a user's profile (from the UserService.createUser() and updateUser() methods).
+     *
+     * The transaction in either of those methods apparently does not commit prior to calling
+     * ReportDataService.updateUserFromDate()... and so when this method looks up the user in the database from the DTO,
+     * it sees outdated data.  This outdated data is then committed at the end of the ReportData update process,
+     * overwriting the original user update.
+     *
+     * I've tried taking the database save operation in UserService, and breaking it off into its own method annotated
+     * with @Transactional.  Although that seems to help when running locally, the problem still persists in production.
+     * So simply passing the User object directly (and avoiding the lookup-from-DTO) is an "impure" ploy to fix the
+     * problem until I'm able to focus on it again at some point.  At least this method is called only by other classes
+     * in the service tier, and not from anywhere in the controller tier that should never touch raw entities.
      */
     @Nullable
     public synchronized final Future updateUserFromDate(
-            @Nonnull final UUID userId,
+            @Nonnull final User user,
             @Nonnull final Date date
     ) {
-        final ReportDataUpdateEntry existingEntry = scheduledUserUpdates.get(userId);
+        final ReportDataUpdateEntry existingEntry = scheduledUserUpdates.get(user.getId());
         if (existingEntry != null) {
             if (existingEntry.getFuture().isCancelled() || existingEntry.getFuture().isDone()) {
                 // There was an update recently scheduled for this user, but it has completed and its entry can be cleaned up.
-                scheduledUserUpdates.remove(userId);
+                scheduledUserUpdates.remove(user.getId());
             } else if (existingEntry.getStartDate().after(date)) {
                 // There is an update still pending for this user, but its date range is superseded by that of the new
                 // update and therefore can be cancelled and cleaned up.
                 existingEntry.getFuture().cancel(false);
-                scheduledUserUpdates.remove(userId);
+                scheduledUserUpdates.remove(user.getId());
             } else {
                 // There is an update still pending for this user, and it supersedes the new one here.  Do nothing, and
                 // let the pending schedule stand.
@@ -143,12 +158,11 @@ public final class ReportDataService {
         }
 
         // Schedule an update for this user, and add an entry in the conflicts list.
-        final User user = userRepository.findOne(userId);
         System.out.printf("Scheduling a ReportData update for user [%s] from date [%s] in %d milliseconds%n", user.getEmail(), date, scheduleDelayInMillis);
         final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
         final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInMillis, TimeUnit.MILLISECONDS);
         final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(date, future);
-        scheduledUserUpdates.put(userId, newUpdateEntry);
+        scheduledUserUpdates.put(user.getId(), newUpdateEntry);
         return future;
     }
 

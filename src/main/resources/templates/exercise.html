@@ -253,12 +253,12 @@
                     <td th:text="${exercisePerformed.exercise.description}"></td>
                     <td><input type="text" size="2" name="minutes" th:value="${exercisePerformed.minutes}"/></td>
                     <td><span th:text="${exercisePerformed.caloriesBurned}"/></td>
-                    <td>
+                    <td width="55">
                         <a href="#" th:onclick="'updateExercisePerformed(\'' + ${exercisePerformed.id} + '\');'">
                             <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"/>
                         </a>
                     </td>
-                    <td>
+                    <td width="55">
                         <a href="#" th:onclick="'deleteExercisePerformed(\'' + ${exercisePerformed.id} + '\');'">
                             <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/>
                         </a>

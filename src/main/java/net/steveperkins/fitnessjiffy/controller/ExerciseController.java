@@ -111,7 +111,6 @@ public final class ExerciseController extends AbstractController {
         final ExercisePerformedDTO exercisePerformedDTO = exerciseService.findExercisePerformedById(exercisePerformedUUID);
         final String dateString = dateFormat.format(exercisePerformedDTO.getDate());
         if (!userDTO.getId().equals(exercisePerformedDTO.getUserId())) {
-            // TODO: Add logging, and flash message on view template
             System.out.println("\n\nThis user is unable to update this exercise performed\n");
         } else if (action.equalsIgnoreCase("update")) {
             exerciseService.updateExercisePerformed(exercisePerformedUUID, minutes);
