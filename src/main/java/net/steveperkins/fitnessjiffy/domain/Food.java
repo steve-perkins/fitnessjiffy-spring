@@ -1,9 +1,5 @@
 package net.steveperkins.fitnessjiffy.domain;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -16,7 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -38,13 +34,6 @@ public final class Food {
 
         @Nullable
         public static final ServingType fromValue(final double value) {
-            Iterables.filter(Arrays.asList(ServingType.values()), new Predicate<ServingType>() {
-                @Override
-                public boolean apply(@Nonnull final ServingType servingType) {
-                    return servingType.getValue() == value;
-                }
-            });
-
             ServingType match = null;
             for (final ServingType servingType : ServingType.values()) {
                 if (servingType.getValue() == value) {
@@ -136,7 +125,7 @@ public final class Food {
             @Nonnull final Timestamp createdTime,
             @Nonnull final Timestamp lastUpdatedTime
     ) {
-        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
+        this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.owner = owner;
         this.name = name;
         this.defaultServingType = defaultServingType;

@@ -1,7 +1,5 @@
 package net.steveperkins.fitnessjiffy.service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.ReportData;
@@ -14,8 +12,6 @@ import net.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import net.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import net.steveperkins.fitnessjiffy.repository.UserRepository;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public final class ReportDataService {
@@ -107,13 +106,9 @@ public final class ReportDataService {
     public List<ReportDataDTO> findByUser(@Nonnull final UUID userId) {
         final User user = userRepository.findOne(userId);
         final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user);
-        return Lists.transform(reportData, new Function<ReportData, ReportDataDTO>() {
-            @Nonnull
-            @Override
-            public ReportDataDTO apply(@Nonnull final ReportData reportData) {
-                return reportDataDTOConverter.convert(reportData);
-            }
-        });
+        return reportData.stream()
+                .map((ReportData entity) -> reportDataDTOConverter.convert(entity))
+                .collect(toList());
     }
 
     /**
@@ -231,7 +226,7 @@ public final class ReportDataService {
         @Override
         public void run() {
             final Date today = new Date(System.currentTimeMillis());
-            Date currentDate = startDate;
+            LocalDate currentDate = startDate.toLocalDate();
 
             // Iterate through all dates from the start date through today.
             while (currentDate.toString().compareTo(today.toString()) <= 0) {  // TODO: Using string-based comparison rather than true object-level comparison, because of time zone wonkiness that needs to be sorted out across the board.
@@ -239,19 +234,19 @@ public final class ReportDataService {
                 System.out.printf("Creating or updating ReportData record for user [%s] on date [%s]%n", user.getEmail(), currentDate);
 
                 // Get the user's weight on this date, and initialize accumulator variables to hold this date's net calories and net points.
-                final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, currentDate);
+                final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, Date.valueOf(currentDate));
                 int netCalories = 0;
                 double netPoints = 0.0;
 
                 // Iterate over all foods eaten on this date, updating the net calories and net points.
-                final List<FoodEaten> foodsEaten = foodEatenRepository.findByUserEqualsAndDateEquals(user, currentDate);
+                final List<FoodEaten> foodsEaten = foodEatenRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
                 for (final FoodEaten foodEaten : foodsEaten) {
                     netCalories += foodEaten.getCalories();
                     netPoints += foodEaten.getPoints();
                 }
 
                 // Iterator over all exercises performed on this date, updating the net calories and net points.
-                final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, currentDate);
+                final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
                 for (final ExercisePerformed exercisePerformed : exercisesPerformed) {
                     netCalories -= ExerciseService.calculateCaloriesBurned(
                             exercisePerformed.getExercise().getMetabolicEquivalent(),
@@ -266,12 +261,12 @@ public final class ReportDataService {
                 }
 
                 // Create a ReportData entry for this date if none already exists, or else updating the existing record for this date.
-                final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDateOrderByDateAsc(user, currentDate);
+                final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDateOrderByDateAsc(user, Date.valueOf(currentDate));
                 if (existingReportDataList.isEmpty()) {
                     final ReportData reportData = new ReportData(//NOPMD
                             UUID.randomUUID(),
                             user,
-                            currentDate,
+                            Date.valueOf(currentDate),
                             mostRecentWeight.getPounds(),
                             netCalories,
                             netPoints
@@ -286,9 +281,7 @@ public final class ReportDataService {
                 }
 
                 // Increment the date to the next day.
-                currentDate = new Date(//NOPMD
-                        new LocalDate(currentDate.getTime(), DateTimeZone.UTC).plusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis()
-                );
+                currentDate = currentDate.plusDays(1);
             }
 
             user.setLastUpdatedTime(new Timestamp(System.currentTimeMillis()));

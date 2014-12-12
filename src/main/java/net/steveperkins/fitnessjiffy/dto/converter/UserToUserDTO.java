@@ -4,14 +4,14 @@ import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
 import net.steveperkins.fitnessjiffy.repository.WeightRepository;
-import org.joda.time.DateTime;
-import org.joda.time.Years;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -73,7 +73,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
             final double currentWeight
     ) {
         int maintenanceCalories = 0;
-        final int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
+        final long age = ChronoUnit.YEARS.between(user.getBirthdate().toLocalDate(), LocalDate.now());
         if (user.getGender() != null
                 && currentWeight != 0
                 && user.getHeightInInches() != 0
@@ -95,7 +95,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
             final double currentWeight
     ) {
         double dailyPoints = 0;
-        final int age = Years.yearsBetween(new DateTime(user.getBirthdate().getTime()), new DateTime()).getYears();
+        final long age = ChronoUnit.YEARS.between(user.getBirthdate().toLocalDate(), LocalDate.now());
         if (user.getGender() != null
                 && age != 0
                 && currentWeight != 0

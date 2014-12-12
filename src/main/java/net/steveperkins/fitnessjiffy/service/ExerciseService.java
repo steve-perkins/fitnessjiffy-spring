@@ -1,9 +1,5 @@
 package net.steveperkins.fitnessjiffy.service;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.Exercise;
 import net.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import net.steveperkins.fitnessjiffy.domain.User;
@@ -27,6 +23,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public final class ExerciseService {
 
@@ -38,15 +36,6 @@ public final class ExerciseService {
     private final UserToUserDTO userDTOConverter;
     private final ExerciseToExerciseDTO exerciseDTOConverter;
     private final ExercisePerformedToExercisePerformedDTO exercisePerformedDTOConverter;
-
-    private final Function<Exercise, ExerciseDTO> exerciseToDTOConversionFunction =
-            new Function<Exercise, ExerciseDTO>() {
-                @Nullable
-                @Override
-                public ExerciseDTO apply(final @Nullable Exercise exercise) {
-                    return exerciseDTOConverter.convert(exercise);
-                }
-            };
 
     @Autowired
     public ExerciseService(
@@ -78,28 +67,26 @@ public final class ExerciseService {
         final WeightDTO weight = userService.findWeightOnDate(userDTOConverter.convert(user), date);
 
         final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, date);
-        return Lists.transform(exercisesPerformed, new Function<ExercisePerformed, ExercisePerformedDTO>() {
-            @Nullable
-            @Override
-            public ExercisePerformedDTO apply(@Nullable final ExercisePerformed exercisePerformed) {
-                final ExercisePerformedDTO dto = exercisePerformedDTOConverter.convert(exercisePerformed);
-                if (dto != null) {
-                    final int caloriesBurned = calculateCaloriesBurned(
-                            exercisePerformed.getExercise().getMetabolicEquivalent(),
-                            exercisePerformed.getMinutes(),
-                            weight.getPounds()
-                    );
-                    dto.setCaloriesBurned(caloriesBurned);
-                    final double pointsBurned = calculatePointsBurned(
-                            exercisePerformed.getExercise().getMetabolicEquivalent(),
-                            exercisePerformed.getMinutes(),
-                            weight.getPounds()
-                    );
-                    dto.setPointsBurned(pointsBurned);
-                }
-                return dto;
-            }
-        });
+        return exercisesPerformed.stream()
+                .map( (ExercisePerformed exercisePerformed) -> {
+                    final ExercisePerformedDTO dto = exercisePerformedDTOConverter.convert(exercisePerformed);
+                    if (dto != null) {
+                        final int caloriesBurned = calculateCaloriesBurned(
+                                exercisePerformed.getExercise().getMetabolicEquivalent(),
+                                exercisePerformed.getMinutes(),
+                                weight.getPounds()
+                        );
+                        dto.setCaloriesBurned(caloriesBurned);
+                        final double pointsBurned = calculatePointsBurned(
+                                exercisePerformed.getExercise().getMetabolicEquivalent(),
+                                exercisePerformed.getMinutes(),
+                                weight.getPounds()
+                        );
+                        dto.setPointsBurned(pointsBurned);
+                    }
+                    return dto;
+                })
+                .collect(toList());
     }
 
     @Nonnull
@@ -117,7 +104,9 @@ public final class ExerciseService {
                 new Date(twoWeeksAgo.getTime()),
                 new Date(currentDate.getTime())
         );
-        return Lists.transform(recentExercises, exerciseToDTOConversionFunction);
+        return recentExercises.stream()
+                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .collect(toList());
     }
 
     public final void addExercisePerformed(
@@ -125,12 +114,8 @@ public final class ExerciseService {
             @Nonnull final UUID exerciseId,
             @Nonnull final Date date
     ) {
-        final boolean duplicate = Iterables.any(findPerformedOnDate(userId, date), new Predicate<ExercisePerformedDTO>() {
-            @Override
-            public boolean apply(@Nonnull final ExercisePerformedDTO exerciseAlreadyPerformed) {
-                return exerciseAlreadyPerformed.getExercise().getId().equals(exerciseId);
-            }
-        });
+        final boolean duplicate = findPerformedOnDate(userId, date).stream()
+                .anyMatch( (ExercisePerformedDTO exerciseAlreadyPerformed) -> exerciseAlreadyPerformed.getExercise().getId().equals(exerciseId) );
         if (!duplicate) {
             final User user = userRepository.findOne(userId);
             final Exercise exercise = exerciseRepository.findOne(exerciseId);
@@ -175,14 +160,16 @@ public final class ExerciseService {
 
     @Nonnull
     public final List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
-        final List<Exercise> exercises = exerciseRepository.findByCategoryOrderByDescriptionAsc(category);
-        return Lists.transform(exercises, exerciseToDTOConversionFunction);
+        return exerciseRepository.findByCategoryOrderByDescriptionAsc(category).stream()
+                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .collect(toList());
     }
 
     @Nonnull
     public final List<ExerciseDTO> searchExercises(@Nonnull final String searchString) {
-        final List<Exercise> exercises = exerciseRepository.findByDescriptionLike(searchString);
-        return Lists.transform(exercises, exerciseToDTOConversionFunction);
+        return exerciseRepository.findByDescriptionLike(searchString).stream()
+                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .collect(toList());
     }
 
     public static int calculateCaloriesBurned(

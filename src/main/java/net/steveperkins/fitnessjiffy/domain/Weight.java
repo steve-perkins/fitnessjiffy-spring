@@ -1,7 +1,5 @@
 package net.steveperkins.fitnessjiffy.domain;
 
-import com.google.common.base.Optional;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -12,6 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.sql.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -41,7 +40,7 @@ public final class Weight {
             @Nonnull final Date date,
             final double pounds
     ) {
-        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
+        this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.user = user;
         this.date = (Date) date.clone();
         this.pounds = pounds;

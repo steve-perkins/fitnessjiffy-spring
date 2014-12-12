@@ -1,7 +1,5 @@
 package net.steveperkins.fitnessjiffy.controller;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import net.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import net.steveperkins.fitnessjiffy.dto.UserDTO;
@@ -19,22 +17,21 @@ import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
 
 @Controller
 public final class ExerciseController extends AbstractController {
 
     private final ExerciseService exerciseService;
 
-    private final Function<ExerciseDTO, ExerciseDTO> truncateExerciseDescriptionFunction = new Function<ExerciseDTO, ExerciseDTO>() {
-        @Nonnull
-        @Override
-        public ExerciseDTO apply(@Nonnull final ExerciseDTO exerciseDTO) {
-            if (exerciseDTO.getDescription().length() > 50) {
-                final String description = exerciseDTO.getDescription().substring(0, 47) + "...";
-                exerciseDTO.setDescription(description);
-            }
-            return exerciseDTO;
+    private final Function<ExerciseDTO, ExerciseDTO> truncateExerciseDescriptionFunction = (ExerciseDTO exerciseDTO) -> {
+        if (exerciseDTO.getDescription().length() > 50) {
+            final String description = exerciseDTO.getDescription().substring(0, 47) + "...";
+            exerciseDTO.setDescription(description);
         }
+        return exerciseDTO;
     };
 
     @Autowired
@@ -54,17 +51,17 @@ public final class ExerciseController extends AbstractController {
         final UserDTO user = currentAuthenticatedUser();
         final Date date = stringToSqlDate(dateString);
 
-        final List<ExerciseDTO> exercisesPerformedRecently = Lists.transform(
-                exerciseService.findPerformedRecently(user.getId(), date),
-                truncateExerciseDescriptionFunction
-        );
+        final List<ExerciseDTO> exercisesPerformedRecently = exerciseService.findPerformedRecently(user.getId(), date)
+                .stream()
+                .map(truncateExerciseDescriptionFunction)
+                .collect(toList());
 
         final List<String> categories = exerciseService.findAllCategories();
         final String firstCategory = (categories.size() > 0) ? categories.get(0) : "";
-        final List<ExerciseDTO> exercisesInCategory = Lists.transform(
-                exerciseService.findExercisesInCategory(firstCategory),
-                truncateExerciseDescriptionFunction
-        );
+        final List<ExerciseDTO> exercisesInCategory = exerciseService.findExercisesInCategory(firstCategory)
+                .stream()
+                .map(truncateExerciseDescriptionFunction)
+                .collect(toList());
 
         final List<ExercisePerformedDTO> exercisePerformedThisDate = exerciseService.findPerformedOnDate(user.getId(), date);
         int totalMinutes = 0;

@@ -1,7 +1,5 @@
 package net.steveperkins.fitnessjiffy.domain;
 
-import com.google.common.base.Optional;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -12,6 +10,7 @@ import javax.persistence.Table;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -150,7 +149,7 @@ public class User {
             @Nonnull final Timestamp createdTime,
             @Nonnull final Timestamp lastUpdatedTime
     ) {
-        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
+        this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.gender = gender.toString();
         this.birthdate = (Date) birthdate.clone();
         this.heightInInches = heightInInches;

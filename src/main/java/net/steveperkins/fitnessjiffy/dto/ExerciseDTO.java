@@ -1,10 +1,9 @@
 package net.steveperkins.fitnessjiffy.dto;
 
-import com.google.common.base.Optional;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class ExerciseDTO implements Serializable {
@@ -22,7 +21,7 @@ public final class ExerciseDTO implements Serializable {
             @Nonnull final String category,
             @Nonnull final String description
     ) {
-        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
+        this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.code = code;
         this.metabolicEquivalent = metabolicEquivalent;
         this.category = category;

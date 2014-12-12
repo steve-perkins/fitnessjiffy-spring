@@ -1,9 +1,5 @@
 package net.steveperkins.fitnessjiffy.service;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.domain.Food;
 import net.steveperkins.fitnessjiffy.domain.FoodEaten;
 import net.steveperkins.fitnessjiffy.domain.User;
@@ -26,6 +22,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public final class FoodService {
 
@@ -35,24 +33,6 @@ public final class FoodService {
     private final FoodEatenRepository foodEatenRepository;
     private final FoodToFoodDTO foodDTOConverter;
     private final FoodEatenToFoodEatenDTO foodEatenDTOConverter;
-
-    private final Function<Food, FoodDTO> foodToDTOConversionFunction =
-            new Function<Food, FoodDTO>() {
-                @Nullable
-                @Override
-                public FoodDTO apply(@Nullable final Food food) {
-                    return foodDTOConverter.convert(food);
-                }
-            };
-
-    private final Function<FoodEaten, FoodEatenDTO> foodEatenToDTOConversionFunction =
-            new Function<FoodEaten, FoodEatenDTO>() {
-                @Nullable
-                @Override
-                public FoodEatenDTO apply(@Nullable final FoodEaten foodEaten) {
-                    return foodEatenDTOConverter.convert(foodEaten);
-                }
-            };
 
     @Autowired
     public FoodService(
@@ -77,8 +57,10 @@ public final class FoodService {
             @Nonnull final Date date
     ) {
         final User user = userRepository.findOne(userId);
-        final List<FoodEaten> foodEatens = foodEatenRepository.findByUserEqualsAndDateEquals(user, date);
-        return Lists.transform(foodEatens, foodEatenToDTOConversionFunction);
+        return foodEatenRepository.findByUserEqualsAndDateEquals(user, date)
+                .stream()
+                .map( (FoodEaten foodEaten) -> foodEatenDTOConverter.convert(foodEaten))
+                .collect(toList());
     }
 
     @Nonnull
@@ -91,12 +73,10 @@ public final class FoodService {
         calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, -14);
         final Date twoWeeksAgo = new Date(calendar.getTime().getTime());
-        final List<Food> recentFoods = foodEatenRepository.findByUserEatenWithinRange(
-                user,
-                new Date(twoWeeksAgo.getTime()),
-                new Date(currentDate.getTime())
-        );
-        return Lists.transform(recentFoods, foodToDTOConversionFunction);
+        return foodEatenRepository.findByUserEatenWithinRange(user, new Date(twoWeeksAgo.getTime()), new Date(currentDate.getTime()) )
+                .stream()
+                .map( (Food food) -> foodDTOConverter.convert(food) )
+                .collect(toList());
     }
 
     @Nullable
@@ -110,12 +90,8 @@ public final class FoodService {
             @Nonnull final UUID foodId,
             @Nonnull final Date date
     ) {
-        final boolean duplicate = Iterables.any(findEatenOnDate(userId, date), new Predicate<FoodEatenDTO>() {
-            @Override
-            public boolean apply(@Nonnull final FoodEatenDTO foodAlreadyEaten) {
-                return foodAlreadyEaten.getFood().getId().equals(foodId);
-            }
-        });
+        final boolean duplicate = findEatenOnDate(userId, date).stream()
+                .anyMatch( (FoodEatenDTO foodAlreadyEaten) -> foodAlreadyEaten.getFood().getId().equals(foodId) );
         if (!duplicate) {
             final User user = userRepository.findOne(userId);
             final Food food = foodRepository.findOne(foodId);
@@ -157,7 +133,7 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
-        return Lists.transform(foods, foodToDTOConversionFunction);
+        return foods.stream().map( (Food food) -> foodDTOConverter.convert(food) ).collect(toList());
     }
 
     @Nullable
@@ -179,17 +155,10 @@ public final class FoodService {
             // Halt if this update would create two foods with duplicate names owned by the same user.
             final User user = userRepository.findOne(userDTO.getId());
             final List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
-            final boolean noConflictsFound = Iterables.all(foodsWithSameNameOwnedByThisUser, new Predicate<Food>() {
-                @Override
-                public boolean apply(@Nonnull final Food food) {
-                    return foodDTO.getId().equals(food.getId());
-                }
-            });
-            if (!noConflictsFound) {
-                resultMessage = "Error:  You already have another customized food with this name.";
-
-            } else {
-
+            final boolean noConflictsFound = foodsWithSameNameOwnedByThisUser
+                    .stream()
+                    .allMatch( (Food food) -> foodDTO.getId().equals(food.getId()) ); // Should be only one item in this stream anyway
+            if (noConflictsFound) {
                 // If this is already a user-owned food, then simply update it.  Otherwise, if it's a global food then create a
                 // user-owned copy for this user.
                 Food food = null;
@@ -219,6 +188,8 @@ public final class FoodService {
                 foodRepository.save(food);
                 resultMessage = "Success!";
                 reportDataService.updateUserFromDate(user, dateFirstEaten);
+            } else {
+                resultMessage = "Error:  You already have another customized food with this name.";
             }
 
         } else {

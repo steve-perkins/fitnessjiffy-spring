@@ -1,7 +1,5 @@
 package net.steveperkins.fitnessjiffy.service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import net.steveperkins.fitnessjiffy.config.SecurityConfig;
 import net.steveperkins.fitnessjiffy.domain.User;
 import net.steveperkins.fitnessjiffy.domain.Weight;
@@ -26,6 +24,9 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public final class UserService {
@@ -59,13 +60,9 @@ public final class UserService {
 
     @Nonnull
     public List<UserDTO> findAllUsers() {
-        return Lists.transform(Lists.newLinkedList(userRepository.findAll()), new Function<User, UserDTO>() {
-            @Nullable
-            @Override
-            public UserDTO apply(@Nullable final User user) {
-                return userDTOConverter.convert(user);
-            }
-        });
+        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
+                .map( (User user) -> userDTOConverter.convert(user) )
+                .collect(toList());
     }
 
     public void createUser(

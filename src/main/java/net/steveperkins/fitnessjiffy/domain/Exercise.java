@@ -1,13 +1,12 @@
 package net.steveperkins.fitnessjiffy.domain;
 
-import com.google.common.base.Optional;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -37,7 +36,7 @@ public final class Exercise {
             @Nonnull final String category,
             @Nonnull final String description
     ) {
-        this.id = Optional.fromNullable(id).or(UUID.randomUUID());
+        this.id = Optional.ofNullable(id).orElse(UUID.randomUUID());
         this.code = code;
         this.metabolicEquivalent = metabolicEquivalent;
         this.category = category;
