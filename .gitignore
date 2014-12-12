@@ -9,3 +9,8 @@
 /.project
 /.idea
 /fitnessjiffy-spring.iml
+
+gradle-wrapper.jar
+gradle-wrapper.properties
+gradlew
+gradlew.bat
