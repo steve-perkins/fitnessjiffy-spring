@@ -313,14 +313,18 @@
         var averagePoints = Math.round(totalPoints / data.length);
         var label = fieldToLabel( $("#dateRange").val() );
         $("#statLabel").html(label);
-        $("#weightChange").html(weightChange);
-        $("#startingWeight").html(startingWeight);
-        $("#endingWeight").html(endingWeight);
-        $("#maxWeight").html(maxWeight);
-        $("#minWeight").html(minWeight);
-        $("#averageWeight").html(averageWeight);
-        $("#averageCalories").html(averageCalories);
-        $("#averagePoints").html(averagePoints);
+        $("#weightChange").html( limitToOneDecimalPlace(weightChange).toString() );
+        $("#startingWeight").html( limitToOneDecimalPlace(startingWeight).toString() );
+        $("#endingWeight").html( limitToOneDecimalPlace(endingWeight).toString() );
+        $("#maxWeight").html( limitToOneDecimalPlace(maxWeight).toString() );
+        $("#minWeight").html( limitToOneDecimalPlace(minWeight).toString() );
+        $("#averageWeight").html( limitToOneDecimalPlace(averageWeight).toString() );
+        $("#averageCalories").html( limitToOneDecimalPlace(averageCalories).toString() );
+        $("#averagePoints").html( limitToOneDecimalPlace(averagePoints).toString() );
+    }
+
+    function limitToOneDecimalPlace(number) {
+        return (number.toString().indexOf('.') >= 0) ? number.toFixed(1) : number;
     }
 
     $(function() {
