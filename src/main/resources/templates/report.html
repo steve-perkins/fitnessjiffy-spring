@@ -93,7 +93,6 @@
                         <option value="netPoints">Net points per day</option>
                         <option value="calories30avg">Calories 30-day moving average</option>
                         <option value="points30avg">Points 30-day moving average</option>
-                        <option value="points30avg">Points 30-day moving average</option>
                     </select>
                 </label>
             </div>
@@ -104,14 +103,25 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-3 col-sm-offset-3 strong">
+            <div class="col-sm-3 col-sm-offset-2 strong">
+                Weight change: <span id="weightChange"/> lbs.<br/>
+                Starting weight: <span id="startingWeight"/> lbs.<br/>
+                Ending weight: <span id="endingWeight"/> lbs.<br/><br/>
+            </div>
+            <div class="col-sm-3 strong">
                 Average weight: <span id="averageWeight"/> lbs.<br/>
                 Max weight: <span id="maxWeight"/> lbs.<br/>
-                Min weight: <span id="minWeight"/> lbs.<br/>
+                Min weight: <span id="minWeight"/> lbs.<br/><br/>
             </div>
             <div class="col-sm-3 strong">
                 Average net calories per day: <span id="averageCalories"/><br/>
-                Average net points per day: <span id="averagePoints"/><br/>
+                Average net points per day: <span id="averagePoints"/><br/><br/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="center-block center-content" style="font-size: 90%; font-style: italic;">
+                <br/>
+                (NOTE: There is a two-minute delay before changes to diet, exercise, or the user profile are reflected in this data.)
             </div>
         </div>
     </div>
@@ -278,6 +288,9 @@
     }
 
     function renderStats(data) {
+        var startingWeight = data[0].pounds;
+        var endingWeight = data[data.length - 1].pounds;
+        var weightChange = endingWeight - startingWeight;
         var maxWeight = 0;
         var minWeight;
         var totalWeights = 0;
@@ -300,6 +313,9 @@
         var averagePoints = Math.round(totalPoints / data.length);
         var label = fieldToLabel( $("#dateRange").val() );
         $("#statLabel").html(label);
+        $("#weightChange").html(weightChange);
+        $("#startingWeight").html(startingWeight);
+        $("#endingWeight").html(endingWeight);
         $("#maxWeight").html(maxWeight);
         $("#minWeight").html(minWeight);
         $("#averageWeight").html(averageWeight);
