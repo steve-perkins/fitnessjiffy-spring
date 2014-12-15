@@ -104,23 +104,25 @@
         </div>
         <div class="row">
             <div class="col-sm-3 col-sm-offset-2 strong">
-                Weight change: <span id="weightChange"/> lbs.<br/>
                 Starting weight: <span id="startingWeight"/> lbs.<br/>
                 Ending weight: <span id="endingWeight"/> lbs.<br/><br/>
-            </div>
-            <div class="col-sm-3 strong">
-                Average weight: <span id="averageWeight"/> lbs.<br/>
                 Max weight: <span id="maxWeight"/> lbs.<br/>
                 Min weight: <span id="minWeight"/> lbs.<br/><br/>
+            </div>
+            <div class="col-sm-3 strong">
+                Weight change: <span id="weightChange"/> lbs.<br/>
+                Weight change per week: <span id="weightChangePerWeek"/> lbs.<br/><br/>
+                Average weight: <span id="averageWeight"/> lbs.<br/>
+                Weight range: <span id="weightRange"/> lbs.<br/><br/>
             </div>
             <div class="col-sm-3 strong">
                 Average net calories per day: <span id="averageCalories"/><br/>
                 Average net points per day: <span id="averagePoints"/><br/><br/>
             </div>
         </div>
+        <br/>
         <div class="row">
-            <div class="center-block center-content" style="font-size: 90%; font-style: italic;">
-                <br/>
+            <div class="center-block center-content fine-print">
                 (NOTE: There is a two-minute delay before changes to diet, exercise, or the user profile are reflected in this data.)
             </div>
         </div>
@@ -291,6 +293,7 @@
         var startingWeight = data[0].pounds;
         var endingWeight = data[data.length - 1].pounds;
         var weightChange = endingWeight - startingWeight;
+        var weightChangePerWeek = weightChange / (data.length / 7);
         var maxWeight = 0;
         var minWeight;
         var totalWeights = 0;
@@ -308,17 +311,20 @@
             totalCalories += data[index].netCalories;
             totalPoints += data[index].netPoints;
         }
+        var weightRange = maxWeight - minWeight;
         var averageWeight = Math.round(totalWeights / data.length);
         var averageCalories = Math.round(totalCalories / data.length);
         var averagePoints = Math.round(totalPoints / data.length);
         var label = fieldToLabel( $("#dateRange").val() );
         $("#statLabel").html(label);
-        $("#weightChange").html( limitToOneDecimalPlace(weightChange).toString() );
         $("#startingWeight").html( limitToOneDecimalPlace(startingWeight).toString() );
         $("#endingWeight").html( limitToOneDecimalPlace(endingWeight).toString() );
         $("#maxWeight").html( limitToOneDecimalPlace(maxWeight).toString() );
         $("#minWeight").html( limitToOneDecimalPlace(minWeight).toString() );
+        $("#weightChange").html( limitToOneDecimalPlace(weightChange).toString() );
+        $("#weightChangePerWeek").html( limitToOneDecimalPlace(weightChangePerWeek).toString() );
         $("#averageWeight").html( limitToOneDecimalPlace(averageWeight).toString() );
+        $("#weightRange").html( limitToOneDecimalPlace(weightRange).toString() );
         $("#averageCalories").html( limitToOneDecimalPlace(averageCalories).toString() );
         $("#averagePoints").html( limitToOneDecimalPlace(averagePoints).toString() );
     }
