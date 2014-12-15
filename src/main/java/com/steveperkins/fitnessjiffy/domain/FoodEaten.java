@@ -123,7 +123,7 @@ public final class FoodEaten {
     }
 
     public double getFat() {
-        return food.getCalories() * getRatio();
+        return food.getFat() * getRatio();
     }
 
     public double getSaturatedFat() {
