@@ -98,7 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             final User user = userRepository.findOne(userDTO.getId());
 
             // Schedule a ReportData update
-            final Date lastUpdateDate = new Date(user.getLastUpdatedTime().getTime());  // TODO:  need to account for time zone?
+            final Date lastUpdateDate = new Date(user.getLastUpdatedTime().getTime());
             reportDataService.updateUserFromDate(user, lastUpdateDate);
         }
 

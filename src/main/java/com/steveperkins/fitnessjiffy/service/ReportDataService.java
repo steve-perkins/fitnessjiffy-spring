@@ -229,7 +229,7 @@ public final class ReportDataService {
             LocalDate currentDate = startDate.toLocalDate();
 
             // Iterate through all dates from the start date through today.
-            while (currentDate.toString().compareTo(today.toString()) <= 0) {  // TODO: Using string-based comparison rather than true object-level comparison, because of time zone wonkiness that needs to be sorted out across the board.
+            while (currentDate.toString().compareTo(today.toString()) <= 0) {
 
                 System.out.printf("Creating or updating ReportData record for user [%s] on date [%s]%n", user.getEmail(), currentDate);
 

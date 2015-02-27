@@ -18,6 +18,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public abstract class AbstractController {
 
@@ -127,6 +128,7 @@ public abstract class AbstractController {
     protected final java.sql.Date stringToSqlDate(@Nonnull final String dateString) {
         java.sql.Date date = null;
         try {
+            dateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York"));
             final Date utilDate = dateFormat.parse(dateString);
             date = new java.sql.Date(utilDate.getTime());
         } catch (ParseException e) {
