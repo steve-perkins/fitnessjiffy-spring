@@ -59,7 +59,7 @@ public final class FoodService {
         final User user = userRepository.findOne(userId);
         return foodEatenRepository.findByUserEqualsAndDateEquals(user, date)
                 .stream()
-                .map( (FoodEaten foodEaten) -> foodEatenDTOConverter.convert(foodEaten))
+                .map(foodEatenDTOConverter::convert)
                 .collect(toList());
     }
 
@@ -75,7 +75,7 @@ public final class FoodService {
         final Date twoWeeksAgo = new Date(calendar.getTime().getTime());
         return foodEatenRepository.findByUserEatenWithinRange(user, new Date(twoWeeksAgo.getTime()), new Date(currentDate.getTime()) )
                 .stream()
-                .map( (Food food) -> foodDTOConverter.convert(food) )
+                .map(foodDTOConverter::convert)
                 .collect(toList());
     }
 
@@ -133,7 +133,7 @@ public final class FoodService {
     ) {
         final User user = userRepository.findOne(userId);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
-        return foods.stream().map( (Food food) -> foodDTOConverter.convert(food) ).collect(toList());
+        return foods.stream().map(foodDTOConverter::convert).collect(toList());
     }
 
     @Nullable

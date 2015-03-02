@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Date;
 
 @Controller
-public final class ProfileController extends AbstractController {
+final class ProfileController extends AbstractController {
 
     private final UserService userService;
 
@@ -32,22 +33,22 @@ public final class ProfileController extends AbstractController {
     @RequestMapping(value = {"/", "/profile"}, method = RequestMethod.GET)
     @Nonnull
     public final String viewMainProfilePage(
-            @Nonnull
-            @RequestParam(value = "date", defaultValue = TODAY)
+            @Nullable
+            @RequestParam(value = "date", required = false)
             final String dateString,
 
             @Nonnull final Model model
     ) {
-        final UserDTO user = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
-        final WeightDTO weight = userService.findWeightOnDate(user, date);
+        final UserDTO userDTO = currentAuthenticatedUser();
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+        final WeightDTO weight = userService.findWeightOnDate(userDTO, date);
         final String weightEntry = (weight == null) ? "" : String.valueOf(weight.getPounds());
-        final int heightFeet = (int) (user.getHeightInInches() / 12);
-        final int heightInches = (int) user.getHeightInInches() % 12;
+        final int heightFeet = (int) (userDTO.getHeightInInches() / 12);
+        final int heightInches = (int) userDTO.getHeightInInches() % 12;
 
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
-        model.addAttribute("user", user);
+        model.addAttribute("user", userDTO);
         model.addAttribute("dateString", dateString);
         model.addAttribute("weightEntry", weightEntry);
         model.addAttribute("heightFeet", heightFeet);
@@ -59,7 +60,7 @@ public final class ProfileController extends AbstractController {
     @Nonnull
     public final String updateProfile(
             @Nonnull
-            @RequestParam(value = "date", defaultValue = TODAY)
+            @RequestParam(value = "date", required = false)
             final String dateString,
 
             @Nonnull
@@ -74,17 +75,15 @@ public final class ProfileController extends AbstractController {
             @RequestParam(value = "reenterNewPassword")
             final String reenterNewPassword,
 
-            @Nonnull
             @RequestParam(value = "heightFeet")
             final int heightFeet,
 
-            @Nonnull
             @RequestParam(value = "heightInches")
             final int heightInches,
 
             @Nonnull
             @ModelAttribute("user")
-            final UserDTO user,
+            final UserDTO userDTO,
 
             @Nonnull
             final BindingResult result,
@@ -94,24 +93,24 @@ public final class ProfileController extends AbstractController {
     ) {
         if (currentPassword == null || currentPassword.isEmpty()) {
             model.addAttribute("profileSaveError", "You must verify the current password in order to make any changes to this profile.");
-        } else if (!userService.verifyPassword(user, currentPassword)) {
+        } else if (!userService.verifyPassword(userDTO, currentPassword)) {
             model.addAttribute("profileSaveError", "The password entered does not match the current password.");
         } else if (newPassword != null && !newPassword.isEmpty() && reenterNewPassword != null && !reenterNewPassword.equals(newPassword)) {
             model.addAttribute("profileSaveError", "The 'New Password' and 'Re-enter New Password' fields did not match.");
         } else {
             // Apply the height fields to the user entity
-            user.setHeightInInches( (heightFeet * 12) + heightInches );
+            userDTO.setHeightInInches( (heightFeet * 12) + heightInches );
 
             // Update user in the database
             if (newPassword.isEmpty()) {
-                userService.updateUser(user);
+                userService.updateUser(userDTO);
             } else {
-                userService.updateUser(user, newPassword);
+                userService.updateUser(userDTO, newPassword);
             }
 
             // Update the user in the active Spring Security session
-            final UserDTO updatedUser = userService.findUser(user.getId());  // re-calc BMI, daily calorie needs, etc
-            final String passwordHash = userService.getPasswordHash(user);
+            final UserDTO updatedUser = userService.findUser(userDTO.getId());  // re-calc BMI, daily calorie needs, etc
+            final String passwordHash = userService.getPasswordHash(userDTO);
             final SecurityConfig.SpringUserDetails newUserDetails = new SecurityConfig.SpringUserDetails(updatedUser, passwordHash);
             final UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(newUserDetails, passwordHash, null);
             SecurityContextHolder.getContext().setAuthentication(newAuth);
@@ -126,15 +125,15 @@ public final class ProfileController extends AbstractController {
         @RequestParam(value = "weightEntry", defaultValue = "0")
         final double weightEntry,
 
-        @Nonnull
-        @RequestParam(value = "dateString", defaultValue = TODAY)
+        @Nullable
+        @RequestParam(value = "dateString", required = false)
         final String dateString,
 
         @Nonnull final Model model
     ) {
-        final UserDTO user = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
-        userService.updateWeight(user, date, weightEntry);
+        final UserDTO userDTO = currentAuthenticatedUser();
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
+        userService.updateWeight(userDTO, date, weightEntry);
 
         return viewMainProfilePage(dateString, model);
     }

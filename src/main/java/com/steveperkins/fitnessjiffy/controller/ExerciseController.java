@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +23,7 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toList;
 
 @Controller
-public final class ExerciseController extends AbstractController {
+final class ExerciseController extends AbstractController {
 
     private final ExerciseService exerciseService;
 
@@ -42,16 +43,16 @@ public final class ExerciseController extends AbstractController {
     @RequestMapping(value = "/exercise", method = RequestMethod.GET)
     @Nonnull
     public final String viewMainExercisePage(
-            @Nonnull
-            @RequestParam(value = "date", defaultValue = TODAY)
+            @Nullable
+            @RequestParam(value = "date", required = false)
             final String dateString,
 
             @Nonnull final Model model
     ) {
-        final UserDTO user = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
+        final UserDTO userDTO = currentAuthenticatedUser();
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
 
-        final List<ExerciseDTO> exercisesPerformedRecently = exerciseService.findPerformedRecently(user.getId(), date)
+        final List<ExerciseDTO> exercisesPerformedRecently = exerciseService.findPerformedRecently(userDTO.getId(), date)
                 .stream()
                 .map(truncateExerciseDescriptionFunction)
                 .collect(toList());
@@ -63,7 +64,7 @@ public final class ExerciseController extends AbstractController {
                 .map(truncateExerciseDescriptionFunction)
                 .collect(toList());
 
-        final List<ExercisePerformedDTO> exercisePerformedThisDate = exerciseService.findPerformedOnDate(user.getId(), date);
+        final List<ExercisePerformedDTO> exercisePerformedThisDate = exerciseService.findPerformedOnDate(userDTO.getId(), date);
         int totalMinutes = 0;
         int totalCaloriesBurned = 0;
         for (final ExercisePerformedDTO exercisePerformed : exercisePerformedThisDate) {
@@ -85,11 +86,11 @@ public final class ExerciseController extends AbstractController {
     @Nonnull
     public final String addExercisePerformed(
             @Nonnull @RequestParam(value = "exerciseId", required = true) final String exerciseIdString,
-            @Nonnull @RequestParam(value = "date", defaultValue = TODAY) final String dateString,
+            @Nullable @RequestParam(value = "date", required = false) final String dateString,
             @Nonnull final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final UUID exerciseId = UUID.fromString(exerciseIdString);
         exerciseService.addExercisePerformed(userDTO.getId(), exerciseId, date);
         return viewMainExercisePage(dateString, model);

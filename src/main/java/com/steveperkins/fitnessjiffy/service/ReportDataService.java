@@ -20,7 +20,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -107,7 +111,7 @@ public final class ReportDataService {
         final User user = userRepository.findOne(userId);
         final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user);
         return reportData.stream()
-                .map((ReportData entity) -> reportDataDTOConverter.convert(entity))
+                .map(reportDataDTOConverter::convert)
                 .collect(toList());
     }
 
@@ -135,12 +139,23 @@ public final class ReportDataService {
             @Nonnull final User user,
             @Nonnull final Date date
     ) {
+        // The date is adjusted by the current time in the user's specific time zone.  For example, 2015-03-01 1:00 am
+        // on a GMT clock is actually 2015-02-28 8:00 pm if the user is in the "America/New_York" time zone.  So we
+        // must ensure that start from 02-28 rather than 03-01.
+        //
+        // Unfortunately, whenever the user is within that "date-straddling" window of time, this logic will push the
+        // date backwards by one day even when dealing with past historic dates rather than the current date.  We
+        // might be able to resolve that with even more logic, but I don't think it's that big of a deal for now.
+        // Most updates should normally be for the current date rather than a historical revision, so a little extra
+        // work in an edge case scenerio may be justified by keeping the logic more simple.
+        final Date adjustedDate = adjustDateForTimeZone(date, ZoneId.of("America/New_York"));
+
         final ReportDataUpdateEntry existingEntry = scheduledUserUpdates.get(user.getId());
         if (existingEntry != null) {
             if (existingEntry.getFuture().isCancelled() || existingEntry.getFuture().isDone()) {
                 // There was an update recently scheduled for this user, but it has completed and its entry can be cleaned up.
                 scheduledUserUpdates.remove(user.getId());
-            } else if (existingEntry.getStartDate().after(date)) {
+            } else if (existingEntry.getStartDate().after(adjustedDate)) {
                 // There is an update still pending for this user, but its date range is superseded by that of the new
                 // update and therefore can be cancelled and cleaned up.
                 existingEntry.getFuture().cancel(false);
@@ -153,10 +168,10 @@ public final class ReportDataService {
         }
 
         // Schedule an update for this user, and add an entry in the conflicts list.
-        System.out.printf("Scheduling a ReportData update for user [%s] from date [%s] in %d milliseconds%n", user.getEmail(), date, scheduleDelayInMillis);
-        final ReportDataUpdateTask task = new ReportDataUpdateTask(user, date);
+        System.out.printf("Scheduling a ReportData update for user [%s] from date [%s] in %d milliseconds%n", user.getEmail(), adjustedDate, scheduleDelayInMillis);
+        final ReportDataUpdateTask task = new ReportDataUpdateTask(user, adjustedDate);
         final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInMillis, TimeUnit.MILLISECONDS);
-        final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(date, future);
+        final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(adjustedDate, future);
         scheduledUserUpdates.put(user.getId(), newUpdateEntry);
         return future;
     }
@@ -164,6 +179,24 @@ public final class ReportDataService {
     public synchronized final boolean isIdle() {
         System.out.printf("%d active threads, %d queued tasks%n", reportDataUpdateThreadPool.getActiveCount(), scheduledUserUpdates.size());
         return reportDataUpdateThreadPool.getActiveCount() == 0 && scheduledUserUpdates.isEmpty();
+    }
+
+    /**
+     * When the input date is "today", then this method returns the current date in the given time zone (e.g. the input
+     * date might be early in the morning of 2015-03-01 in standard GMT, yet still late in the evening of 2015-02-28 in
+     * New York).  This method does not modify historic dates earlier than today, because the current time of day today
+     * shouldn't cause historic dates to change.
+     */
+    @Nonnull
+    public final Date adjustDateForTimeZone(final Date date, final ZoneId timeZone) {
+        final LocalDateTime localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
+        final LocalDateTime today = LocalDateTime.now();
+        Date adjustedDate = (Date) date.clone();
+        if (localDate.getDayOfYear() == today.getDayOfYear()) {
+            final ZonedDateTime zonedDateTime = ZonedDateTime.now(timeZone);
+            adjustedDate = new Date(zonedDateTime.toLocalDate().atStartOfDay(timeZone).toInstant().toEpochMilli());
+        }
+        return adjustedDate;
     }
 
     /**
@@ -225,7 +258,7 @@ public final class ReportDataService {
 
         @Override
         public void run() {
-            final Date today = new Date(System.currentTimeMillis());
+            final Date today = adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of("America/New_York"));
             LocalDate currentDate = startDate.toLocalDate();
 
             // Iterate through all dates from the start date through today.

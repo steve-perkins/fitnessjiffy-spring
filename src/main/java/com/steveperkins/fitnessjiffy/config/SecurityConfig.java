@@ -17,8 +17,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.Nonnull;
@@ -143,13 +141,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Nonnull
     private DaoAuthenticationProvider buildDaoAuthenticationProvider() {
         final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(new UserDetailsService() {
-            @Override
-            public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-                final User user = userRepository.findByEmailEquals(username);
-                final UserDTO userDTO = userDTOConverter.convert(user);
-                return (user == null) ? null : new SpringUserDetails(userDTO, user.getPasswordHash());
-            }
+        daoAuthenticationProvider.setUserDetailsService(username -> {
+            final User user = userRepository.findByEmailEquals(username);
+            final UserDTO userDTO = userDTOConverter.convert(user);
+            return (user == null || userDTO == null) ? null : new SpringUserDetails(userDTO, user.getPasswordHash());
         });
         daoAuthenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
         return daoAuthenticationProvider;

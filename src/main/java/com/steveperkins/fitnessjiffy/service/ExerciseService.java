@@ -105,7 +105,7 @@ public final class ExerciseService {
                 new Date(currentDate.getTime())
         );
         return recentExercises.stream()
-                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .map(exerciseDTOConverter::convert)
                 .collect(toList());
     }
 
@@ -161,14 +161,14 @@ public final class ExerciseService {
     @Nonnull
     public final List<ExerciseDTO> findExercisesInCategory(@Nonnull final String category) {
         return exerciseRepository.findByCategoryOrderByDescriptionAsc(category).stream()
-                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .map(exerciseDTOConverter::convert)
                 .collect(toList());
     }
 
     @Nonnull
     public final List<ExerciseDTO> searchExercises(@Nonnull final String searchString) {
         return exerciseRepository.findByDescriptionLike(searchString).stream()
-                .map( (Exercise exercise) -> exerciseDTOConverter.convert(exercise) )
+                .map(exerciseDTOConverter::convert)
                 .collect(toList());
     }
 

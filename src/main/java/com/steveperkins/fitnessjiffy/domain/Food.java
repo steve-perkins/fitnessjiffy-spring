@@ -33,7 +33,7 @@ public final class Food {
         }
 
         @Nullable
-        public static final ServingType fromValue(final double value) {
+        public static ServingType fromValue(final double value) {
             ServingType match = null;
             for (final ServingType servingType : ServingType.values()) {
                 if (servingType.getValue() == value) {
@@ -44,7 +44,7 @@ public final class Food {
         }
 
         @Nullable
-        public static final ServingType fromString(@Nonnull final String s) {
+        public static ServingType fromString(@Nonnull final String s) {
             ServingType match = null;
             for (final ServingType servingType : ServingType.values()) {
                 if (servingType.toString().equalsIgnoreCase(s)) {

@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import java.security.SecureRandom;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
@@ -61,7 +62,7 @@ public final class UserService {
     @Nonnull
     public List<UserDTO> findAllUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                .map( (User user) -> userDTOConverter.convert(user) )
+                .map(userDTOConverter::convert)
                 .collect(toList());
     }
 
@@ -102,10 +103,11 @@ public final class UserService {
         user.setEmail(userDTO.getEmail());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
-        user.setLastUpdatedTime(new Timestamp(new java.util.Date().getTime()));
         if (newPassword != null && !newPassword.isEmpty()) {
             user.setPasswordHash(encryptPassword(newPassword));
         }
+        final java.util.Date lastUpdatedDate = reportDataService.adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of("America/New_York"));
+        user.setLastUpdatedTime(new Timestamp(lastUpdatedDate.getTime()));
         userRepository.save(user);
         refreshAuthenticatedUser();
         reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 @ContextConfiguration(classes = {Application.class})
 public abstract class AbstractTest {
 
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     DataSource dataSource;
 

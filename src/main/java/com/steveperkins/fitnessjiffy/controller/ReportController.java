@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @Controller
-public final class ReportController extends AbstractController {
+final class ReportController extends AbstractController {
 
     private final ReportDataService reportDataService;
 

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-public final class FoodController extends AbstractController {
+final class FoodController extends AbstractController {
 
     private final FoodService foodService;
     private final ExerciseService exerciseService;
@@ -43,18 +43,18 @@ public final class FoodController extends AbstractController {
     @RequestMapping(value = {"/food"}, method = RequestMethod.GET)
     @Nonnull
     public final String viewMainFoodPage(
-            @Nonnull
-            @RequestParam(value = "date", defaultValue = TODAY)
+            @Nullable
+            @RequestParam(value = "date", required = false)
             final String dateString,
 
             @Nonnull
             final Model model
     ) {
-        final UserDTO user = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
+        final UserDTO userDTO = currentAuthenticatedUser();
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
 
-        final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(user.getId(), date);
-        final List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(user.getId(), date);
+        final List<FoodDTO> foodsEatenRecently = foodService.findEatenRecently(userDTO.getId(), date);
+        final List<FoodEatenDTO> foodsEatenThisDate = foodService.findEatenOnDate(userDTO.getId(), date);
         int caloriesForDay, fatForDay, saturatedFatForDay, sodiumForDay, carbsForDay, fiberForDay, sugarForDay, proteinForDay;
         caloriesForDay = fatForDay = saturatedFatForDay = sodiumForDay = carbsForDay = fiberForDay = sugarForDay = proteinForDay = 0;
         double pointsForDay = 0.0;
@@ -71,12 +71,12 @@ public final class FoodController extends AbstractController {
         }
         int netCaloriesForDay = caloriesForDay;
         double netPointsForDay = pointsForDay;
-        for (final ExercisePerformedDTO exercisePerformed : exerciseService.findPerformedOnDate(user.getId(), date)) {
+        for (final ExercisePerformedDTO exercisePerformed : exerciseService.findPerformedOnDate(userDTO.getId(), date)) {
             netCaloriesForDay -= exercisePerformed.getCaloriesBurned();
             netPointsForDay -= exercisePerformed.getPointsBurned();
         }
 
-        model.addAttribute("user", user);
+        model.addAttribute("user", userDTO);
         model.addAttribute("dateString", dateString);
         model.addAttribute("foodsEatenRecently", foodsEatenRecently);
         model.addAttribute("foodsEatenThisDate", foodsEatenThisDate);
@@ -99,11 +99,11 @@ public final class FoodController extends AbstractController {
     @Nonnull
     public final String addFoodEaten(
             @Nonnull @RequestParam(value = "foodId", required = true) final String foodIdString,
-            @Nonnull @RequestParam(value = "date", defaultValue = TODAY) final String dateString,
+            @Nonnull @RequestParam(value = "date", required = false) final String dateString,
             @Nonnull final Model model
     ) {
         final UserDTO userDTO = currentAuthenticatedUser();
-        final Date date = stringToSqlDate(dateString);
+        final Date date = dateString == null ? todaySqlDateForUser(userDTO) : stringToSqlDate(dateString);
         final UUID foodId = UUID.fromString(foodIdString);
         foodService.addFoodEaten(userDTO.getId(), foodId, date);
         return viewMainFoodPage(dateString, model);

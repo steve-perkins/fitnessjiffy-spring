@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
     ext {
         springBootVersion = '1.2.0.RELEASE'
@@ -11,21 +13,30 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = 1.8
+//noinspection GroovyUnusedAssignment
+targetCompatibility = 1.8
+
 jar {
     baseName = 'fitnessjiffy-spring'
-    version = '1.7.0-SNAPSHOT'
+    version = project.version
 }
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+processResources {
+    filter ReplaceTokens, tokens:['application.version': project.version]
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
 
 repositories {
     mavenCentral()
 }
-
 configurations {
     compile.exclude module: 'spring-boot-starter-tomcat'
 }
@@ -40,15 +51,4 @@ dependencies {
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("com.h2database:h2:1.4.182")
-}
-
-eclipse {
-    classpath {
-        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
-    }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
 }
