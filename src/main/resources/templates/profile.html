@@ -249,6 +249,16 @@
             </div>
             <div class="row padded-bottom">
                 <div class="col-sm-6 leftcolumn">
+                    Time Zone:
+                </div>
+                <div class="col-sm-6 rightcolumn">
+                    <select class="form-control" th:field="*{timeZone}">
+                        <option th:each="timeZone : ${allTimeZones}" th:value="${timeZone}" th:text="${timeZone}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="row padded-bottom">
+                <div class="col-sm-6 leftcolumn">
                     Current weight:
                 </div>
                 <div class="col-sm-6 rightcolumn">

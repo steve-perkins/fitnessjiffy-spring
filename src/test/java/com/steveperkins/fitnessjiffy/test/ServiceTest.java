@@ -73,6 +73,7 @@ public class ServiceTest extends AbstractTest {
                 "john.doe@fake.com",
                 "John",
                 "Doe",
+                "America/New_York",
                 200,
                 30,
                 2000,

@@ -18,6 +18,7 @@ public final class UserDTO implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
+    private String timeZone;
     private double currentWeight;
     private double bmi;
     private int maintenanceCalories;
@@ -32,6 +33,7 @@ public final class UserDTO implements Serializable {
             @Nonnull final String email,
             @Nonnull final String firstName,
             @Nonnull final String lastName,
+            @Nonnull final String timeZone,
             final double currentWeight,
             final double bmi,
             final int maintenanceCalories,
@@ -45,6 +47,7 @@ public final class UserDTO implements Serializable {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.timeZone = timeZone;
         this.currentWeight = currentWeight;
         this.bmi = bmi;
         this.maintenanceCalories = maintenanceCalories;
@@ -125,6 +128,15 @@ public final class UserDTO implements Serializable {
         this.lastName = lastName;
     }
 
+    @Nonnull
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(@Nonnull final String timeZone) {
+        this.timeZone = timeZone;
+    }
+
     public double getCurrentWeight() {
         return currentWeight;
     }
@@ -170,6 +182,7 @@ public final class UserDTO implements Serializable {
                     && this.getEmail().equals(that.getEmail())
                     && this.getFirstName().equals(that.getFirstName())
                     && this.getLastName().equals(that.getLastName())
+                    && this.getTimeZone().equals(that.getTimeZone())
                     && this.getCurrentWeight() == that.getCurrentWeight()
                     && this.getBmi() == that.getBmi()
                     && this.getMaintenanceCalories() == that.getMaintenanceCalories()

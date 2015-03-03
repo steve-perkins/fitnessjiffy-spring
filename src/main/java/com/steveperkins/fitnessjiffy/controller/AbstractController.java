@@ -10,8 +10,9 @@ import javax.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.TimeZone;
 
 public abstract class AbstractController {
 
@@ -51,10 +52,13 @@ public abstract class AbstractController {
 
     @Nonnull
     final java.sql.Date todaySqlDateForUser(@Nullable final UserDTO user) {
-        final DateFormat localDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        localDateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-        final String dateString = localDateFormat.format(new Date());
-        return stringToSqlDate(dateString);
+        if (user == null) {
+            return new java.sql.Date(new Date().getTime());
+        } else {
+            final ZoneId timeZone = ZoneId.of(user.getTimeZone());
+            final ZonedDateTime zonedDateTime = ZonedDateTime.now(timeZone);
+            return new java.sql.Date(zonedDateTime.toLocalDate().atStartOfDay(timeZone).toInstant().toEpochMilli());
+        }
     }
 
 }

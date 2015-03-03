@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Date;
+import java.time.ZoneId;
+import java.util.TreeSet;
 
 @Controller
 final class ProfileController extends AbstractController {
@@ -48,6 +50,7 @@ final class ProfileController extends AbstractController {
 
         model.addAttribute("allActivityLevels", User.ActivityLevel.values());
         model.addAttribute("allGenders", User.Gender.values());
+        model.addAttribute("allTimeZones", new TreeSet<String>(ZoneId.getAvailableZoneIds()));
         model.addAttribute("user", userDTO);
         model.addAttribute("dateString", dateString);
         model.addAttribute("weightEntry", weightEntry);

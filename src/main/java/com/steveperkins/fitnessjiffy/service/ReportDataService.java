@@ -148,7 +148,7 @@ public final class ReportDataService {
         // might be able to resolve that with even more logic, but I don't think it's that big of a deal for now.
         // Most updates should normally be for the current date rather than a historical revision, so a little extra
         // work in an edge case scenerio may be justified by keeping the logic more simple.
-        final Date adjustedDate = adjustDateForTimeZone(date, ZoneId.of("America/New_York"));
+        final Date adjustedDate = adjustDateForTimeZone(date, ZoneId.of(user.getTimeZone()));
 
         final ReportDataUpdateEntry existingEntry = scheduledUserUpdates.get(user.getId());
         if (existingEntry != null) {
@@ -258,7 +258,7 @@ public final class ReportDataService {
 
         @Override
         public void run() {
-            final Date today = adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of("America/New_York"));
+            final Date today = adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of(user.getTimeZone()));
             LocalDate currentDate = startDate.toLocalDate();
 
             // Iterate through all dates from the start date through today.

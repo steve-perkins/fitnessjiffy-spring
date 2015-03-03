@@ -39,6 +39,7 @@ public final class UserToUserDTO implements Converter<User, UserDTO> {
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName(),
+                    user.getTimeZone(),
                     currentWeight,
                     getBmi(user, currentWeight),
                     getMaintenanceCalories(user, currentWeight),

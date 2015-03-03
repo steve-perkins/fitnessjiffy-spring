@@ -67,6 +67,7 @@ public class RepositoryTest extends AbstractTest {
                 null,
                 "Jane",
                 "Doe",
+                "America/New_York",
                 new Timestamp(new java.util.Date().getTime()),
                 new Timestamp(new java.util.Date().getTime())
         );

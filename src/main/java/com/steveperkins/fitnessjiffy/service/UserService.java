@@ -80,6 +80,7 @@ public final class UserService {
                 encryptPassword(password),
                 userDTO.getFirstName(),
                 userDTO.getLastName(),
+                userDTO.getTimeZone(),
                 new Timestamp(new java.util.Date().getTime()),
                 new Timestamp(new java.util.Date().getTime())
         );
@@ -103,10 +104,11 @@ public final class UserService {
         user.setEmail(userDTO.getEmail());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
+        user.setTimeZone(userDTO.getTimeZone());
         if (newPassword != null && !newPassword.isEmpty()) {
             user.setPasswordHash(encryptPassword(newPassword));
         }
-        final java.util.Date lastUpdatedDate = reportDataService.adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of("America/New_York"));
+        final java.util.Date lastUpdatedDate = reportDataService.adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of(userDTO.getTimeZone()));
         user.setLastUpdatedTime(new Timestamp(lastUpdatedDate.getTime()));
         userRepository.save(user);
         refreshAuthenticatedUser();

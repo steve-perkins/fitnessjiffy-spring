@@ -118,6 +118,9 @@ public class User {
     @Column(name = "LAST_NAME", length = 20, nullable = false)
     private String lastName;
 
+    @Column(name = "TIMEZONE", length = 50, nullable = false)
+    private String timeZone;
+
     @Column(name = "CREATED_TIME", nullable = false)
     private Timestamp createdTime;
 
@@ -146,6 +149,7 @@ public class User {
             @Nullable final String passwordHash,
             @Nonnull final String firstName,
             @Nonnull final String lastName,
+            @Nonnull final String timeZone,
             @Nonnull final Timestamp createdTime,
             @Nonnull final Timestamp lastUpdatedTime
     ) {
@@ -158,6 +162,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.timeZone = timeZone;
         this.createdTime = (Timestamp) createdTime.clone();
         this.lastUpdatedTime = (Timestamp) lastUpdatedTime.clone();
     }
@@ -246,6 +251,15 @@ public class User {
     }
 
     @Nonnull
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(@Nonnull final String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    @Nonnull
     public Timestamp getCreatedTime() {
         return (Timestamp) createdTime.clone();
     }
@@ -312,6 +326,7 @@ public class User {
                     && this.getEmail().equals(that.getEmail())
                     && this.getPasswordHash().equals(that.getPasswordHash())
                     && this.getFirstName().equals(that.getFirstName())
+                    && this.getTimeZone().equals(that.getTimeZone())
                     && this.getLastName().equals(that.getLastName())
                     && this.getCreatedTime().equals(that.getCreatedTime())
                     && this.getLastUpdatedTime().equals(that.getLastUpdatedTime());
@@ -329,6 +344,7 @@ public class User {
                 + (this.getPasswordHash() == null ? 0 : this.getPasswordHash().hashCode())
                 + this.getFirstName().hashCode()
                 + this.getLastName().hashCode()
+                + this.getTimeZone().hashCode()
                 + this.getCreatedTime().hashCode()
                 + this.getLastUpdatedTime().hashCode();
     }
