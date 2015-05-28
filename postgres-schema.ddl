@@ -84,7 +84,8 @@ CREATE TABLE fitnessjiffy_user (
     height_in_inches double precision NOT NULL,
     last_name character varying(20) NOT NULL,
     last_updated_time timestamp without time zone NOT NULL,
-    password_hash character varying(100)
+    password_hash character varying(100),
+    timezone character varying(50) NOT NULL
 );
 
 
