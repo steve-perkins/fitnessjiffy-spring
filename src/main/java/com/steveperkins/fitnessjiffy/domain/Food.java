@@ -17,8 +17,8 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "FOOD",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"ID", "OWNER_ID"})
+        name = "food",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id", "owner_id"})
 )
 public final class Food {
 
@@ -61,51 +61,51 @@ public final class Food {
     }
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "OWNER_ID", nullable = true)
+    @JoinColumn(name = "owner_id", nullable = true)
     private User owner;
 
-    @Column(name = "NAME", length = 50, nullable = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @Column(name = "DEFAULT_SERVING_TYPE", length = 10, nullable = false)
+    @Column(name = "default_serving_type", length = 10, nullable = false)
     @Enumerated(EnumType.STRING)
     private ServingType defaultServingType;
 
-    @Column(name = "SERVING_TYPE_QTY", nullable = false)
+    @Column(name = "serving_type_qty", nullable = false)
     private Double servingTypeQty;
 
-    @Column(name = "CALORIES", nullable = false)
+    @Column(name = "calories", nullable = false)
     private Integer calories;
 
-    @Column(name = "FAT", nullable = false)
+    @Column(name = "fat", nullable = false)
     private Double fat;
 
-    @Column(name = "SATURATED_FAT", nullable = false)
+    @Column(name = "saturated_fat", nullable = false)
     private Double saturatedFat;
 
-    @Column(name = "CARBS", nullable = false)
+    @Column(name = "carbs", nullable = false)
     private Double carbs;
 
-    @Column(name = "FIBER", nullable = false)
+    @Column(name = "fiber", nullable = false)
     private Double fiber;
 
-    @Column(name = "SUGAR", nullable = false)
+    @Column(name = "sugar", nullable = false)
     private Double sugar;
 
-    @Column(name = "PROTEIN", nullable = false)
+    @Column(name = "protein", nullable = false)
     private Double protein;
 
-    @Column(name = "SODIUM", nullable = false)
+    @Column(name = "sodium", nullable = false)
     private Double sodium;
 
-    @Column(name = "CREATED_TIME", nullable = false)
+    @Column(name = "created_time", nullable = false)
     private Timestamp createdTime = new Timestamp(new java.util.Date().getTime());
 
-    @Column(name = "LAST_UPDATED_TIME", nullable = false)
+    @Column(name = "last_updated_time", nullable = false)
     private Timestamp lastUpdatedTime = new Timestamp(new java.util.Date().getTime());
 
     public Food(

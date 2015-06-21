@@ -15,27 +15,27 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "EXERCISE_PERFORMED",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "EXERCISE_ID", "DATE"})
+        name = "exercise_performed",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "exercise_id", "date"})
 )
 public class ExercisePerformed {
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "EXERCISE_ID", nullable = false)
+    @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
-    @Column(name = "DATE", nullable = false)
+    @Column(name = "date", nullable = false)
     private Date date;
 
-    @Column(name = "MINUTES", nullable = false)
+    @Column(name = "minutes", nullable = false)
     private Integer minutes;
 
     public ExercisePerformed(

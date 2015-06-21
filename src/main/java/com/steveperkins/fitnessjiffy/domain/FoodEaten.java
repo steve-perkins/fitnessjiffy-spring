@@ -18,31 +18,31 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(
-        name = "FOOD_EATEN",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "FOOD_ID", "DATE"})
+        name = "food_eaten",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "food_id", "date"})
 )
 public final class FoodEaten {
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "FOOD_ID", nullable = false)
+    @JoinColumn(name = "food_id", nullable = false)
     private Food food;
 
-    @Column(name = "DATE", nullable = false)
+    @Column(name = "date", nullable = false)
     private Date date;
 
-    @Column(name = "SERVING_TYPE", length = 10, nullable = false)
+    @Column(name = "serving_type", length = 10, nullable = false)
     @Enumerated(EnumType.STRING)
     private Food.ServingType servingType;
 
-    @Column(name = "SERVING_QTY", nullable = false)
+    @Column(name = "serving_qty", nullable = false)
     private Double servingQty;
 
     public FoodEaten(

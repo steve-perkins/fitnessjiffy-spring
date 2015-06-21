@@ -10,23 +10,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Entity
-@Table(name = "EXERCISE")
+@Table(name = "exercise")
 public final class Exercise {
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "CODE", length = 5, nullable = false)
+    @Column(name = "code", length = 5, nullable = false)
     private String code;
 
-    @Column(name = "METABOLIC_EQUIVALENT", nullable = false)
+    @Column(name = "metabolic_equivalent", nullable = false)
     private Double metabolicEquivalent;
 
-    @Column(name = "CATEGORY", length = 25, nullable = false)
+    @Column(name = "category", length = 25, nullable = false)
     private String category;
 
-    @Column(name = "DESCRIPTION", length = 250, nullable = false)
+    @Column(name = "description", length = 250, nullable = false)
     private String description;
 
     public Exercise(

@@ -15,29 +15,29 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "REPORT_DATA",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "DATE"})
+        name = "report_data",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "date"})
 )
 public final class ReportData {
 
     @Id
-    @Column(columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "DATE", nullable = false)
+    @Column(name = "date", nullable = false)
     private Date date;
 
-    @Column(name = "POUNDS", nullable = false)
+    @Column(name = "pounds", nullable = false)
     private Double pounds = 0.0;
 
-    @Column(name = "NET_CALORIES", nullable = false)
+    @Column(name = "net_calories", nullable = false)
     private Integer netCalories = 0;
 
-    @Column(name = "NET_POINTS", nullable = false)
+    @Column(name = "net_points", nullable = false)
     private Double netPoints = 0.0;
 
     public ReportData(

@@ -15,23 +15,23 @@ import java.util.UUID;
 
 @Entity
 @Table(
-        name = "WEIGHT",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"USER_ID", "DATE"})
+        name = "weight",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "date"})
 )
 public final class Weight {
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "DATE", nullable = false)
+    @Column(name = "date", nullable = false)
     private Date date;
 
-    @Column(name = "POUNDS", nullable = false)
+    @Column(name = "pounds", nullable = false)
     private Double pounds;
 
     public Weight(

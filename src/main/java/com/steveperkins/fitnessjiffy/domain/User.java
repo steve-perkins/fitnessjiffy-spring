@@ -91,7 +91,7 @@ public class User {
     }
 
     @Id
-    @Column(name = "ID", columnDefinition = "BYTEA", length = 16)
+    @Column(name = "ID", columnDefinition = "BINARY(16)")
     private UUID id;
 
     @Column(name = "GENDER", length = 6, nullable = false)
