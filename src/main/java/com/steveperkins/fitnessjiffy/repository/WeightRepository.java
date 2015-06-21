@@ -23,11 +23,11 @@ public interface WeightRepository extends CrudRepository<Weight, UUID> {
      * application anyway, so why not show a native query example somewhere in the mix?
      */
     @Query(
-            value = "SELECT WEIGHT.* FROM WEIGHT, FITNESSJIFFY_USER "
-                    + "WHERE WEIGHT.USER_ID = FITNESSJIFFY_USER.ID "
-                    + "AND FITNESSJIFFY_USER.ID = ?1 "
-                    + "AND WEIGHT.DATE <= ?2 "
-                    + "ORDER BY WEIGHT.DATE DESC LIMIT 1",
+            value = "SELECT weight.* FROM weight, fitnessjiffy_user "
+                    + "WHERE weight.user_id = fitnessjiffy_user.id "
+                    + "AND fitnessjiffy_user.id = ?1 "
+                    + "AND weight.date <= ?2 "
+                    + "ORDER BY weight.date DESC LIMIT 1",
             nativeQuery = true
     )
     @Nullable
