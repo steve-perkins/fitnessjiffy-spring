@@ -23,8 +23,8 @@ build process here as the basis for a lengthy blog post on Spring Boot
 (http://steveperkins.com/use-spring-boot-next-project), which was linked from the
 Spring website and drew a bit of attention in that community.
 
-If you're looking for a nice robust example application to get started with Spring
-Boot development, then you've come to right place.
+*If you're looking for a robust sample application to get started with Spring Boot, then
+you've come to right place.*
 
 ## Technologies Used 
 
