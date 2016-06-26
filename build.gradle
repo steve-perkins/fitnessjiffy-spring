@@ -17,7 +17,7 @@ apply plugin: 'eclipse'
 
 jar {
     baseName = 'fitnessjiffy-spring'
-    version =  '1.9.2-RELEASE'
+    version =  '1.9.3-SNAPSHOT'
 }
 
 repositories {
