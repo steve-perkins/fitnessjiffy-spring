@@ -1,4 +1,4 @@
-[![Build Status](https://drone.io/github.com/steve-perkins/fitnessjiffy-spring/status.png)](https://drone.io/github.com/steve-perkins/fitnessjiffy-spring/latest)
+[![build status](https://gitlab.com/steve-perkins/fitnessjiffy-spring/badges/master/build.svg)](https://gitlab.com/steve-perkins/fitnessjiffy-spring/commits/master)
 
 # FitnessJiffy (Java / Spring Framework version)
 
