@@ -67,11 +67,15 @@ If you go splunking through the commit history, you'll find the following:
 
 Login and logout is built around Spring Security, with some custom event-handling
 hooks.  In the future, I might add OpenID or OAuth support, to let users authenticate
-through an existing account with some provider (e.g. Google, Yahoo, etc).  More
-importantly, there is not yet a "Create User" function in the web application.  Users
+through an existing account with some provider (e.g. Google, Yahoo, etc).
+
+More importantly, there is not yet a "Create User" function in the web application.  Users
 must be created in the database manually.  This is not so much due to the complexity
 of adding a "Create User" page, but rather due to not yet being ready to open it up
 a hosted version of the application for public use.
+
+However, the Flyway database scripts do create an initial test user for you, with username
+`demo@demo.com` and password `password`.
 
 <a href="https://github.com/steve-perkins/fitnessjiffy-spring/raw/screenshots/screenshots/login.png"><img src="https://github.com/steve-perkins/fitnessjiffy-spring/raw/screenshots/screenshots/login-thumbnail.png"/></a>
 
