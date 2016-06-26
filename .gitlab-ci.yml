@@ -1,0 +1,5 @@
+image: java:8
+
+test:
+  script:
+    - ./gradlew clean test
