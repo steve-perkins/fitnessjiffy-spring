@@ -23,23 +23,25 @@ build process here as the basis for a lengthy blog post on Spring Boot
 (http://steveperkins.com/use-spring-boot-next-project), which was linked from the
 Spring website and drew a bit of attention in that community.
 
-*If you're looking for a robust sample application to get started with Spring Boot, then
-you've come to right place.*
+***If you're looking for a robust sample application to get started with Spring Boot, then
+you've come to right place.***
 
 ## Technologies Used 
 
 In addition to Spring Boot, this application makes use of technologies including:
 
 * [Java 8](http://www.oracle.com/technetwork/java/index.html)
+* [Spring Boot](http://projects.spring.io/spring-boot/)
 * [Spring Data JPA](http://projects.spring.io/spring-data-jpa/)
 * [Spring Security](http://projects.spring.io/spring-security/)
 * [MySQL](http://dev.mysql.com/) (with [H2](http://www.h2database.com/html/main.html) for unit testing)
+* [Flyway](https://flywaydb.org/)
 * [JSR-305 annotations](http://findbugs.sourceforge.net/)
 * [Thymeleaf templates](http://www.thymeleaf.org/)
 * [Twitter Bootstrap](http://getbootstrap.com/)
 * [jQuery](http://jquery.com/)
 * [amCharts](http://amcharts.com) (A JavaScript library for generating charts and reports)
-* [Apache Maven](http://maven.apache.org/)
+* [Gradle](http://gradle.org/)
 * [JUnit](http://junit.org/)
 
 ## Previous Technologies Used Along the Way
@@ -50,10 +52,6 @@ If you go splunking through the commit history, you'll find the following:
   * No longer necessary after the move from Java 7 to Java 8
 * [Joda-Time](http://www.joda.org/joda-time/)
   * Likewise replaced by the Java 8 standard library
-* [Gradle](http://gradle.org/)
-  * I replaced Maven with Gradle for awhile, but at that time the IDE and build
-  server integration just wasn't mature enough yet.  A lot has changed in the
-  past year, and so I may revisit this again someday.
 * [PostgreSQL](http://www.postgresql.org/)
   * I know PostgreSQL is more feature-rich than MySQL, and is trendy among developers
   right now.  However, I needed to improve my hands-on familiarity with MySQL due to
@@ -61,6 +59,7 @@ If you go splunking through the commit history, you'll find the following:
   it comes to ops support for replication and scalability).  Since this is a small
   open source application, the wide availability of cheap MySQL hosting doesn't hurt
   either.
+* [Apache Maven](http://maven.apache.org/)
 
 ## Application Features and Screenshots
 
