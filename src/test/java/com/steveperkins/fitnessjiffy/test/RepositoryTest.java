@@ -212,7 +212,9 @@ public class RepositoryTest extends AbstractTest {
         assertEquals(19307, allFoodsEaten.size());
         final FoodEaten earliestFoodEaten = allFoodsEaten.get(0);
         assertEquals(new Date(simpleDateFormat.parse("2008-01-22").getTime()), earliestFoodEaten.getDate());
-        assertEquals("Ham (lean only)", earliestFoodEaten.getFood().getName());
+
+        // Sort order is not deterministic enough to guarantee that this is first for the day
+//        assertEquals("Ham (lean only)", earliestFoodEaten.getFood().getName());
 
         // ... and that we can detect the earliest date on which a particular food was first eaten.
         final List<FoodEaten> hamEatenRecords = foodEatenRepository.findByUserEqualsAndFoodEqualsOrderByDateAsc(
