@@ -24,6 +24,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
@@ -55,8 +56,8 @@ public final class UserService {
 
     @Nullable
     public UserDTO findUser(@Nonnull final UUID userId) {
-        final User user = userRepository.findOne(userId);
-        return userDTOConverter.convert(user);
+        final Optional<User> user = userRepository.findById(userId);
+        return user.map(userDTOConverter::convert).orElse(null);
     }
 
     @Nonnull
@@ -96,7 +97,7 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nullable final String newPassword
     ) {
-        final User user = userRepository.findOne(userDTO.getId());
+        final User user = userRepository.findById(userDTO.getId()).orElse(null);
         user.setGender(userDTO.getGender());
         user.setBirthdate(userDTO.getBirthdate());
         user.setHeightInInches(userDTO.getHeightInInches());
@@ -119,7 +120,7 @@ public final class UserService {
         final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (currentAuthentication.getPrincipal() instanceof SecurityConfig.SpringUserDetails) {
             final SecurityConfig.SpringUserDetails currentPrincipal = (SecurityConfig.SpringUserDetails) currentAuthentication.getPrincipal();
-            final User refreshedUser = userRepository.findOne(currentPrincipal.getUserDTO().getId());
+            final User refreshedUser = userRepository.findById(currentPrincipal.getUserDTO().getId()).orElse(null);
             final SecurityConfig.SpringUserDetails refreshedPrincipal = new SecurityConfig.SpringUserDetails(userDTOConverter.convert(refreshedUser), refreshedUser.getPasswordHash());
             final Authentication newAuthentication = new UsernamePasswordAuthenticationToken(refreshedPrincipal, refreshedUser.getPasswordHash(), currentPrincipal.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuthentication);
@@ -133,8 +134,11 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nonnull final Date date
     ) {
-        final User user = userRepository.findOne(userDTO.getId());
-        final Weight weight = weightRepository.findByUserMostRecentOnDate(user, date);
+        final Optional<User> user = userRepository.findById(userDTO.getId());
+        if (user.isEmpty()) {
+            return null;
+        }
+        final Weight weight = weightRepository.findByUserMostRecentOnDate(user.get(), date);
         return weightDTOConverter.convert(weight);
     }
 
@@ -143,7 +147,7 @@ public final class UserService {
             @Nonnull final Date date,
             final double pounds
     ) {
-        final User user = userRepository.findOne(userDTO.getId());
+        final User user = userRepository.findById(userDTO.getId()).orElse(null);
         Weight weight = weightRepository.findByUserAndDate(user, date);
         if (weight == null) {
             weight = new Weight(
@@ -164,7 +168,7 @@ public final class UserService {
             @Nonnull final UserDTO userDTO,
             @Nonnull final String password
     ) {
-        final User user = userRepository.findOne(userDTO.getId());
+        final User user = userRepository.findById(userDTO.getId()).orElse(null);
         final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.matches(password, user.getPasswordHash());
     }
@@ -177,8 +181,8 @@ public final class UserService {
 
     @Nullable
     public String getPasswordHash(@Nonnull final UserDTO userDTO) {
-        final User user = userRepository.findOne(userDTO.getId());
-        return user.getPasswordHash();
+        final Optional<User> user = userRepository.findById(userDTO.getId());
+        return user.map(User::getPasswordHash).orElse(null);
     }
 
 }

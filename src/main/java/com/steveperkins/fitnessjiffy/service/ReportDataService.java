@@ -25,9 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -108,8 +106,11 @@ public final class ReportDataService {
 
     @Nonnull
     public List<ReportDataDTO> findByUser(@Nonnull final UUID userId) {
-        final User user = userRepository.findOne(userId);
-        final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user);
+        final Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            return new ArrayList<>();
+        }
+        final List<ReportData> reportData = reportDataRepository.findByUserOrderByDateAsc(user.get());
         return reportData.stream()
                 .map(reportDataDTOConverter::convert)
                 .collect(toList());

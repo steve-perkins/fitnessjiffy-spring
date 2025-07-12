@@ -1,4 +1,4 @@
-image: java:8
+image: azul/zulu-openjdk:21
 
 test:
   script:

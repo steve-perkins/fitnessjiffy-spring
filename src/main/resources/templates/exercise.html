@@ -160,6 +160,18 @@
         }
     }
 
+    $(document).on('click', '.update-exercise-performed', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        updateExercisePerformed(id);
+    });
+
+    $(document).on('click', '.delete-exercise-performed', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        deleteExercisePerformed(id);
+    });
+
     /*]]>*/
     </script>
 </head>
@@ -255,13 +267,13 @@
                     <td><input type="text" size="2" name="minutes" th:value="${exercisePerformed.minutes}"/></td>
                     <td><span th:text="${exercisePerformed.caloriesBurned}"/></td>
                     <td width="55">
-                        <a href="#" th:onclick="'updateExercisePerformed(\'' + ${exercisePerformed.id} + '\');'">
-                            <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"/>
+                        <a href="#" class="update-exercise-performed" th:attr="data-id=${exercisePerformed.id}">
+                            <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"></span>
                         </a>
                     </td>
                     <td width="55">
-                        <a href="#" th:onclick="'deleteExercisePerformed(\'' + ${exercisePerformed.id} + '\');'">
-                            <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/>
+                        <a href="#" class="delete-exercise-performed" th:attr="data-id=${exercisePerformed.id}">
+                            <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"></span>
                         </a>
                     </td>
                 </form>

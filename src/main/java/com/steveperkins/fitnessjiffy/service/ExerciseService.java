@@ -63,7 +63,7 @@ public final class ExerciseService {
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
-        final User user = userRepository.findOne(userId);
+        final User user = userRepository.findById(userId).orElse(null);
         final WeightDTO weight = userService.findWeightOnDate(userDTOConverter.convert(user), date);
 
         final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, date);
@@ -94,7 +94,7 @@ public final class ExerciseService {
             @Nonnull final UUID userId,
             @Nonnull final Date currentDate
     ) {
-        final User user = userRepository.findOne(userId);
+        final User user = userRepository.findById(userId).orElse(null);
         final Calendar calendar = new GregorianCalendar();
         calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, -14);
@@ -117,8 +117,8 @@ public final class ExerciseService {
         final boolean duplicate = findPerformedOnDate(userId, date).stream()
                 .anyMatch( (ExercisePerformedDTO exerciseAlreadyPerformed) -> exerciseAlreadyPerformed.getExercise().getId().equals(exerciseId) );
         if (!duplicate) {
-            final User user = userRepository.findOne(userId);
-            final Exercise exercise = exerciseRepository.findOne(exerciseId);
+            final User user = userRepository.findById(userId).orElse(null);
+            final Exercise exercise = exerciseRepository.findById(exerciseId).orElse(null);
             final ExercisePerformed exercisePerformed = new ExercisePerformed(
                     UUID.randomUUID(),
                     user,
@@ -135,21 +135,21 @@ public final class ExerciseService {
             @Nonnull final UUID exercisePerformedId,
             final int minutes
     ) {
-        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findById(exercisePerformedId).orElse(null);
         exercisePerformed.setMinutes(minutes);
         exercisePerformedRepository.save(exercisePerformed);
         reportDataService.updateUserFromDate(exercisePerformed.getUser(), exercisePerformed.getDate());
     }
 
     public final void deleteExercisePerformed(@Nonnull final UUID exercisePerformedId) {
-        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findById(exercisePerformedId).orElse(null);
         exercisePerformedRepository.delete(exercisePerformed);
         reportDataService.updateUserFromDate(exercisePerformed.getUser(), exercisePerformed.getDate());
     }
 
     @Nullable
     public final ExercisePerformedDTO findExercisePerformedById(@Nonnull final UUID exercisePerformedId) {
-        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findOne(exercisePerformedId);
+        final ExercisePerformed exercisePerformed = exercisePerformedRepository.findById(exercisePerformedId).orElse(null);
         return exercisePerformedDTOConverter.convert(exercisePerformed);
     }
 

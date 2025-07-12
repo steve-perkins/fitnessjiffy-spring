@@ -1,40 +1,44 @@
-buildscript {
-    ext {
-        springBootVersion = '1.5.19.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
-}
-
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '2.7.18'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
-
-apply plugin: 'org.springframework.boot'
 
 group = 'com.steveperkins'
 version = '1.9.3'
-sourceCompatibility = '1.8'
+sourceCompatibility = '21'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile("com.google.code.findbugs:jsr305:3.0.2")
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf") {
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    implementation "jakarta.servlet:jakarta.servlet-api:5.0.0"
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf") {
         exclude module: "spring-boot-starter-tomcat"
     }
-    compile("org.springframework.boot:spring-boot-starter-undertow")
-    compile("org.springframework.boot:spring-boot-starter-security")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("mysql:mysql-connector-java:8.0.15")
-    compile("org.flywaydb:flyway-core:5.2.4")
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "mysql:mysql-connector-java:8.0.33"
+    implementation "org.flywaydb:flyway-core:5.2.4"
 
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("com.h2database:h2:1.4.198")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.h2database:h2:1.4.200")
+}
+
+bootJar {
+    layered {
+        enabled = true
+    }
+}
+
+test {
+    useJUnitPlatform()
 }

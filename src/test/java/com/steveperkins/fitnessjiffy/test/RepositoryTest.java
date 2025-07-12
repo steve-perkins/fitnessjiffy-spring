@@ -9,10 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.TestCase.assertEquals;
-
 import com.steveperkins.fitnessjiffy.domain.Exercise;
 import com.steveperkins.fitnessjiffy.domain.ExercisePerformed;
 import com.steveperkins.fitnessjiffy.domain.Food;
@@ -26,8 +22,10 @@ import com.steveperkins.fitnessjiffy.repository.FoodRepository;
 import com.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import com.steveperkins.fitnessjiffy.repository.UserRepository;
 import com.steveperkins.fitnessjiffy.repository.WeightRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RepositoryTest extends AbstractTest {
 
@@ -72,18 +70,18 @@ public class RepositoryTest extends AbstractTest {
                 new Timestamp(new java.util.Date().getTime())
         );
         userRepository.save(newUser);
-        final User retrievedNewUser = userRepository.findOne(userId);
+        final User retrievedNewUser = userRepository.findById(userId).orElse(null);
         assertNotNull(retrievedNewUser);
 
         // Test update of a user
         newUser.setLastName("Married");
         userRepository.save(newUser);
-        final User retrievedUpdatedUser = userRepository.findOne(userId);
+        final User retrievedUpdatedUser = userRepository.findById(userId).orElse(null);
         assertEquals("Married", retrievedUpdatedUser.getLastName());
 
         // Test removal of a user
         userRepository.delete(newUser);
-        assertNull(userRepository.findOne(userId));
+        assertNull(userRepository.findById(userId).orElse(null));
         assertEquals(1, userRepository.count());
     }
 

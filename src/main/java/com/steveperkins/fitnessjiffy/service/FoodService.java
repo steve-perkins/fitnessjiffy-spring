@@ -56,7 +56,7 @@ public final class FoodService {
             @Nonnull final UUID userId,
             @Nonnull final Date date
     ) {
-        final User user = userRepository.findOne(userId);
+        final User user = userRepository.findById(userId).orElse(null);
         return foodEatenRepository.findByUserEqualsAndDateEquals(user, date)
                 .stream()
                 .map(foodEatenDTOConverter::convert)
@@ -68,7 +68,7 @@ public final class FoodService {
             @Nonnull final UUID userId,
             @Nonnull final Date currentDate
     ) {
-        final User user = userRepository.findOne(userId);
+        final User user = userRepository.findById(userId).orElse(null);
         final Calendar calendar = new GregorianCalendar();
         calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, -14);
@@ -81,7 +81,7 @@ public final class FoodService {
 
     @Nullable
     public final FoodEatenDTO findFoodEatenById(@Nonnull final UUID foodEatenId) {
-        final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        final FoodEaten foodEaten = foodEatenRepository.findById(foodEatenId).orElse(null);
         return foodEatenDTOConverter.convert(foodEaten);
     }
 
@@ -93,8 +93,8 @@ public final class FoodService {
         final boolean duplicate = findEatenOnDate(userId, date).stream()
                 .anyMatch( (FoodEatenDTO foodAlreadyEaten) -> foodAlreadyEaten.getFood().getId().equals(foodId) );
         if (!duplicate) {
-            final User user = userRepository.findOne(userId);
-            final Food food = foodRepository.findOne(foodId);
+            final User user = userRepository.findById(userId).orElse(null);
+            final Food food = foodRepository.findById(foodId).orElse(null);
             final FoodEaten foodEaten = new FoodEaten(
                     UUID.randomUUID(),
                     user,
@@ -113,7 +113,7 @@ public final class FoodService {
             final double servingQty,
             @Nonnull final Food.ServingType servingType
     ) {
-        final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        final FoodEaten foodEaten = foodEatenRepository.findById(foodEatenId).orElse(null);
         foodEaten.setServingQty(servingQty);
         foodEaten.setServingType(servingType);
         foodEatenRepository.save(foodEaten);
@@ -121,7 +121,7 @@ public final class FoodService {
     }
 
     public final void deleteFoodEaten(@Nonnull final UUID foodEatenId) {
-        final FoodEaten foodEaten = foodEatenRepository.findOne(foodEatenId);
+        final FoodEaten foodEaten = foodEatenRepository.findById(foodEatenId).orElse(null);
         reportDataService.updateUserFromDate(foodEaten.getUser(), foodEaten.getDate());
         foodEatenRepository.delete(foodEaten);
     }
@@ -131,14 +131,14 @@ public final class FoodService {
             @Nonnull final UUID userId,
             @Nonnull final String searchString
     ) {
-        final User user = userRepository.findOne(userId);
+        final User user = userRepository.findById(userId).orElse(null);
         final List<Food> foods = foodRepository.findByNameLike(user, searchString);
         return foods.stream().map(foodDTOConverter::convert).collect(toList());
     }
 
     @Nullable
     public final FoodDTO getFoodById(@Nonnull final UUID foodId) {
-        final Food food = foodRepository.findOne(foodId);
+        final Food food = foodRepository.findById(foodId).orElse(null);
         return foodDTOConverter.convert(food);
     }
 
@@ -153,7 +153,7 @@ public final class FoodService {
         if (foodDTO.getOwnerId() == null || foodDTO.getOwnerId().equals(userDTO.getId())) {
 
             // Halt if this update would create two foods with duplicate names owned by the same user.
-            final User user = userRepository.findOne(userDTO.getId());
+            final User user = userRepository.findById(userDTO.getId()).orElse(null);
             final List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
             final boolean noConflictsFound = foodsWithSameNameOwnedByThisUser
                     .stream()
@@ -169,7 +169,7 @@ public final class FoodService {
                     food.setOwner(user);
                     dateFirstEaten = new Date(System.currentTimeMillis());
                 } else {
-                    food = foodRepository.findOne(foodDTO.getId());
+                    food = foodRepository.findById(foodDTO.getId()).orElse(null);
                     final List<FoodEaten> foodsEatenSortedByDate = foodEatenRepository.findByUserEqualsAndFoodEqualsOrderByDateAsc(user, food);
                     dateFirstEaten = (foodsEatenSortedByDate != null && !foodsEatenSortedByDate.isEmpty())
                             ? foodsEatenSortedByDate.get(0).getDate() : new Date(System.currentTimeMillis());
@@ -207,7 +207,7 @@ public final class FoodService {
         String resultMessage = "";
 
         // Halt if this update would create two foods with duplicate names owned by the same user.
-        final User user = userRepository.findOne(userDTO.getId());
+        final User user = userRepository.findById(userDTO.getId()).orElse(null);
         final List<Food> foodsWithSameNameOwnedByThisUser = foodRepository.findByOwnerEqualsAndNameEquals(user, foodDTO.getName());
 
         if (foodsWithSameNameOwnedByThisUser.isEmpty()) {
