@@ -64,13 +64,13 @@ docker build -t fitnessjiffy:latest .
 ```
 
 If you're creating a JAR artifact (or Docker image) to run in a production setting, then you should
-have the runtime overwrite this three properties from `src/main/resources/application.properties` with
-the correct connection info for your real MySQL database:
+have the runtime overwrite the three database connection properties from `src/main/resources/application.properties`
+with the correct connection info for your real MySQL database:
 
-```properties
-spring.datasource.url=jdbc:mysql://host.docker.internal/fitnessjiffy
-spring.datasource.username=fitnessjiffy
-spring.datasource.password=fitnessjiffy
+```bash
+export SPRING_DATASOURCE_URL=jdbc:mysql://<your-host>:<your-port>/<your-schema>
+export SPRING_DATASOURCE_USERNAME=<your-username>
+export SPRING_DATASOURCE_PASSWORD=<your-password>
 ```
 
 ## Technologies Used 
