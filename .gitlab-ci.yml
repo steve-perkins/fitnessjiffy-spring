@@ -1,6 +1,0 @@
-image: azul/zulu-openjdk:21
-
-test:
-  script:
-    - chmod +x gradlew
-    - ./gradlew clean test
