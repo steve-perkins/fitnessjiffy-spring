@@ -256,6 +256,18 @@
         }
     }
 
+    $(document).on('click', '.update-food-eaten', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        updateFoodEaten(id);
+    });
+
+    $(document).on('click', '.delete-food-eaten', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        deleteFoodEaten(id);
+    });
+
     /*]]>*/
     </script>
 </head>
@@ -414,13 +426,13 @@
                     <td th:text="${foodEaten.protein} % 1 == 0 ? ${foodEaten.protein} : ${#numbers.formatDecimal(foodEaten.protein, 0, 2)}"></td>
                     <td th:text="${foodEaten.points} % 1 == 0 ? ${foodEaten.points} : ${#numbers.formatDecimal(foodEaten.points, 0, 2)}"></td>
                     <td>
-                        <a href="#" th:onclick="'updateFoodEaten(\'' + ${foodEaten.id} + '\');'">
-                            <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"/>
+                        <a href="#" class="update-food-eaten" th:attr="data-id=${foodEaten.id}">
+                            <span class="glyphicon glyphicon-pencil" data-toggle="tooltip" data-placement="top" data-original-title="Update"></span>
                         </a>
                     </td>
                     <td>
-                        <a href="#" th:onclick="'deleteFoodEaten(\'' + ${foodEaten.id} + '\');'">
-                            <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"/>
+                        <a href="#" class="delete-food-eaten" th:attr="data-id=${foodEaten.id}">
+                            <span class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" data-original-title="Delete"></span>
                         </a>
                     </td>
                 </form>

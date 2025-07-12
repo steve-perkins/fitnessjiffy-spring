@@ -93,7 +93,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // Retrieve the user
             final SpringUserDetails userDetails = (SpringUserDetails) event.getAuthentication().getPrincipal();
             final UserDTO userDTO = userDetails.getUserDTO();
-            final User user = userRepository.findOne(userDTO.getId());
+            final User user = userRepository.findById(userDTO.getId()).orElse(null);
 
             // Schedule a ReportData update
             final Date lastUpdateDate = new Date(user.getLastUpdatedTime().getTime());

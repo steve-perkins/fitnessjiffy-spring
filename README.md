@@ -1,5 +1,3 @@
-[![build status](https://gitlab.com/steve-perkins/fitnessjiffy-spring/badges/master/build.svg)](https://gitlab.com/steve-perkins/fitnessjiffy-spring/commits/master)
-
 # FitnessJiffy (Java / Spring Framework version)
 
 * [Intro and Background](#intro-and-background)
@@ -10,39 +8,92 @@
 ## Intro and Background
 
 FitnessJiffy is an application for tracking diet and exercise, and generating charts
-and reports for health information over time.  Under the surface though, it's really
-a self-learning and teaching tool.  I've written numerous versions of this application
-over the years, every time I want some deeper experience in learning a new programming
-language or framework.
+and reports for health information over time.  It's also a reference application and
+learning tool.  I have re-implemented it many times in various tech stacks, to explore
+different languages and frameworks.
 
 This version is based on [Java](http://www.oracle.com/technetwork/java/index.html) and
-the [Spring Framework](http://spring.io/).  Although these have long been the primary
-tools in my professional career, I wrote this version of the app as an excuse to
-explore [Spring Boot](http://projects.spring.io/spring-boot/).  I used the code and
-build process here as the basis for a lengthy blog post on Spring Boot
+the [Spring Framework](http://spring.io/).  This version is quite long in the tooth
+now, and could use another re-write.  Maybe to separate this monolith a properly RESTful
+(or GraphQL?) backend, and a SPA frontend?  However, I originally wrote this version
+as an excuse to explore [Spring Boot](http://projects.spring.io/spring-boot/), back when
+that was a new thing rather than the dominant way most people use Spring now.  I used the 
+code and build process here as the basis for a lengthy blog post on Spring Boot
 (http://steveperkins.com/use-spring-boot-next-project), which was linked from the
-Spring website and drew a bit of attention in that community.
+Spring website and drew a bit of attention in that community at the time.
 
-***If you're looking for a robust sample application to get started with Spring Boot, then
-you've come to right place.***
+Since then, I've done only slight maintenance on this codebase.  For example, updating
+from Java 8 to 21, Spring Boot 1.x to 2.x, and introducing containerization and a CI pipeline
+build.  With Spring Boot 3.x mature now, and 4.0 coming just around the corner, I'm considering 
+updating all dependencies and cleaning up the code to match current best practices.  However, I 
+may simply move on to another implementation in a different tech stack instead.  Either way, I 
+used to publicly promote this as a good reference example application for Spring Boot, but to 
+be honest I think its current state is too outdated to serve that purpose well right now.
+
+## Running the application
+
+There is a Docker Compose file in the project's root directory, with which you can run a
+database instance without needing MySQL installed locally (if you DO have MySQL installed
+locally, then both it and this Dockerized version will conflict on port 3306).
+
+```bash
+# To start
+docker compose up -d
+
+# To stop
+docker compose down
+```
+
+The application requires Java 21 (and optionally Docker) to be installed.
+
+```bash
+# To run
+./gradlew bootRun
+
+# To create a JAR artifact (see the `build/libs` output directory), without running
+./gradlew bootJar
+
+# To build, without creating an artifact
+./gradlew build 
+
+# To run unit tests
+./gradlew check
+
+# To build a Docker image (then tag `fitnessjiffy:latest` for your image registry, and push it there)
+docker build -t fitnessjiffy:latest .
+```
+
+If you're creating a JAR artifact (or Docker image) to run in a production setting, then you should
+have the runtime overwrite this three properties from `src/main/resources/application.properties` with
+the correct connection info for your real MySQL database:
+
+```properties
+spring.datasource.url=jdbc:mysql://host.docker.internal/fitnessjiffy
+spring.datasource.username=fitnessjiffy
+spring.datasource.password=fitnessjiffy
+```
 
 ## Technologies Used 
 
-In addition to Spring Boot, this application makes use of technologies including:
+In addition to Spring Boot, the application backend makes use of technologies including:
 
-* [Java 8](http://www.oracle.com/technetwork/java/index.html)
+* [Java 21](http://www.oracle.com/technetwork/java/index.html)
+* [Gradle](http://gradle.org/)
 * [Spring Boot](http://projects.spring.io/spring-boot/)
 * [Spring Data JPA](http://projects.spring.io/spring-data-jpa/)
 * [Spring Security](http://projects.spring.io/spring-security/)
+* [JUnit 5](http://junit.org/)
 * [MySQL](http://dev.mysql.com/) (with [H2](http://www.h2database.com/html/main.html) for unit testing)
 * [Flyway](https://flywaydb.org/)
 * [JSR-305 annotations](http://findbugs.sourceforge.net/)
+
+The frontend stack is properly antiquated at this point, but it still works on current
+browsers:
+
 * [Thymeleaf templates](http://www.thymeleaf.org/)
 * [Twitter Bootstrap](http://getbootstrap.com/)
 * [jQuery](http://jquery.com/)
 * [amCharts](http://amcharts.com) (A JavaScript library for generating charts and reports)
-* [Gradle](http://gradle.org/)
-* [JUnit](http://junit.org/)
 
 ## Previous Technologies Used Along the Way
 
@@ -53,12 +104,9 @@ If you go splunking through the commit history, you'll find the following:
 * [Joda-Time](http://www.joda.org/joda-time/)
   * Likewise replaced by the Java 8 standard library
 * [PostgreSQL](http://www.postgresql.org/)
-  * I know PostgreSQL is more feature-rich than MySQL, and is trendy among developers
-  right now.  However, I needed to improve my hands-on familiarity with MySQL due to
-  some professional work (dev features or not, MySQL ***blows PostgreSQL away*** when
-  it comes to ops support for replication and scalability).  Since this is a small
-  open source application, the wide availability of cheap MySQL hosting doesn't hurt
-  either.
+  * At the time (pre-Docker), MySQL was a bit easier to manage from an ops standpoint, and
+  it was easier to find cheap MySQL hosting for personal projects.  However, I now regret
+  migrating to MySQL, and would definitely migrate back to PostgreSQL if I found the time.
 * [Apache Maven](http://maven.apache.org/)
 
 ## Application Features and Screenshots

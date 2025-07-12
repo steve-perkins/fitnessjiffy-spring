@@ -15,7 +15,8 @@ import com.steveperkins.fitnessjiffy.service.ExerciseService;
 import com.steveperkins.fitnessjiffy.service.FoodService;
 import com.steveperkins.fitnessjiffy.service.ReportDataService;
 import com.steveperkins.fitnessjiffy.service.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTest extends AbstractTest {
 
@@ -158,7 +159,7 @@ public class ServiceTest extends AbstractTest {
         userService.createUser(additionalUser, "password");
         result = foodService.updateFood(userOwnedFood, additionalUser);
         assertEquals("Error:  You are attempting to modify another user's customized food.", result);
-        final User additionalUserEntity = userRepository.findOne(additionalUser.getId());
+        final User additionalUserEntity = userRepository.findById(additionalUser.getId()).orElse(null);
         userRepository.delete(additionalUserEntity);
 
         // Test updating a food that belongs to this user
@@ -167,7 +168,7 @@ public class ServiceTest extends AbstractTest {
         assertEquals("Success!", result);
 
         // Test updating a global food (should create a copy owned by this user)
-        final User userEntity = userRepository.findOne(user.getId());
+        final User userEntity = userRepository.findById(user.getId()).orElse(null);
         final int globalFoodsBefore = foodRepository.findByOwnerIsNull().size();
         final int userOwnedFoodsBefore = foodRepository.findByOwner(userEntity).size();
         final FoodDTO otherGlobalFood = eatenOnDecember11.get(1).getFood();
