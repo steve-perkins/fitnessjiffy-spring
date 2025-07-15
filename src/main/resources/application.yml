@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # USE ENVIRONMENT VARIABLES TO OVERRIDE url, username, AND password SETTINGS IN PRODUCTION (see README.md for examples).
+    # Replace "host.docker.internal" with "localhost", if using a native MySQL installation rather than Docker Compose.
+    url: jdbc:mysql://host.docker.internal/fitnessjiffy
+    username: fitnessjiffy
+    password: fitnessjiffy
+    driverClassName: com.mysql.jdbc.Driver
+  jpa:
+    database: MYSQL
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  main:
+    allow-bean-definition-overriding: true
+  thymeleaf:
+    cache: false
+
+reportdata:
+  update-delay-in-seconds: 60
+  cleanup-frequency-in-seconds: 300

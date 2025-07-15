@@ -12,9 +12,13 @@ import com.steveperkins.fitnessjiffy.repository.FoodEatenRepository;
 import com.steveperkins.fitnessjiffy.repository.ReportDataRepository;
 import com.steveperkins.fitnessjiffy.repository.UserRepository;
 import com.steveperkins.fitnessjiffy.repository.WeightRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,6 +40,8 @@ import static java.util.stream.Collectors.toList;
 @Service
 public final class ReportDataService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReportDataService.class);
+
     private final UserRepository userRepository;
     private final WeightRepository weightRepository;
     private final FoodEatenRepository foodEatenRepository;
@@ -44,20 +50,25 @@ public final class ReportDataService {
     private final ReportDataToReportDataDTO reportDataDTOConverter;
 
     /**
-     * By default, update tasks should be scheduled for 5 minutes in the future (i.e. 300000 milliseconds).  However,
-     * this can be overwritten in the "application.properties" config file... primarily so that unit tests can use
-     * a much shorter value.
+     * When an update will affect more than 7 days of data, it is scheduled for asynchronous execution in a
+     * background thread.  This field controls how far out in the future that thread's execution will be
+     * scheduled (i.e. so that in case a user is taking multiple actions that will each trigger large updates,
+     * subsequent ones can supersede the next scheduled update, rather than scheduling additional separate
+     * updates).
+     * <p/>
+     * This value can be overwritten in the "application.properties" config file... primarily so
+     * that unit tests can use a much shorter value.
      */
-    @Value("${reportdata.update-delay-in-millis:300000}")
-    private long scheduleDelayInMillis;
+    @Value("${reportdata.update-delay-in-seconds:60}")
+    private long scheduleDelayInSeconds;
 
     /**
-     * By default, a background thread should prune outdated entries from the "scheduledUserUpdates" map once every
-     * hour.  This can be overwritten in the "application.properties" config file, primarily so that unit tests can
+     * A background thread should prune outdated entries from the "scheduledUserUpdates" periodically.  This
+     * frequency can be overwritten in the "application.properties" config file, primarily so that unit tests can
      * use a much shorter value.
      */
-    @Value("${reportdata.cleanup-frequency-in-millis:3600000}")
-    private long cleanupFrequencyInMillis;
+    @Value("${reportdata.cleanup-frequency-in-seconds:300}")
+    private long cleanupFrequencyInSeconds;
 
     private final ScheduledThreadPoolExecutor reportDataUpdateThreadPool = new ScheduledThreadPoolExecutor(1);
     private final Map<UUID, ReportDataUpdateEntry> scheduledUserUpdates = new ConcurrentHashMap<>();
@@ -93,10 +104,9 @@ public final class ReportDataService {
                         }
                     }
                     try {
-                        Thread.sleep(cleanupFrequencyInMillis);
+                        Thread.sleep(cleanupFrequencyInSeconds * 1000);
                     } catch (InterruptedException e) {
-                        System.out.println("Exception thrown while sleeping in between runs of the ReportData cleanup thread");
-                        e.printStackTrace();
+                        LOGGER.error("Exception thrown while sleeping in between runs of the ReportData cleanup thread", e);
                     }
                 }
             }
@@ -168,10 +178,29 @@ public final class ReportDataService {
             }
         }
 
-        // Schedule an update for this user, and add an entry in the conflicts list.
-        System.out.printf("Scheduling a ReportData update for user [%s] from date [%s] in %d milliseconds%n", user.getEmail(), adjustedDate, scheduleDelayInMillis);
+        // If the adjustedDate is within the past 7 days, perform the update synchronously.
+        LocalDate adjustedLocalDate = adjustedDate.toLocalDate();
+        LocalDate todayLocalDate = LocalDate.now(ZoneId.of(user.getTimeZone()));
+        if (!adjustedLocalDate.isBefore(todayLocalDate.minusDays(7))) {
+            LOGGER.info("Performing a ReportData update synchronously for user [{}] from date [{}] (after commit)", user.getEmail(), adjustedDate);
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        performReportDataUpdate(user, adjustedDate);
+                    }
+                });
+            } else {
+                // No active transaction, run immediately
+                performReportDataUpdate(user, adjustedDate);
+            }
+            return null;
+        }
+
+        // Otherwise, schedule an asynchronous update.
+        LOGGER.info("Scheduling a ReportData update for user [{}] from date [{}] in {} seconds", user.getEmail(), adjustedDate, scheduleDelayInSeconds);
         final ReportDataUpdateTask task = new ReportDataUpdateTask(user, adjustedDate);
-        final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInMillis, TimeUnit.MILLISECONDS);
+        final Future future = reportDataUpdateThreadPool.schedule(task, scheduleDelayInSeconds, TimeUnit.SECONDS);
         final ReportDataUpdateEntry newUpdateEntry = new ReportDataUpdateEntry(adjustedDate, future);
         scheduledUserUpdates.put(user.getId(), newUpdateEntry);
         return future;
@@ -259,70 +288,68 @@ public final class ReportDataService {
 
         @Override
         public void run() {
-            final Date today = adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of(user.getTimeZone()));
-            LocalDate currentDate = startDate.toLocalDate();
-
-            // Iterate through all dates from the start date through today.
-            while (currentDate.toString().compareTo(today.toString()) <= 0) {
-
-                System.out.printf("Creating or updating ReportData record for user [%s] on date [%s]%n", user.getEmail(), currentDate);
-
-                // Get the user's weight on this date, and initialize accumulator variables to hold this date's net calories and net points.
-                final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, Date.valueOf(currentDate));
-                int netCalories = 0;
-                double netPoints = 0.0;
-
-                // Iterate over all foods eaten on this date, updating the net calories and net points.
-                final List<FoodEaten> foodsEaten = foodEatenRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
-                for (final FoodEaten foodEaten : foodsEaten) {
-                    netCalories += foodEaten.getCalories();
-                    netPoints += foodEaten.getPoints();
-                }
-
-                // Iterator over all exercises performed on this date, updating the net calories and net points.
-                final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
-                for (final ExercisePerformed exercisePerformed : exercisesPerformed) {
-                    netCalories -= ExerciseService.calculateCaloriesBurned(
-                            exercisePerformed.getExercise().getMetabolicEquivalent(),
-                            exercisePerformed.getMinutes(),
-                            mostRecentWeight.getPounds()
-                    );
-                    netPoints -= ExerciseService.calculatePointsBurned(
-                            exercisePerformed.getExercise().getMetabolicEquivalent(),
-                            exercisePerformed.getMinutes(),
-                            mostRecentWeight.getPounds()
-                    );
-                }
-
-                // Create a ReportData entry for this date if none already exists, or else updating the existing record for this date.
-                final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDateOrderByDateAsc(user, Date.valueOf(currentDate));
-                if (existingReportDataList.isEmpty()) {
-                    final ReportData reportData = new ReportData(//NOPMD
-                            UUID.randomUUID(),
-                            user,
-                            Date.valueOf(currentDate),
-                            mostRecentWeight.getPounds(),
-                            netCalories,
-                            netPoints
-                    );
-                    reportDataRepository.save(reportData);
-                } else {
-                    final ReportData reportData = existingReportDataList.get(0);
-                    reportData.setPounds(mostRecentWeight.getPounds());
-                    reportData.setNetCalories(netCalories);
-                    reportData.setNetPoints(netPoints);
-                    reportDataRepository.save(reportData);
-                }
-
-                // Increment the date to the next day.
-                currentDate = currentDate.plusDays(1);
-            }
-
-            user.setLastUpdatedTime(new Timestamp(System.currentTimeMillis()));
-            userRepository.save(user);
-
-            System.out.printf("ReportData update complete for user [%s] from date [%s] to the day prior to [%s]%n", user.getEmail(), startDate, currentDate);
+            performReportDataUpdate(user, startDate);
         }
     }
+
+    /**
+     * Performs the report data update logic synchronously for the given user and start date.
+     */
+    private void performReportDataUpdate(@Nonnull final User user, @Nonnull final Date startDate) {
+        final Date today = adjustDateForTimeZone(new Date(new java.util.Date().getTime()), ZoneId.of(user.getTimeZone()));
+        LocalDate currentDate = startDate.toLocalDate();
+        while (currentDate.toString().compareTo(today.toString()) <= 0) {
+            LOGGER.info("Creating or updating ReportData record for user [{}] on date [{}]", user.getEmail(), currentDate);
+            final Weight mostRecentWeight = weightRepository.findByUserMostRecentOnDate(user, Date.valueOf(currentDate));
+            if (mostRecentWeight == null) {
+                LOGGER.warn("No weight record found for user [{}] on date [{}]. Skipping ReportData update for this date.", user.getEmail(), currentDate);
+                currentDate = currentDate.plusDays(1);
+                continue;
+            }
+            int netCalories = 0;
+            double netPoints = 0.0;
+            final List<FoodEaten> foodsEaten = foodEatenRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
+            for (final FoodEaten foodEaten : foodsEaten) {
+                netCalories += foodEaten.getCalories();
+                netPoints += foodEaten.getPoints();
+            }
+            final List<ExercisePerformed> exercisesPerformed = exercisePerformedRepository.findByUserEqualsAndDateEquals(user, Date.valueOf(currentDate));
+            for (final ExercisePerformed exercisePerformed : exercisesPerformed) {
+                netCalories -= ExerciseService.calculateCaloriesBurned(
+                        exercisePerformed.getExercise().getMetabolicEquivalent(),
+                        exercisePerformed.getMinutes(),
+                        mostRecentWeight.getPounds()
+                );
+                netPoints -= ExerciseService.calculatePointsBurned(
+                        exercisePerformed.getExercise().getMetabolicEquivalent(),
+                        exercisePerformed.getMinutes(),
+                        mostRecentWeight.getPounds()
+                );
+            }
+            final List<ReportData> existingReportDataList = reportDataRepository.findByUserAndDateOrderByDateAsc(user, Date.valueOf(currentDate));
+            if (existingReportDataList.isEmpty()) {
+                final ReportData reportData = new ReportData(
+                        UUID.randomUUID(),
+                        user,
+                        Date.valueOf(currentDate),
+                        mostRecentWeight.getPounds(),
+                        netCalories,
+                        netPoints
+                );
+                reportDataRepository.save(reportData);
+            } else {
+                final ReportData reportData = existingReportDataList.get(0);
+                reportData.setPounds(mostRecentWeight.getPounds());
+                reportData.setNetCalories(netCalories);
+                reportData.setNetPoints(netPoints);
+                reportDataRepository.save(reportData);
+            }
+            currentDate = currentDate.plusDays(1);
+        }
+        user.setLastUpdatedTime(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        LOGGER.info("ReportData update complete for user [{}] from date [{}] to the day prior to [{}]", user.getEmail(), startDate, currentDate);
+    }
+
 
 }

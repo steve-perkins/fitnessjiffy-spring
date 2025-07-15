@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:./h2test;MODE=MySQL;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+    driverClassName: org.h2.Driver
+  jpa:
+    database: MYSQL
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+  main:
+    allow-bean-definition-overriding: true
+
+reportdata:
+  update-delay-in-seconds: 3
+  cleanup-frequency-in-seconds: 3
