@@ -4,6 +4,8 @@ import com.steveperkins.fitnessjiffy.dto.ExerciseDTO;
 import com.steveperkins.fitnessjiffy.dto.ExercisePerformedDTO;
 import com.steveperkins.fitnessjiffy.dto.UserDTO;
 import com.steveperkins.fitnessjiffy.service.ExerciseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +26,8 @@ import static java.util.stream.Collectors.toList;
 
 @Controller
 final class ExerciseController extends AbstractController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExerciseController.class);
 
     private final ExerciseService exerciseService;
 
@@ -109,7 +113,7 @@ final class ExerciseController extends AbstractController {
         final ExercisePerformedDTO exercisePerformedDTO = exerciseService.findExercisePerformedById(exercisePerformedUUID);
         final String dateString = dateFormat.format(exercisePerformedDTO.getDate());
         if (!userDTO.getId().equals(exercisePerformedDTO.getUserId())) {
-            System.out.println("\n\nThis user is unable to update this exercise performed\n");
+            LOGGER.info("This user is unable to update this exercise performed");
         } else if (action.equalsIgnoreCase("update")) {
             exerciseService.updateExercisePerformed(exercisePerformedUUID, minutes);
         } else if (action.equalsIgnoreCase("delete")) {

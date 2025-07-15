@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.steveperkins'
-version = '1.10.0'
+version = '1.11.0'
 sourceCompatibility = '21'
 
 tasks.withType(JavaCompile) {
@@ -41,4 +41,12 @@ bootJar {
 
 test {
     useJUnitPlatform()
+}
+
+processResources {
+    filesMatching('**/login.html') {
+        filter { line ->
+            line.replace('${version}', project.version)
+        }
+    }
 }

@@ -24,9 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 final class FoodController extends AbstractController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FoodController.class);
 
     private final FoodService foodService;
     private final ExerciseService exerciseService;
@@ -123,7 +127,7 @@ final class FoodController extends AbstractController {
         final FoodEatenDTO foodEatenDTO = foodService.findFoodEatenById(foodEatenUUID);
         final String dateString = dateFormat.format(foodEatenDTO.getDate());
         if (!userDTO.getId().equals(foodEatenDTO.getUserId())) {
-            System.out.println("\n\nThis user is unable to update this food eaten\n");
+            LOGGER.info("This user is unable to update this food eaten");
         } else if (action.equalsIgnoreCase("update")) {
             final Food.ServingType servingType = Food.ServingType.fromString(foodEatenServing);
             foodService.updateFoodEaten(foodEatenUUID, foodEatenQty, servingType);

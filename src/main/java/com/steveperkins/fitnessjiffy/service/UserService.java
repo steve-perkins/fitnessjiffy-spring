@@ -9,6 +9,8 @@ import com.steveperkins.fitnessjiffy.dto.converter.UserToUserDTO;
 import com.steveperkins.fitnessjiffy.dto.converter.WeightToWeightDTO;
 import com.steveperkins.fitnessjiffy.repository.UserRepository;
 import com.steveperkins.fitnessjiffy.repository.WeightRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,8 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public final class UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final ReportDataService reportDataService;
     private final UserRepository userRepository;
@@ -86,7 +90,6 @@ public final class UserService {
                 new Timestamp(new java.util.Date().getTime())
         );
         userRepository.save(user);
-        reportDataService.updateUserFromDate(user, new Date(System.currentTimeMillis()));
     }
 
     public void updateUser(@Nonnull final UserDTO userDTO) {
@@ -125,7 +128,7 @@ public final class UserService {
             final Authentication newAuthentication = new UsernamePasswordAuthenticationToken(refreshedPrincipal, refreshedUser.getPasswordHash(), currentPrincipal.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuthentication);
         } else {
-            System.out.println("The currently-authenticated principal is not an instance of type SecurityConfig.SpringUserDetails");
+            LOGGER.info("The currently-authenticated principal is not an instance of type SecurityConfig.SpringUserDetails");
         }
     }
 
