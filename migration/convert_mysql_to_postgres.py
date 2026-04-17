@@ -6,8 +6,9 @@ Handles:
 1. BINARY(16) UUID → string UUID format
 2. TIMESTAMP format conversion
 3. gender column → sex column
-4. Remove net_points column from report_data
-5. NULL value handling
+4. Remove net_points column from report_entries
+5. Table name mapping (MySQL singular → PostgreSQL plural)
+6. NULL value handling
 """
 
 import csv
@@ -16,22 +17,41 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
+# Table name mapping: MySQL → PostgreSQL
+TABLE_NAME_MAPPING = {
+    'fitnessjiffy_user': 'users',
+    'food': 'foods',
+    'food_eaten': 'foods_eaten',
+    'exercise': 'exercises',
+    'exercise_performed': 'exercises_performed',
+    'weight': 'weights',
+    'report_data': 'report_entries',
+}
 
-def binary_to_uuid(binary_str):
-    """Convert MySQL BINARY(16) hex string to UUID string format"""
-    if not binary_str or binary_str in ('NULL', '\\N', ''):
+
+def binary_to_uuid(hex_str):
+    """Convert MySQL HEX UUID to standard UUID format
+
+    The export_mysql_via_ssh.py script exports UUIDs using HEX() function,
+    which gives us 32-character hex strings. We convert these to standard
+    UUID format with hyphens.
+    """
+    if not hex_str or hex_str in ('NULL', '\\N', ''):
         return None
 
-    # Remove 0x prefix if present
-    hex_str = binary_str.replace('0x', '').replace('0X', '')
+    try:
+        # Remove any whitespace
+        hex_str = hex_str.strip()
 
-    # Handle different export formats
-    if len(hex_str) == 32:  # Raw hex string
-        return str(uuid.UUID(hex=hex_str))
-    elif len(hex_str) == 16:  # Already in binary form
-        return str(uuid.UUID(bytes=bytes.fromhex(hex_str)))
-    else:
-        print(f"Warning: Unexpected UUID format: {binary_str}", file=sys.stderr)
+        # MySQL HEX() function returns 32-character hex string
+        if len(hex_str) == 32:
+            # Convert hex string to UUID
+            return str(uuid.UUID(hex=hex_str))
+        else:
+            print(f"Warning: UUID wrong length: {len(hex_str)} chars (expected 32)", file=sys.stderr)
+            return None
+    except (ValueError, AttributeError) as e:
+        print(f"Warning: Could not convert UUID '{hex_str}': {e}", file=sys.stderr)
         return None
 
 
@@ -55,10 +75,10 @@ def convert_timestamp(timestamp_str):
             return timestamp_str
 
 
-def convert_csv(input_file, output_file, table_name):
+def convert_csv(input_file, output_file, mysql_table_name, postgres_table_name):
     """Convert MySQL CSV to PostgreSQL-compatible CSV"""
 
-    # UUID columns per table
+    # UUID columns per table (using MySQL table names for input)
     uuid_columns_map = {
         'fitnessjiffy_user': {'id'},
         'food': {'id', 'owner_id'},
@@ -72,15 +92,16 @@ def convert_csv(input_file, output_file, table_name):
     # Timestamp columns
     timestamp_columns = {'created_time', 'last_updated_time'}
 
-    uuid_columns = uuid_columns_map.get(table_name, set())
+    uuid_columns = uuid_columns_map.get(mysql_table_name, set())
 
-    print(f"Converting {table_name}...")
+    print(f"Converting {mysql_table_name} → {postgres_table_name}...")
 
     input_path = Path(input_file)
     if not input_path.exists():
         print(f"Warning: Input file not found: {input_file}", file=sys.stderr)
         return
 
+    # Use UTF-8 encoding for clean HEX UUID strings from export script
     with open(input_file, 'r', encoding='utf-8') as infile, \
          open(output_file, 'w', newline='', encoding='utf-8') as outfile:
 
@@ -92,12 +113,12 @@ def convert_csv(input_file, output_file, table_name):
         fieldnames = list(reader.fieldnames)
 
         # Special handling for fitnessjiffy_user: rename gender → sex
-        if table_name == 'fitnessjiffy_user':
+        if mysql_table_name == 'fitnessjiffy_user':
             if 'gender' in fieldnames:
                 fieldnames[fieldnames.index('gender')] = 'sex'
 
         # Special handling for report_data: remove net_points
-        if table_name == 'report_data':
+        if mysql_table_name == 'report_data':
             if 'net_points' in fieldnames:
                 fieldnames.remove('net_points')
 
@@ -110,10 +131,10 @@ def convert_csv(input_file, output_file, table_name):
 
             for col in fieldnames:
                 # Handle renamed column
-                source_col = 'gender' if col == 'sex' and table_name == 'fitnessjiffy_user' else col
+                source_col = 'gender' if col == 'sex' and mysql_table_name == 'fitnessjiffy_user' else col
 
                 # Skip net_points if it's report_data
-                if col == 'net_points' and table_name == 'report_data':
+                if col == 'net_points' and mysql_table_name == 'report_data':
                     continue
 
                 value = row.get(source_col, '')
@@ -141,15 +162,8 @@ def convert_csv(input_file, output_file, table_name):
 def main():
     """Main conversion process"""
 
-    tables = [
-        'fitnessjiffy_user',
-        'food',
-        'food_eaten',
-        'exercise',
-        'exercise_performed',
-        'weight',
-        'report_data',
-    ]
+    # MySQL table names (input CSVs)
+    mysql_tables = list(TABLE_NAME_MAPPING.keys())
 
     print("MySQL to PostgreSQL CSV Conversion")
     print("=" * 50)
@@ -157,8 +171,8 @@ def main():
 
     # Check for input files
     missing_files = []
-    for table in tables:
-        input_file = f'{table}.csv'
+    for mysql_table in mysql_tables:
+        input_file = f'{mysql_table}.csv'
         if not Path(input_file).exists():
             missing_files.append(input_file)
 
@@ -167,29 +181,33 @@ def main():
         for f in missing_files:
             print(f"  - {f}")
         print()
-        print("Please export these tables from MySQL using DBeaver.")
+        print("Please export these tables from MySQL using export_mysql_via_ssh.py.")
         print("See README.md for detailed instructions.")
         print()
 
     # Convert existing files
     converted_count = 0
-    for table in tables:
-        input_file = f'{table}.csv'
-        output_file = f'{table}_pg.csv'
+    for mysql_table, postgres_table in TABLE_NAME_MAPPING.items():
+        input_file = f'{mysql_table}.csv'
+        output_file = f'{postgres_table}_pg.csv'
 
         if Path(input_file).exists():
-            convert_csv(input_file, output_file, table)
+            convert_csv(input_file, output_file, mysql_table, postgres_table)
             converted_count += 1
         else:
-            print(f"Skipping {table} (no input file)")
+            print(f"Skipping {mysql_table} (no input file)")
 
     print()
     print("=" * 50)
-    print(f"Conversion complete! Converted {converted_count}/{len(tables)} tables.")
+    print(f"Conversion complete! Converted {converted_count}/{len(mysql_tables)} tables.")
+    print()
+    print("Table name mapping:")
+    for mysql_table, postgres_table in TABLE_NAME_MAPPING.items():
+        print(f"  {mysql_table} → {postgres_table}")
     print()
     print("Next steps:")
     print("1. Review the *_pg.csv files")
-    print("2. Run import_postgres.sh to load data into PostgreSQL")
+    print("2. Run import_postgres.py to load data into PostgreSQL")
 
 
 if __name__ == '__main__':

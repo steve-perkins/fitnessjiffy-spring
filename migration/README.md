@@ -7,13 +7,27 @@ This directory contains scripts and instructions for migrating the FitnessJiffy 
 **Changes**:
 - MySQL `BINARY(16)` UUIDs → PostgreSQL native `UUID` type
 - `gender` column → `sex` column
-- Remove `net_points` from `report_data` (calories tracking only)
+- Remove `net_points` from `report_entries` (calories tracking only)
 - `TIMESTAMP` → `TIMESTAMP WITH TIME ZONE`
+- **Pluralized table names** (users, foods, exercises, etc.)
+
+**Table Name Mapping**:
+```
+MySQL (singular/prefixed)     →  PostgreSQL (plural)
+─────────────────────────────────────────────────────
+fitnessjiffy_user             →  users
+food                          →  foods
+food_eaten                    →  foods_eaten
+exercise                      →  exercises
+exercise_performed            →  exercises_performed
+weight                        →  weights
+report_data                   →  report_entries
+```
 
 **Migration Steps**:
 1. Set up local PostgreSQL
-2. Export MySQL data (via DBeaver)
-3. Convert CSV files
+2. Export MySQL data via SSH tunnel
+3. Convert CSV files (handles table renaming)
 4. Import to PostgreSQL
 5. Validate data integrity
 6. Update user email to Gmail
@@ -159,26 +173,37 @@ migration/
 
 ## Step 4: Import to PostgreSQL
 
-Set PostgreSQL password:
+**Option 1: Using Python script** (Recommended - no psql required):
+
+```bash
+cd migration
+python3 import_postgres.py
+```
+
+The script will prompt for the PostgreSQL password (default: `fitness_dev_password`).
+
+Alternatively, set password as environment variable:
+
+```bash
+export POSTGRES_PASSWORD='fitness_dev_password'
+python3 import_postgres.py
+```
+
+**Option 2: Using bash script** (Requires psql CLI tools):
 
 ```bash
 export PGPASSWORD='fitness_dev_password'
-```
-
-Run import script:
-
-```bash
 ./import_postgres.sh
 ```
 
-This will import tables in dependency order:
-1. fitnessjiffy_user
-2. exercise
-3. food
-4. weight
-5. food_eaten
-6. exercise_performed
-7. report_data
+Both scripts import tables in dependency order (using new plural names):
+1. users
+2. exercises
+3. foods
+4. weights
+5. foods_eaten
+6. exercises_performed
+7. report_entries
 
 ---
 
@@ -195,19 +220,19 @@ docker-compose -f docker-compose.postgres.yml exec postgres psql -U fitness_user
 #### 1. Check Row Counts
 
 ```sql
-SELECT 'fitnessjiffy_user' as table_name, COUNT(*) as count FROM fitnessjiffy_user
+SELECT 'users' as table_name, COUNT(*) as count FROM users
 UNION ALL
-SELECT 'food', COUNT(*) FROM food
+SELECT 'foods', COUNT(*) FROM foods
 UNION ALL
-SELECT 'food_eaten', COUNT(*) FROM food_eaten
+SELECT 'foods_eaten', COUNT(*) FROM foods_eaten
 UNION ALL
-SELECT 'exercise', COUNT(*) FROM exercise
+SELECT 'exercises', COUNT(*) FROM exercises
 UNION ALL
-SELECT 'exercise_performed', COUNT(*) FROM exercise_performed
+SELECT 'exercises_performed', COUNT(*) FROM exercises_performed
 UNION ALL
-SELECT 'weight', COUNT(*) FROM weight
+SELECT 'weights', COUNT(*) FROM weights
 UNION ALL
-SELECT 'report_data', COUNT(*) FROM report_data;
+SELECT 'report_entries', COUNT(*) FROM report_entries;
 ```
 
 Compare these counts to MySQL:
@@ -236,7 +261,7 @@ SELECT
   MIN(date) as earliest_date,
   MAX(date) as latest_date,
   (MAX(date) - MIN(date)) as days_span
-FROM weight;
+FROM weights;
 ```
 
 Should show ~20 years of data.
@@ -245,22 +270,22 @@ Should show ~20 years of data.
 
 ```sql
 -- Check for orphaned foods
-SELECT COUNT(*) FROM food
+SELECT COUNT(*) FROM foods
 WHERE owner_id IS NOT NULL
-  AND owner_id NOT IN (SELECT id FROM fitnessjiffy_user);
+  AND owner_id NOT IN (SELECT id FROM users);
 -- Should return 0
 
--- Check for orphaned food_eaten records
-SELECT COUNT(*) FROM food_eaten fe
-LEFT JOIN fitnessjiffy_user u ON fe.user_id = u.id
-LEFT JOIN food f ON fe.food_id = f.id
+-- Check for orphaned foods_eaten records
+SELECT COUNT(*) FROM foods_eaten fe
+LEFT JOIN users u ON fe.user_id = u.id
+LEFT JOIN foods f ON fe.food_id = f.id
 WHERE u.id IS NULL OR f.id IS NULL;
 -- Should return 0
 
--- Check for orphaned exercise_performed records
-SELECT COUNT(*) FROM exercise_performed ep
-LEFT JOIN fitnessjiffy_user u ON ep.user_id = u.id
-LEFT JOIN exercise e ON ep.exercise_id = e.id
+-- Check for orphaned exercises_performed records
+SELECT COUNT(*) FROM exercises_performed ep
+LEFT JOIN users u ON ep.user_id = u.id
+LEFT JOIN exercises e ON ep.exercise_id = e.id
 WHERE u.id IS NULL OR e.id IS NULL;
 -- Should return 0
 ```
@@ -268,29 +293,32 @@ WHERE u.id IS NULL OR e.id IS NULL;
 #### 4. Verify sex Column (renamed from gender)
 
 ```sql
-SELECT sex, COUNT(*) FROM fitnessjiffy_user GROUP BY sex;
+SELECT sex, COUNT(*) FROM users GROUP BY sex;
 ```
 
 Should show MALE or FEMALE (enum values).
 
-#### 5. Verify report_data (no net_points)
+#### 5. Verify report_entries (no net_points)
 
 ```sql
--- Check schema
-\d report_data
+-- Check schema (list all columns)
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'report_entries'
+ORDER BY ordinal_position;
 ```
 
 Should show only: `id`, `user_id`, `date`, `pounds`, `net_calories` (no `net_points`).
 
 #### 6. Spot-Check Specific Dates
 
-Pick 5-10 random dates and compare food_eaten records between MySQL and PostgreSQL:
+Pick 5-10 random dates and compare foods_eaten records between MySQL and PostgreSQL:
 
 ```sql
 -- PostgreSQL
 SELECT fe.date, f.name, fe.serving_qty, fe.serving_type
-FROM food_eaten fe
-JOIN food f ON fe.food_id = f.id
+FROM foods_eaten fe
+JOIN foods f ON fe.food_id = f.id
 WHERE fe.date = '2024-01-15'  -- Pick known dates
 ORDER BY f.name;
 ```
@@ -319,16 +347,16 @@ docker-compose -f docker-compose.postgres.yml exec postgres psql -U fitness_user
 
 ```sql
 -- Find current user
-SELECT id, email, first_name, last_name FROM fitnessjiffy_user;
+SELECT id, email, first_name, last_name FROM users;
 
 -- Update email and clear password
-UPDATE fitnessjiffy_user
+UPDATE users
 SET email = 'your-gmail-address@gmail.com',
     password_hash = NULL
 WHERE id = '<your-user-id>';  -- Replace with actual UUID
 
 -- Verify
-SELECT id, email, password_hash FROM fitnessjiffy_user;
+SELECT id, email, password_hash FROM users;
 ```
 
 ---
@@ -374,15 +402,15 @@ If UUIDs don't convert properly, check the export format:
 
 ### Import Fails Due to Foreign Keys
 
-Tables must be imported in dependency order (handled by `import_postgres.sh`):
+Tables must be imported in dependency order (handled by `import_postgres.py`):
 
-1. fitnessjiffy_user (no dependencies)
-2. exercise (no dependencies)
-3. food (references user)
-4. weight (references user)
-5. food_eaten (references user + food)
-6. exercise_performed (references user + exercise)
-7. report_data (references user)
+1. users (no dependencies)
+2. exercises (no dependencies)
+3. foods (references users)
+4. weights (references users)
+5. foods_eaten (references users + foods)
+6. exercises_performed (references users + exercises)
+7. report_entries (references users)
 
 ---
 
