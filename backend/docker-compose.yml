@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fitness-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fitness_user
+      POSTGRES_PASSWORD: fitness_dev_password
+      POSTGRES_DB: fitness_tracker
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Mount Phase 1 schema for initial setup
+      - ../migration/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fitness_user']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: fitness-backend-dev
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: fitness_user
+      DB_PASSWORD: fitness_dev_password
+      DB_DATABASE: fitness_tracker
+      DB_SSL: 'false'
+      JWT_SECRET: dev-secret-change-in-production
+      JWT_EXPIRATION: 7d
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id.apps.googleusercontent.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src
+      - ./node_modules:/app/node_modules
+    command: npm run start:dev
+
+volumes:
+  postgres_data:
+    driver: local

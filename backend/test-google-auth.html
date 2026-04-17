@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Google OAuth - Fitness Tracker</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #1976d2;
+    }
+    .instructions {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    .error {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .button {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏋️ Fitness Tracker - Google OAuth Test</h1>
+
+  <div class="instructions">
+    <strong>⚠️ IMPORTANT:</strong> Before testing, make sure:
+    <ol>
+      <li>You've created OAuth credentials in Google Cloud Console</li>
+      <li>You've added your Gmail as a test user</li>
+      <li>You've replaced <code>YOUR_CLIENT_ID_HERE</code> below with your actual Client ID</li>
+      <li>The NestJS backend is running on port 3000</li>
+      <li>Your Gmail address is in the database</li>
+    </ol>
+  </div>
+
+  <h2>Step 1: Sign in with Google</h2>
+  <div class="button">
+    <div id="g_id_onload"
+         data-client_id="86510000932-590nj1s4s65ros7lk29e3agvk7gnb23v.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-size="large"></div>
+  </div>
+
+  <h2>Result:</h2>
+  <div id="result" class="result">Waiting for sign-in...</div>
+
+  <script>
+    function handleCredentialResponse(response) {
+      console.log("✅ Received Google ID token: ", response.credential);
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = '⏳ Sending token to backend (http://localhost:3000/auth/google)...';
+      resultDiv.className = 'result';
+
+      // Send the ID token to your backend
+      fetch('http://localhost:3000/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idToken: response.credential
+        })
+      })
+      .then(res => {
+        console.log("📡 Backend response status:", res.status);
+        if (!res.ok) {
+          return res.json().then(err => {
+            throw new Error(JSON.stringify(err, null, 2));
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('✅ Success:', data);
+        resultDiv.className = 'result success';
+        resultDiv.textContent = '✅ SUCCESS! Authentication worked!\n\n' +
+                                '=== Backend Response ===\n' +
+                                JSON.stringify(data, null, 2);
+
+        // Save the JWT token
+        localStorage.setItem('jwt', data.access_token);
+        console.log('💾 JWT saved to localStorage');
+
+        // Test the protected endpoint after a short delay
+        setTimeout(() => testProtectedEndpoint(data.access_token), 1000);
+      })
+      .catch((error) => {
+        console.error('❌ Error:', error);
+        resultDiv.className = 'result error';
+        resultDiv.textContent = '❌ ERROR!\n\n' + error.message + '\n\n' +
+                                'Common issues:\n' +
+                                '1. Backend not running on port 3000\n' +
+                                '2. Wrong GOOGLE_CLIENT_ID in .env\n' +
+                                '3. Gmail address not in database\n' +
+                                '4. Not added as test user in Google Cloud Console';
+      });
+    }
+
+    function testProtectedEndpoint(token) {
+      console.log('🔒 Testing protected endpoint /users/me...');
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent += '\n\n⏳ Testing protected endpoint...';
+
+      fetch('http://localhost:3000/users/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(res => {
+        console.log("📡 Protected endpoint status:", res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log('✅ Protected endpoint response:', data);
+        resultDiv.textContent += '\n\n' +
+                                 '=== Protected Endpoint Test ===\n' +
+                                 'GET /users/me (with JWT)\n\n' +
+                                 JSON.stringify(data, null, 2) + '\n\n' +
+                                 '✅ ALL TESTS PASSED!\n' +
+                                 '🎉 Phase 2 authentication is working correctly!';
+      })
+      .catch(err => {
+        console.error('❌ Protected endpoint error:', err);
+        resultDiv.textContent += '\n\n❌ Protected endpoint failed: ' + err.message;
+      });
+    }
+
+    // Check if backend is reachable on page load
+    window.addEventListener('load', () => {
+      fetch('http://localhost:3000/health')
+        .then(res => res.json())
+        .then(data => {
+          console.log('✅ Backend health check passed:', data);
+        })
+        .catch(err => {
+          console.error('❌ Backend health check failed:', err);
+          const resultDiv = document.getElementById('result');
+          resultDiv.className = 'result error';
+          resultDiv.textContent = '❌ Cannot connect to backend!\n\n' +
+                                  'Make sure the NestJS backend is running:\n' +
+                                  '  cd /Users/steve/IntelliJProjects/fitnessjiffy-spring/backend\n' +
+                                  '  npm run start:dev';
+        });
+    });
+  </script>
+</body>
+</html>
