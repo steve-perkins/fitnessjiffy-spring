@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Export MySQL data via SSH tunnel with UUIDs as HEX strings
+Export MySQL data via SSH tunnel and convert to PostgreSQL format
 
 Connects to remote MySQL server through SSH tunnel and exports
-all tables with UUID columns converted to HEX format for easy
-conversion to PostgreSQL.
+all tables, producing both raw CSV files and PostgreSQL-ready
+CSV files with proper UUID format, column renaming, and table
+name mapping.
 
 Usage:
     python3 export_mysql_via_ssh.py
@@ -15,6 +16,8 @@ import argparse
 import csv
 import getpass
 import sys
+import uuid
+from datetime import datetime
 from pathlib import Path
 
 try:
@@ -29,6 +32,17 @@ except ImportError:
 MYSQL_HOST = '127.0.0.1'
 MYSQL_PORT = 3306
 
+# Table name mapping: MySQL → PostgreSQL
+TABLE_NAME_MAPPING = {
+    'fitnessjiffy_user': 'users',
+    'food': 'foods',
+    'food_eaten': 'foods_eaten',
+    'exercise': 'exercises',
+    'exercise_performed': 'exercises_performed',
+    'weight': 'weights',
+    'report_data': 'report_entries',
+}
+
 # Tables and their UUID columns
 TABLES_WITH_UUIDS = {
     'fitnessjiffy_user': ['id'],
@@ -40,11 +54,65 @@ TABLES_WITH_UUIDS = {
     'report_data': ['id', 'user_id'],
 }
 
+# Timestamp columns (across all tables)
+TIMESTAMP_COLUMNS = {'created_time', 'last_updated_time'}
+
+
+def binary_to_uuid(hex_str):
+    """Convert MySQL HEX UUID to standard UUID format
+
+    The HEX() function gives us 32-character hex strings. We convert these
+    to standard UUID format with hyphens.
+    """
+    if not hex_str or hex_str in ('NULL', '\\N', ''):
+        return None
+
+    try:
+        # Remove any whitespace
+        hex_str = hex_str.strip()
+
+        # MySQL HEX() function returns 32-character hex string
+        if len(hex_str) == 32:
+            # Convert hex string to UUID
+            return str(uuid.UUID(hex=hex_str))
+        else:
+            print(f"Warning: UUID wrong length: {len(hex_str)} chars (expected 32)", file=sys.stderr)
+            return None
+    except (ValueError, AttributeError) as e:
+        print(f"Warning: Could not convert UUID '{hex_str}': {e}", file=sys.stderr)
+        return None
+
+
+def convert_timestamp(timestamp_value):
+    """Convert MySQL TIMESTAMP to PostgreSQL TIMESTAMP WITH TIME ZONE format"""
+    if not timestamp_value or timestamp_value in ('NULL', '\\N', ''):
+        return None
+
+    # If it's already a datetime object (from PyMySQL cursor), convert directly
+    if isinstance(timestamp_value, datetime):
+        return timestamp_value.isoformat()
+
+    # If it's a string, parse it first
+    try:
+        # MySQL format: YYYY-MM-DD HH:MM:SS
+        dt = datetime.strptime(timestamp_value, '%Y-%m-%d %H:%M:%S')
+        # PostgreSQL format (ISO 8601)
+        return dt.isoformat()
+    except ValueError:
+        # Try alternative format
+        try:
+            dt = datetime.fromisoformat(timestamp_value)
+            return dt.isoformat()
+        except:
+            print(f"Warning: Could not parse timestamp: {timestamp_value}", file=sys.stderr)
+            return timestamp_value
+
 
 def export_table(connection, table_name, uuid_columns):
-    """Export a table with UUIDs converted to HEX strings"""
+    """Export a table with UUIDs converted to HEX strings, producing both raw and PostgreSQL-ready CSVs"""
 
-    print(f"Exporting {table_name}...", end=' ', flush=True)
+    postgres_table_name = TABLE_NAME_MAPPING[table_name]
+    print(f"Exporting {table_name} → {postgres_table_name}...", end=' ', flush=True)
 
     with connection.cursor() as cursor:
         # Get column names
@@ -64,20 +132,72 @@ def export_table(connection, table_name, uuid_columns):
         # Execute query
         cursor.execute(select_sql)
 
-        # Write to CSV
-        output_file = f"{table_name}.csv"
-        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
+        # Prepare column names for PostgreSQL output
+        pg_columns = list(columns)
 
-            # Write header
-            writer.writerow(columns)
+        # Special handling for fitnessjiffy_user: rename gender → sex
+        if table_name == 'fitnessjiffy_user':
+            if 'gender' in pg_columns:
+                pg_columns[pg_columns.index('gender')] = 'sex'
+
+        # Special handling for report_data: remove net_points
+        if table_name == 'report_data':
+            if 'net_points' in pg_columns:
+                pg_columns.remove('net_points')
+
+        # Write both CSV files
+        raw_output_file = f"{table_name}.csv"
+        pg_output_file = f"{postgres_table_name}_pg.csv"
+
+        with open(raw_output_file, 'w', newline='', encoding='utf-8') as raw_csvfile, \
+             open(pg_output_file, 'w', newline='', encoding='utf-8') as pg_csvfile:
+
+            # Raw CSV writer
+            raw_writer = csv.writer(raw_csvfile)
+            raw_writer.writerow(columns)
+
+            # PostgreSQL CSV writer
+            pg_writer = csv.DictWriter(pg_csvfile, fieldnames=pg_columns)
+            pg_writer.writeheader()
 
             # Write data
             row_count = 0
             for row in cursor:
-                # Convert None to empty string for CSV
+                # Write raw CSV
                 cleaned_row = ['' if val is None else val for val in row]
-                writer.writerow(cleaned_row)
+                raw_writer.writerow(cleaned_row)
+
+                # Convert for PostgreSQL CSV
+                pg_row = {}
+                for i, col in enumerate(columns):
+                    # Handle renamed column
+                    pg_col = 'sex' if col == 'gender' and table_name == 'fitnessjiffy_user' else col
+
+                    # Skip net_points if it's report_data
+                    if col == 'net_points' and table_name == 'report_data':
+                        continue
+
+                    value = row[i]
+
+                    # Convert empty strings to None for processing
+                    if value == '':
+                        value = None
+
+                    # Convert UUIDs
+                    if col in uuid_columns:
+                        value = binary_to_uuid(value)
+
+                    # Convert timestamps
+                    elif col in TIMESTAMP_COLUMNS:
+                        value = convert_timestamp(value)
+
+                    # Handle NULL values
+                    if value in ('NULL', '\\N', None):
+                        value = ''  # PostgreSQL COPY treats empty as NULL
+
+                    pg_row[pg_col] = value if value is not None else ''
+
+                pg_writer.writerow(pg_row)
                 row_count += 1
 
         print(f"✓ {row_count} rows")
@@ -312,11 +432,14 @@ def main():
         ssh_client.close()
 
         print(f"\n{'='*60}")
-        print(f"Export complete! {total_rows} total rows exported.")
+        print(f"Export and conversion complete! {total_rows} total rows exported.")
         print(f"{'='*60}\n")
-        print("Next steps:")
-        print("1. Run: python3 convert_mysql_to_postgres.py")
-        print("2. Run: ./import_postgres.sh")
+        print("Generated files:")
+        print("  Raw MySQL CSVs: <table>.csv")
+        print("  PostgreSQL-ready CSVs: <table>_pg.csv")
+        print()
+        print("Next step:")
+        print("  Run: python3 import_postgres.py")
 
     except Exception as e:
         print(f"\n✗ Error: {e}", file=sys.stderr)

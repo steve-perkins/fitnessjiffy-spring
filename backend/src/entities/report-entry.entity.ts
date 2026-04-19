@@ -5,8 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -20,18 +18,25 @@ export class ReportEntry {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'date' })
+  @Column({
+    type: 'date',
+    transformer: {
+      to: (value: Date | string): string => {
+        if (!value) return value as string;
+        const date = value instanceof Date ? value : new Date(value);
+        return date.toISOString().split('T')[0];
+      },
+      from: (value: string): Date => {
+        if (!value) return value as any;
+        return new Date(value + 'T00:00:00.000Z');
+      },
+    },
+  })
   date: Date;
 
   @Column({ type: 'float' })
   pounds: number;
 
-  @Column({ type: 'float', name: 'net_calories' })
+  @Column({ type: 'int', name: 'net_calories' })
   netCalories: number;
-
-  @CreateDateColumn({ name: 'created_time' })
-  createdTime: Date;
-
-  @UpdateDateColumn({ name: 'last_updated_time' })
-  lastUpdatedTime: Date;
 }

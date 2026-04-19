@@ -5,8 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -20,15 +18,24 @@ export class Weight {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'date' })
+  @Column({
+    type: 'date',
+    transformer: {
+      to: (value: Date | string): string => {
+        if (!value) return value as string;
+        // Extract YYYY-MM-DD from ISO string or Date object in UTC
+        const date = value instanceof Date ? value : new Date(value);
+        return date.toISOString().split('T')[0];
+      },
+      from: (value: string): Date => {
+        if (!value) return value as any;
+        // Parse as UTC date at midnight
+        return new Date(value + 'T00:00:00.000Z');
+      },
+    },
+  })
   date: Date;
 
   @Column({ type: 'float' })
   pounds: number;
-
-  @CreateDateColumn({ name: 'created_time' })
-  createdTime: Date;
-
-  @UpdateDateColumn({ name: 'last_updated_time' })
-  lastUpdatedTime: Date;
 }

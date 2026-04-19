@@ -27,6 +27,8 @@ services:
       - "shared_buffers=256MB"
       - "-c"
       - "work_mem=16MB"
+      - "-c"
+      - "timezone=UTC"
 
   # Optional: pgAdmin for GUI database management
   pgadmin:

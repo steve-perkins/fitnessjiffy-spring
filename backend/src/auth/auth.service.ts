@@ -64,4 +64,43 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Google token');
     }
   }
+
+  /**
+   * DEVELOPMENT ONLY: Generate JWT for testing without Google OAuth
+   * This endpoint should be disabled in production via environment variable
+   */
+  async generateTestToken(email: string) {
+    // Only allow in development environment
+    if (this.configService.get('NODE_ENV') === 'production') {
+      throw new UnauthorizedException(
+        'Test token generation is disabled in production',
+      );
+    }
+
+    // Find user by email
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Generate JWT with user information
+    const jwtPayload = {
+      sub: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
+    const accessToken = this.jwtService.sign(jwtPayload);
+
+    return {
+      access_token: accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    };
+  }
 }

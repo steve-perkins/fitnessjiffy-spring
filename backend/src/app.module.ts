@@ -7,6 +7,10 @@ import { validationSchema } from './config/validation.schema';
 import { getDatabaseConfig } from './config/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { WeightsModule } from './weights/weights.module';
+import { ReportEntriesModule } from './report-entries/report-entries.module';
+import { FoodsModule } from './foods/foods.module';
+import { ExercisesModule } from './exercises/exercises.module';
 
 @Module({
   imports: [
@@ -22,6 +26,10 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    WeightsModule,
+    ReportEntriesModule,
+    FoodsModule,
+    ExercisesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

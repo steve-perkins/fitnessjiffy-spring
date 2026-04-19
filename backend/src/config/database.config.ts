@@ -14,4 +14,7 @@ export const getDatabaseConfig = (
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false, // NEVER true in production
   logging: configService.get('NODE_ENV') === 'development',
+  extra: {
+    timezone: 'UTC', // Force UTC timezone for all date operations
+  },
 });

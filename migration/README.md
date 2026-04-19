@@ -26,19 +26,21 @@ report_data                   →  report_entries
 
 **Migration Steps**:
 1. Set up local PostgreSQL
-2. Export MySQL data via SSH tunnel
-3. Convert CSV files (handles table renaming)
-4. Import to PostgreSQL
-5. Validate data integrity
-6. Update user email to Gmail
+2. Export MySQL data via SSH tunnel (automatically converts to PostgreSQL format)
+3. Import to PostgreSQL
+4. Validate data integrity
+5. Update user email to Gmail
 
 ---
 
 ## Prerequisites
 
 - Docker and Docker Compose
-- Python 3.7+
-- DBeaver (for MySQL export)
+- Python 3.7+ with packages:
+  - `paramiko` (SSH connection)
+  - `pymysql` (MySQL client)
+  - Install: `pip3 install paramiko pymysql`
+- SSH access to production MySQL server
 - Access to production MySQL database
 
 ---
@@ -77,101 +79,73 @@ Access pgAdmin at: http://localhost:5050 (admin@localhost / admin)
 
 ---
 
-## Step 2: Export MySQL Data Using DBeaver
+## Step 2: Export and Convert MySQL Data via SSH Tunnel
 
-### Connect to MySQL Database
-
-1. Open DBeaver
-2. Create connection to your production MySQL database
-   - Configure SSL settings as needed
-   - Test connection
-
-### Export Each Table to CSV
-
-For each of the following tables, export to CSV:
-
-- `fitnessjiffy_user`
-- `food`
-- `food_eaten`
-- `exercise`
-- `exercise_performed`
-- `weight`
-- `report_data`
-
-### Export Instructions (Per Table):
-
-1. **Select the table** in Database Navigator
-2. **Right-click** → **Export Data**
-3. Choose **CSV** format
-4. Click **Next**
-5. Configure export settings:
-   - **Format**: CSV
-   - **Header**: Check "Export header"
-   - **Delimiter**: Comma (`,`)
-   - **Quote character**: Double quote (`"`)
-   - **Null string**: `NULL` or leave empty
-   - **Encoding**: UTF-8
-6. **Output file**: Save to `migration/` directory as `<table_name>.csv`
-   - Example: `fitnessjiffy_user.csv`
-7. Click **Proceed** → **Start**
-
-### Example for fitnessjiffy_user:
-
-1. Right-click `fitnessjiffy_user` table
-2. Export Data → CSV
-3. Save as: `/path/to/migration/fitnessjiffy_user.csv`
-4. Ensure "Export header" is checked
-
-Repeat for all 7 tables.
-
-### Verify Exports
-
-After exporting, you should have:
-
-```
-migration/
-├── fitnessjiffy_user.csv
-├── food.csv
-├── food_eaten.csv
-├── exercise.csv
-├── exercise_performed.csv
-├── weight.csv
-└── report_data.csv
-```
-
----
-
-## Step 3: Convert CSV Files
-
-Run the Python conversion script:
+Run the Python export script:
 
 ```bash
 cd migration
-python3 convert_mysql_to_postgres.py
+python3 export_mysql_via_ssh.py
 ```
 
-This script will:
-- Convert `BINARY(16)` UUIDs to string format
-- Rename `gender` → `sex` in user table
-- Remove `net_points` from report_data
-- Convert timestamps to ISO format
-- Output PostgreSQL-compatible CSV files (`*_pg.csv`)
+The script will prompt you for:
+- SSH host, user, and key file
+- SSH key passphrase (if applicable)
+- MySQL user, password, and database name
 
-**Output files**:
+Alternatively, provide credentials as command-line arguments:
+
+```bash
+python3 export_mysql_via_ssh.py \
+  --ssh-host your-host.com \
+  --ssh-user your-user \
+  --ssh-keyfile ~/.ssh/id_rsa \
+  --mysql-user mysql_user \
+  --mysql-database database_name
 ```
-migration/
-├── fitnessjiffy_user_pg.csv
-├── food_pg.csv
-├── food_eaten_pg.csv
-├── exercise_pg.csv
-├── exercise_performed_pg.csv
-├── weight_pg.csv
-└── report_data_pg.csv
-```
+
+### What This Script Does
+
+The script connects to your MySQL database through an SSH tunnel and:
+
+1. **Exports raw CSV files** (for backup):
+   - `fitnessjiffy_user.csv`
+   - `food.csv`
+   - `food_eaten.csv`
+   - `exercise.csv`
+   - `exercise_performed.csv`
+   - `weight.csv`
+   - `report_data.csv`
+
+2. **Converts and exports PostgreSQL-ready CSV files**:
+   - Converts `BINARY(16)` UUIDs to standard UUID format
+   - Renames `gender` → `sex` in user table
+   - Removes `net_points` from report_data
+   - Converts timestamps to ISO 8601 format
+   - Applies table name mapping (singular → plural)
+
+3. **Output files**:
+   ```
+   migration/
+   ├── fitnessjiffy_user.csv      # Raw MySQL export
+   ├── users_pg.csv                # PostgreSQL-ready
+   ├── food.csv
+   ├── foods_pg.csv
+   ├── food_eaten.csv
+   ├── foods_eaten_pg.csv
+   ├── exercise.csv
+   ├── exercises_pg.csv
+   ├── exercise_performed.csv
+   ├── exercises_performed_pg.csv
+   ├── weight.csv
+   ├── weights_pg.csv
+   ├── report_data.csv
+   └── report_entries_pg.csv
+   ```
 
 ---
 
-## Step 4: Import to PostgreSQL
+## Step 3: Import to PostgreSQL
 
 **Option 1: Using Python script** (Recommended - no psql required):
 
@@ -207,7 +181,7 @@ Both scripts import tables in dependency order (using new plural names):
 
 ---
 
-## Step 5: Validate Data Integrity
+## Step 4: Validate Data Integrity
 
 ### Connect to PostgreSQL
 
@@ -336,7 +310,7 @@ Should match exactly.
 
 ---
 
-## Step 6: Update User Email
+## Step 5: Update User Email
 
 Update the user's email to their Gmail address and clear password:
 
@@ -361,7 +335,7 @@ SELECT id, email, password_hash FROM users;
 
 ---
 
-## Step 7: Create Backup
+## Step 6: Create Backup
 
 Once validated, create a PostgreSQL backup:
 
@@ -372,6 +346,18 @@ docker-compose -f docker-compose.postgres.yml exec postgres \
 ```
 
 This creates a compressed backup file.
+
+---
+
+## Notes
+
+### Standalone Conversion Script
+
+The `convert_mysql_to_postgres.py` script is still available for standalone use if you need to:
+- Re-convert existing MySQL CSV exports
+- Convert CSV files obtained through other means (e.g., DBeaver, mysqldump)
+
+However, the `export_mysql_via_ssh.py` script now handles both export and conversion automatically, making the standalone converter unnecessary for most workflows.
 
 ---
 
@@ -392,13 +378,22 @@ docker-compose -f docker-compose.postgres.yml logs postgres
 docker-compose -f docker-compose.postgres.yml restart postgres
 ```
 
+### SSH Connection Issues
+
+If the export script fails to connect:
+
+1. Verify SSH credentials and key file path
+2. Test SSH connection manually: `ssh -i ~/.ssh/your-key user@host`
+3. Check if SSH key requires a passphrase
+4. Ensure remote MySQL server is running
+
 ### UUID Conversion Errors
 
-If UUIDs don't convert properly, check the export format:
+If UUIDs don't convert properly:
 
-1. Open one of the original CSV files (`fitnessjiffy_user.csv`)
-2. Check the `id` column format
-3. If it's not hex (e.g., shows as binary garbage), try re-exporting with different settings in DBeaver
+1. Check the raw CSV files (`fitnessjiffy_user.csv`) for proper hex values
+2. Verify the MySQL export used `HEX()` function for UUID columns
+3. Review error messages in the script output for specific conversion failures
 
 ### Import Fails Due to Foreign Keys
 
@@ -419,8 +414,11 @@ Tables must be imported in dependency order (handled by `import_postgres.py`):
 ### Remove CSV Files (After Successful Migration)
 
 ```bash
-# Keep backups, remove working files
-rm *_pg.csv  # Keep originals for safety
+# Remove PostgreSQL CSV files (keep raw MySQL exports for backup)
+rm *_pg.csv
+
+# Or remove all CSV files if you have a database backup
+rm *.csv
 ```
 
 ### Stop PostgreSQL

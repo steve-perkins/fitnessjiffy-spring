@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('exercises')
 export class Exercise {
@@ -22,10 +16,4 @@ export class Exercise {
 
   @Column({ type: 'varchar', length: 250 })
   description: string;
-
-  @CreateDateColumn({ name: 'created_time' })
-  createdTime: Date;
-
-  @UpdateDateColumn({ name: 'last_updated_time' })
-  lastUpdatedTime: Date;
 }

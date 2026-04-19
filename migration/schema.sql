@@ -21,6 +21,7 @@ DROP TYPE IF EXISTS sex_enum CASCADE;
 DROP TYPE IF EXISTS serving_type_enum CASCADE;
 
 -- Enable extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";  -- UUID generation functions
 CREATE EXTENSION IF NOT EXISTS pg_trgm;  -- Trigram similarity for fuzzy search
 
 -- Create enums
@@ -39,7 +40,7 @@ CREATE TYPE serving_type_enum AS ENUM (
 
 -- Users table
 CREATE TABLE users (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     sex sex_enum NOT NULL,
     birthdate DATE NOT NULL,
     height_in_inches DOUBLE PRECISION NOT NULL,
@@ -57,7 +58,7 @@ CREATE INDEX idx_user_email ON users(email);
 
 -- Foods table
 CREATE TABLE foods (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(50) NOT NULL,
     default_serving_type serving_type_enum NOT NULL,
@@ -82,7 +83,7 @@ CREATE INDEX idx_foods_name_trgm ON foods USING GIN (name gin_trgm_ops);  -- For
 
 -- Foods eaten (junction table)
 CREATE TABLE foods_eaten (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     food_id UUID NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
     date DATE NOT NULL,
@@ -96,7 +97,7 @@ CREATE INDEX idx_food_eaten_date ON foods_eaten(date);
 
 -- Exercises table
 CREATE TABLE exercises (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code VARCHAR(5) NOT NULL,
     metabolic_equivalent DOUBLE PRECISION NOT NULL,
     category VARCHAR(25) NOT NULL,
@@ -110,7 +111,7 @@ CREATE INDEX idx_exercises_desc_trgm ON exercises USING GIN (description gin_trg
 
 -- Exercises performed (junction table)
 CREATE TABLE exercises_performed (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
     date DATE NOT NULL,
@@ -123,7 +124,7 @@ CREATE INDEX idx_exercise_performed_date ON exercises_performed(date);
 
 -- Weights table
 CREATE TABLE weights (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     date DATE NOT NULL,
     pounds DOUBLE PRECISION NOT NULL,
@@ -136,7 +137,7 @@ CREATE INDEX idx_weight_date ON weights(date);
 -- Report entries table (denormalized daily summaries)
 -- NOTE: net_points column removed - tracking calories only
 CREATE TABLE report_entries (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     date DATE NOT NULL,
     pounds DOUBLE PRECISION NOT NULL DEFAULT 0,

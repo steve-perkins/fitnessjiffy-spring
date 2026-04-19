@@ -17,7 +17,21 @@ export class User {
   @Column({ type: 'varchar', length: 10 })
   sex: Sex;
 
-  @Column({ type: 'date', name: 'birthdate' })
+  @Column({
+    type: 'date',
+    name: 'birthdate',
+    transformer: {
+      to: (value: Date | string): string => {
+        if (!value) return value as string;
+        const date = value instanceof Date ? value : new Date(value);
+        return date.toISOString().split('T')[0];
+      },
+      from: (value: string): Date => {
+        if (!value) return value as any;
+        return new Date(value + 'T00:00:00.000Z');
+      },
+    },
+  })
   birthdate: Date;
 
   @Column({ type: 'float', name: 'height_in_inches' })
