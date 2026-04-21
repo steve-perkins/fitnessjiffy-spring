@@ -6,6 +6,7 @@ target
 .idea
 .gradle
 .venv
+.env
 fitnessjiffy-spring.iml
 sqlite.db
 h2test.h2.db

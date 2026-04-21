@@ -97,9 +97,12 @@ export class FoodsService {
       );
     }
 
+    const now = new Date();
     const food = this.foodRepository.create({
       ...createFoodDto,
       owner: { id: userId },
+      createdTime: now,
+      lastUpdatedTime: now,
     });
 
     return this.foodRepository.save(food);
@@ -269,7 +272,7 @@ export class FoodsService {
     return this.foodEatenRepository
       .createQueryBuilder('foodEaten')
       .leftJoinAndSelect('foodEaten.food', 'food')
-      .where('foodEaten.userId = :userId', { userId })
+      .where('"foodEaten"."user_id" = :userId', { userId })
       .andWhere('foodEaten.date >= :startDate', { startDate })
       .andWhere('foodEaten.date <= :endDate', { endDate })
       .orderBy('foodEaten.date', 'DESC')

@@ -88,7 +88,7 @@ export class ExercisesService {
     return this.exercisePerformedRepository
       .createQueryBuilder('exercisePerformed')
       .leftJoinAndSelect('exercisePerformed.exercise', 'exercise')
-      .where('exercisePerformed.userId = :userId', { userId })
+      .where('"exercisePerformed"."user_id" = :userId', { userId })
       .andWhere('exercisePerformed.date >= :startDate', { startDate })
       .andWhere('exercisePerformed.date <= :endDate', { endDate })
       .orderBy('exercisePerformed.date', 'DESC')

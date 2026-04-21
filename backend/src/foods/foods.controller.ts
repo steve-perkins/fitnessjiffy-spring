@@ -261,6 +261,13 @@ export class FoodsController {
         defaultServingType: foodEaten.food.defaultServingType,
         servingTypeQty: foodEaten.food.servingTypeQty,
         calories: foodEaten.food.calories,
+        fat: foodEaten.food.fat,
+        saturatedFat: foodEaten.food.saturatedFat,
+        carbs: foodEaten.food.carbs,
+        fiber: foodEaten.food.fiber,
+        sugar: foodEaten.food.sugar,
+        protein: foodEaten.food.protein,
+        sodium: foodEaten.food.sodium,
       },
     }));
   }
