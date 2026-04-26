@@ -15,6 +15,7 @@ Usage:
 import argparse
 import csv
 import getpass
+import os
 import sys
 import uuid
 from datetime import datetime
@@ -23,10 +24,14 @@ from pathlib import Path
 try:
     import paramiko
     import pymysql
+    from dotenv import load_dotenv
 except ImportError:
     print("Required packages not installed.")
-    print("Run: pip3 install paramiko pymysql")
+    print("Run: pip3 install paramiko pymysql python-dotenv")
     sys.exit(1)
+
+# Load .env file from current directory (if it exists)
+load_dotenv()
 
 
 MYSQL_HOST = '127.0.0.1'
@@ -207,57 +212,74 @@ def export_table(connection, table_name, uuid_columns):
 
 def main():
     parser = argparse.ArgumentParser(description='Export MySQL data via SSH tunnel')
-    parser.add_argument('--ssh-host', help='SSH host (will prompt if not provided)')
-    parser.add_argument('--ssh-user', help='SSH user (will prompt if not provided)')
-    parser.add_argument('--ssh-keyfile', help='SSH key file (will prompt if not provided)')
-    parser.add_argument('--ssh-passphrase', help='SSH key passphrase (will prompt if not provided)')
-    parser.add_argument('--mysql-user', help='MySQL user (will prompt if not provided)')
-    parser.add_argument('--mysql-password', help='MySQL password (will prompt if not provided)')
-    parser.add_argument('--mysql-database', help='MySQL database (will prompt if not provided)')
+    parser.add_argument('--ssh-host', help='SSH host (env: SSH_HOST)')
+    parser.add_argument('--ssh-user', help='SSH user (env: SSH_USER)')
+    parser.add_argument('--ssh-keyfile', help='SSH key file (env: SSH_KEYFILE)')
+    parser.add_argument('--ssh-passphrase', help='SSH key passphrase (env: SSH_PASSPHRASE)')
+    parser.add_argument('--mysql-user', help='MySQL user (env: MYSQL_USER)')
+    parser.add_argument('--mysql-password', help='MySQL password (env: MYSQL_PASSWORD)')
+    parser.add_argument('--mysql-database', help='MySQL database (env: MYSQL_DATABASE)')
     args = parser.parse_args()
 
-    def get_required_text(value, prompt, field_name):
-        text = value.strip() if value is not None else input(prompt).strip()
-        if not text:
-            print(f"Error: {field_name} cannot be blank.")
+    def get_value(arg_value, env_var, prompt, required=True, is_password=False):
+        """Get value from: CLI arg -> env var -> user prompt (in that order)"""
+        # First check CLI argument
+        if arg_value is not None:
+            value = arg_value.strip()
+            if value:
+                return value
+
+        # Then check environment variable
+        env_value = os.environ.get(env_var)
+        if env_value is not None:
+            value = env_value.strip()
+            if value:
+                return value
+
+        # Finally, prompt the user
+        if is_password:
+            value = getpass.getpass(prompt)
+        else:
+            value = input(prompt).strip()
+
+        if required and not value:
+            print(f"Error: {env_var} cannot be blank.")
             sys.exit(1)
-        return text
+
+        return value
 
     # Get SSH host
-    ssh_host = get_required_text(args.ssh_host, "SSH host: ", "SSH host")
+    ssh_host = get_value(args.ssh_host, 'SSH_HOST', "SSH host: ")
 
     # Get SSH user
-    ssh_user = get_required_text(args.ssh_user, "SSH user: ", "SSH user")
+    ssh_user = get_value(args.ssh_user, 'SSH_USER', "SSH user: ")
 
     # Get SSH keyfile
-    if args.ssh_keyfile:
-        ssh_keyfile_input = args.ssh_keyfile.strip()
-    else:
-        ssh_keyfile_input = input("SSH keyfile: ").strip()
-
-    if not ssh_keyfile_input:
-        print("Error: SSH keyfile path cannot be blank.")
-        sys.exit(1)
-
+    ssh_keyfile_input = get_value(args.ssh_keyfile, 'SSH_KEYFILE', "SSH keyfile: ")
     ssh_keyfile = Path(ssh_keyfile_input).expanduser()
 
-    # Get SSH passphrase
-    if args.ssh_passphrase:
-        ssh_passphrase = args.ssh_passphrase
-    else:
-        ssh_passphrase = getpass.getpass(f"SSH key passphrase for {ssh_keyfile} (hit Enter if there is no passphrase): ")
+    # Get SSH passphrase (not required - key may not have passphrase)
+    ssh_passphrase = get_value(
+        args.ssh_passphrase,
+        'SSH_PASSPHRASE',
+        f"SSH key passphrase for {ssh_keyfile} (hit Enter if there is no passphrase): ",
+        required=False,
+        is_password=True
+    )
 
     # Get MySQL user
-    mysql_user = get_required_text(args.mysql_user, "MySQL user: ", "MySQL user")
+    mysql_user = get_value(args.mysql_user, 'MYSQL_USER', "MySQL user: ")
 
     # Get MySQL password
-    if args.mysql_password:
-        mysql_password = args.mysql_password
-    else:
-        mysql_password = getpass.getpass(f"MySQL password for {mysql_user}@{MYSQL_HOST}: ")
+    mysql_password = get_value(
+        args.mysql_password,
+        'MYSQL_PASSWORD',
+        f"MySQL password for {mysql_user}@{MYSQL_HOST}: ",
+        is_password=True
+    )
 
     # Get MySQL database
-    mysql_database = get_required_text(args.mysql_database, "MySQL database: ", "MySQL database")
+    mysql_database = get_value(args.mysql_database, 'MYSQL_DATABASE', "MySQL database: ")
 
     # Verify SSH key exists
     if not ssh_keyfile.exists():

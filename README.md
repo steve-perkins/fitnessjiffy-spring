@@ -1,5 +1,10 @@
 # FitnessJiffy (Java / Spring Framework version)
 
+**NOTE:** This branch is not intended to be merged back into `main`.  It contains the initial migration work to port
+this Spring Boot application to the new backend and SPA frontend, which now lives in the 
+https://github.com/steve-perkins/fitnesstracker repo.
+
+
 * [Intro and Background](#intro-and-background)
 * [Technologies Used](#technologies-used)
 * [Previous Technologies Used Along the Way](#previous-technologies-used-along-the-way)
