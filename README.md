@@ -1,5 +1,12 @@
 # FitnessJiffy (Java / Spring Framework version)
 
+**NOTE:** This project is retired.  It has been ported to separate backend API and frontend SPA
+implementations, and the original monolithic version is no longer being maintained.  However, the 
+code is still available here for reference purposes.  The initial porting work can be found in 
+the "modernization" branch, and the currently-maintained implementation is hosted in the
+https://github.com/steve-perkins/fitnesstracker repository.
+
+
 * [Intro and Background](#intro-and-background)
 * [Technologies Used](#technologies-used)
 * [Previous Technologies Used Along the Way](#previous-technologies-used-along-the-way)

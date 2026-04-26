@@ -12,3 +12,7 @@ h2test.mv.db
 h2test.lock.db
 h2test.trace.db
 h2test.trace.db.old
+
+backend
+migration
+web
